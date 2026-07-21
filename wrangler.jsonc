@@ -1,13 +1,20 @@
 {
-  "main": "dist/_worker.js/index.js",
-  "name": "nuclear-neptune",
+  // IMPORTANT: do NOT add `main` or `assets.directory` here.
+  //
+  // @astrojs/cloudflare generates the real worker entry + assets directory into
+  // dist/server/wrangler.json at build time (main: entry.mjs, assets: ../client),
+  // merging in the top-level fields below. A self-referential
+  // `main: "dist/_worker.js/index.js"` makes `npm run build` fail with
+  // "Wrangler config main field ... doesn't point to an existing file" because
+  // the bundled @cloudflare/vite-plugin validates `main` before the build has
+  // produced any output. Deploys read the generated dist/server/wrangler.json.
+  "name": "troth",
   "compatibility_date": "2026-02-27",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
-    "binding": "ASSETS",
-    "directory": "./dist",
+    "binding": "ASSETS"
   },
   "observability": {
-    "enabled": true,
-  },
+    "enabled": true
+  }
 }
