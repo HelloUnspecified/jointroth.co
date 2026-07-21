@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Troth">
+  <rect width="64" height="64" rx="14" fill="#F4EFE6"/>
+  <path d="M24.5 14.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z" fill="#A24B34" transform="translate(0 6)"/>
+  <path d="M45.5 14.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z" fill="#7A2E39" transform="translate(0 6)"/>
+</svg>

@@ -9,14 +9,15 @@ interface Props {
   jsonLd?: Record<string, unknown>;
 }
 
-const SITE_URL = "https://joinrehuman.com";
-const SITE_NAME = "re/Human";
+const SITE_URL = "https://jointroth.co";
+const SITE_NAME = "Troth";
+const DEFAULT_TITLE = "Troth — a private, encrypted home for your marriage";
 const DEFAULT_DESCRIPTION =
-  "In the age of AI, your only unfair advantage is your people. re/Human builds systems that scale authentic connection.";
+  "A private, encrypted home for your marriage — where the conversations, memories, letters, and promises you're keeping all live in one place. Coming to iPhone.";
 const DEFAULT_OG_IMAGE = "/og-image.png";
 
 const {
-  title = SITE_NAME,
+  title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
   canonical,
   ogImage = DEFAULT_OG_IMAGE,
@@ -25,7 +26,7 @@ const {
   jsonLd,
 } = Astro.props;
 
-const pageTitle = title === SITE_NAME ? SITE_NAME : title;
+const pageTitle = title;
 const canonicalURL = canonical || new URL(Astro.url.pathname, SITE_URL).href;
 const ogImageURL = ogImage.startsWith("http")
   ? ogImage
@@ -33,8 +34,8 @@ const ogImageURL = ogImage.startsWith("http")
 
 const structuredData = jsonLd || {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "re/Human",
+  "@type": "WebSite",
+  name: SITE_NAME,
   url: SITE_URL,
   description: DEFAULT_DESCRIPTION,
   founder: {
@@ -47,9 +48,15 @@ const structuredData = jsonLd || {
 <title>{pageTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalURL} />
-{noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow" />}
+{
+  noindex ? (
+    <meta name="robots" content="noindex, nofollow" />
+  ) : (
+    <meta name="robots" content="index, follow" />
+  )
+}
 <meta name="author" content="Clark Sell" />
-<meta name="theme-color" content="#1A1A2E" />
+<meta name="theme-color" content="#f4efe6" />
 
 <!-- Open Graph -->
 <meta property="og:title" content={pageTitle} />
@@ -61,13 +68,13 @@ const structuredData = jsonLd || {
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:site" content="@joinrehuman" />
 <meta name="twitter:title" content={pageTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImageURL} />
 
 <!-- Structured Data -->
-<script is:inline
+<script
+  is:inline
   type="application/ld+json"
   set:html={JSON.stringify(structuredData)}
 />

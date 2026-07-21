@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
-/* Self-hosted fonts via @fontsource (eliminates Google Fonts CDN roundtrip) */
-/* Inter: body font — only latin subset, only weights used */
-@import "@fontsource/inter/latin-300.css";
-@import "@fontsource/inter/latin-400.css";
-@import "@fontsource/inter/latin-500.css";
-@import "@fontsource/inter/latin-600.css";
-@import "@fontsource/inter/latin-700.css";
+/* Self-hosted Troth webfonts via @fontsource (no Google Fonts CDN roundtrip —
+   the landing page targets sub-1s LCP).
+   Newsreader — editorial serif: headers, letters, pull quotes, hero copy.
+   Hanken Grotesk — humanist sans: labels, metadata, buttons, UI chrome. */
+@import "@fontsource/newsreader/latin-300.css";
+@import "@fontsource/newsreader/latin-400.css";
+@import "@fontsource/newsreader/latin-500.css";
+@import "@fontsource/newsreader/latin-600.css";
+@import "@fontsource/newsreader/latin-300-italic.css";
+@import "@fontsource/newsreader/latin-400-italic.css";
+@import "@fontsource/newsreader/latin-500-italic.css";
 
-/* Inter Tight: heading font */
-@import "@fontsource/inter-tight/latin-400.css";
-@import "@fontsource/inter-tight/latin-500.css";
-@import "@fontsource/inter-tight/latin-600.css";
-@import "@fontsource/inter-tight/latin-700.css";
-@import "@fontsource/inter-tight/latin-800.css";
-@import "@fontsource/inter-tight/latin-900.css";
+@import "@fontsource/hanken-grotesk/latin-400.css";
+@import "@fontsource/hanken-grotesk/latin-500.css";
+@import "@fontsource/hanken-grotesk/latin-600.css";
+@import "@fontsource/hanken-grotesk/latin-700.css";
 
-/* JetBrains Mono: mono font */
-@import "@fontsource/jetbrains-mono/latin-400.css";
-@import "@fontsource/jetbrains-mono/latin-500.css";
-@import "@fontsource/jetbrains-mono/latin-700.css";
+/* Troth design tokens (colors, type, spacing, radius, effects) + Lamplight */
+@import "./troth-tokens.css";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Lamplight is toggled via the `.troth-dark` class on <html> */
+@custom-variant dark (&:where(.troth-dark, .troth-dark *));
 
 @theme {
   --breakpoint-*: initial;
@@ -30,26 +30,14 @@
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
 
-  --font-body: Inter, sans-serif;
-  --font-heading: "Inter Tight", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-
-  /* re/Human Brand Tokens */
-  --color-rh-ember: #ff5733;
-  --color-rh-warm-light: #f9f8f6;
-  --color-rh-warm-dark: #1a1918;
-  --color-rh-ink: #121212;
-  --color-rh-chalk: #ebe9e4;
-  --color-rh-terracotta: #e07856;
+  --font-body: "Hanken Grotesk", sans-serif;
+  --font-serif: "Newsreader", Georgia, serif;
+  --font-sans: "Hanken Grotesk", sans-serif;
 }
 
 /*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+  The default border color changed to `currentcolor` in Tailwind CSS v4;
+  keep a v3-compatible warm hairline default.
 */
 @layer base {
   *,
@@ -57,28 +45,6 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
+    border-color: var(--color-border, currentcolor);
   }
-}
-
-@utility btn-text {
-  @apply text-base font-bold transition-all duration-400 ease-in-out;
-}
-
-@keyframes marquee-scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-33.333%);
-  }
-}
-
-/* Main Wrapper */
-.main-wrapper {
-  @apply overflow-hidden;
-}
-
-.container-default {
-  @apply mx-auto max-w-[1400px] px-4 sm:px-8 md:px-10 lg:px-8 xl:px-10;
 }

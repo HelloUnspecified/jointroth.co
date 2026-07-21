@@ -1,54 +1,71 @@
 // src/pages/api/subscribe.ts
+//
+// Waitlist signup — proxies to a Loops custom form
+// (https://loops.so/docs/forms/custom-form). The landing and confirmation
+// forms POST JSON `{ email }` here; we forward it to Loops as
+// application/x-www-form-urlencoded. The Loops newsletter-form endpoint is
+// public (no API key), so this works in every environment, including local dev.
 import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, locals }) => {
+const LOOPS_FORM_ENDPOINT =
+  "https://app.loops.so/api/newsletter-form/cmrp99o22011o0jzln10zb8mm";
+
+// Every waitlist signup joins both mailing lists (comma-separated per Loops).
+const LOOPS_MAILING_LISTS = [
+  "cmrpalrap06m50ju5bz1a73sb",
+  "cmrpammmt08z30jzj0rl7cz2g",
+].join(",");
+
+const LOOPS_SOURCE = "joinTroth.co";
+
+function json(payload: unknown, status: number) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const data = await request.json();
-    const email = data.email;
+    const data = (await request.json().catch(() => ({}))) as {
+      email?: unknown;
+    };
+    const email = typeof data.email === "string" ? data.email.trim() : "";
 
     if (!email) {
-      return new Response(JSON.stringify({ error: "Email is required" }), {
-        status: 400,
-      });
+      return json({ success: false, message: "Email is required" }, 400);
     }
 
-    const env = locals.runtime?.env;
-    const API_KEY = env?.BEEHIIV_API_KEY;
-    const PUB_ID = env?.BEEHIIV_PUBLICATION_ID;
+    const body = new URLSearchParams({
+      email,
+      mailingLists: LOOPS_MAILING_LISTS,
+      source: LOOPS_SOURCE,
+    });
 
-    // Call the Beehiiv API
-    const beehiivResponse = await fetch(
-      `https://api.beehiiv.com/v2/publications/${PUB_ID}/subscriptions`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          email: email,
-          reactivate_existing: false, // Set to true if you want to allow unsubscribed users to resubscribe
-          send_welcome_email: true,
-          utm_source: "astro-website", // Optional: helpful for tracking
-        }),
-      },
-    );
+    const loopsResponse = await fetch(LOOPS_FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
 
-    if (!beehiivResponse.ok) {
-      const errorData = await beehiivResponse.json();
-      throw new Error(errorData.message || "Failed to subscribe to Beehiiv");
+    const result = (await loopsResponse.json().catch(() => ({}))) as {
+      success?: boolean;
+      message?: string;
+    };
+
+    if (!loopsResponse.ok || result.success === false) {
+      const status = loopsResponse.status === 429 ? 429 : 502;
+      return json(
+        { success: false, message: result.message || "Subscription failed" },
+        status,
+      );
     }
 
-    return new Response(
-      JSON.stringify({ message: "Successfully subscribed!" }),
-      { status: 200 },
-    );
+    return json({ success: true }, 200);
   } catch (error) {
     console.error("Subscription error:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+    return json({ success: false, message: "Internal Server Error" }, 500);
   }
 };

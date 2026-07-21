@@ -2,92 +2,78 @@
 
 ## Project
 
-Astro 5.x marketing site for re/Human (Unspecified Software Co.) with React interactive components, Tailwind CSS, and MDX content.
+Astro 5/7 marketing site for **Troth** (jointroth.co) — a private, encrypted iPhone app for married couples. The site is currently a single mobile-first **waitlist landing page**. Deployed to Cloudflare (Workers + static assets) via `@astrojs/cloudflare`.
+
+The codebase was repurposed from a prior site (re/Human); the reusable Astro/Cloudflare skeleton was kept and everything product-specific was rebuilt. The commit tagged "Snapshot: re/Human codebase before Troth rebrand" is the restore point for anything from the old site.
 
 ## Commands
 
 - `npm run dev` — dev server on localhost:4321
-- `npm run build` — production build to ./dist/
+- `npm run build` — production build to `./dist/` (emits `dist/client` assets + `dist/server` worker)
+- `npx wrangler deploy` — deploy the built worker (reads the generated `dist/server/wrangler.json`)
 - `npx prettier --write .` — format all files
-- `npm run astro -- check` — check for errors
+- `npm run astro -- check` — type-check
 
-## Key Patterns
+## Deploy / Cloudflare gotcha
 
-- Astro components (.astro) for static content, React (.jsx) for interactive elements
-- Content managed via MDX files in /src/content with frontmatter
-- Astro 5 Content Layer API for fetching content (not the deprecated getEntryBySlug)
-- Form submissions use web3forms.com API
-- Animations use gsap library
+`wrangler.jsonc` must **not** set `main` or `assets.directory`. `@astrojs/cloudflare` generates `dist/server/wrangler.json` with the real `main` (`entry.mjs`) and `assets.directory` (`../client`) at build time, merging in the top-level `name`/`compatibility_*`/`observability`/`assets.binding` from `wrangler.jsonc`. A self-referential `main: dist/_worker.js/index.js` (from the old template) **breaks the build** — the bundled `@cloudflare/vite-plugin` validates `main` before the output exists.
 
-## Style
+Note: `npm run dev` needs the Cloudflare adapter's dev runtime, which may not boot inside restricted sandboxes (the production build is unaffected).
 
-- Use Tailwind classes for styling
-- Follow existing component organization patterns
+## Architecture
+
+- Astro components (`.astro`) for the shell; a single React island (`client:load`) for the interactive landing page.
+- `src/layouts/Layout.astro` — minimal shell: `<head>`, SEO, Lamplight FOUC script, global body styles. No nav/footer chrome (waitlist pages carry zero navigation).
+- `src/components/functional/SEO.astro` — site-wide meta/OG/JSON-LD. Site URL `https://jointroth.co`.
+- `src/components/troth/TrothLanding.jsx` — the whole landing page + the design-system primitives it uses.
+- `src/pages/api/subscribe.ts` — waitlist email capture (server route, `prerender = false`) → Beehiiv (`BEEHIIV_API_KEY` / `BEEHIIV_PUBLICATION_ID` env vars, provided via Cloudflare/`.env.local`).
+- Self-hosted fonts via `@fontsource` (no Google Fonts CDN — the page targets sub-1s LCP).
+
+## Design source
+
+The landing page is a faithful port of the Claude Design project **"Troth waitlist landing page"** (`Troth Landing Page.dc.html`) and its design system. Pull design files with the `claude-design` MCP (`DesignSync` tool) — project id `e4995b13-c9e2-4e36-9183-0331506b3373`. The `.dc.html` component format (`<x-dc>`, `<x-import>`, `<sc-if>`, `{{ }}` bindings) is translated to React state/props; the 8 design-system components used on the page are recreated 1:1 inside `TrothLanding.jsx` from the design bundle.
 
 ## Design System
 
-### Brand Color Tokens (defined in `src/css/tailwind.css`)
+### Tokens (`src/css/troth-tokens.css`)
 
-All brand colors use the `rh-` prefix. **Never use raw hex values** — always use these tokens:
+Warm, low-saturation, editorial — every color reads "hand-mixed," never digital. Base is cream, the single accent is terracotta, text is warm charcoal (never true black). **Never use raw hex** in components — use these CSS variables (referenced via inline `var(--…)`, matching the design's inline-style approach):
 
-| Token              | Hex       | Usage                                    |
-|--------------------|-----------|------------------------------------------|
-| `rh-ember`         | `#ff5733` | Primary accent, CTAs, highlights         |
-| `rh-ink`           | `#121212` | Dark backgrounds, light-mode text        |
-| `rh-chalk`         | `#ebe9e4` | Light backgrounds, dark-mode text        |
-| `rh-warm-light`    | `#f9f8f6` | Light section backgrounds                |
-| `rh-warm-dark`     | `#1a1918` | Dark section backgrounds                 |
-| `rh-terracotta`    | `#e07856` | Secondary warm accent                    |
+| Token                                       | Light     | Role                                        |
+| ------------------------------------------- | --------- | ------------------------------------------- |
+| `--color-bg` / `--cream`                    | `#F4EFE6` | app / frame background                      |
+| `--color-surface` / `--cream-lifted`        | `#FBF6EC` | elevated card (lighter = raised, no shadow) |
+| `--color-surface-sunken` / `--cream-sunken` | `#EBE3D3` | recessed field / placeholder                |
+| `--color-canvas`                            | `#DFD6C6` | backdrop behind the phone frame             |
+| `--color-text` / `--ink`                    | `#2B2623` | primary text (warm charcoal)                |
+| `--color-text-secondary` / `--ink-2`        | `#6B6156` | supporting text                             |
+| `--color-text-tertiary` / `--ink-3`         | `#98907F` | quiet metadata, section markers             |
+| `--color-accent` / `--terracotta`           | `#A24B34` | CTAs, section markers, moments of weight    |
+| `--color-accent-press`                      | `#8A3D29` | hover / pressed                             |
+| `--color-letter` / `--plum`                 | `#7A2E39` | letters, keepsake attribution               |
+| `--color-keepsake` / `--foil`               | `#B0862E` | keepsake wax-seal gold                      |
+| `--color-border`                            | `#E4DCC9` | quiet hairline dividers                     |
 
-Most sections use `bg-rh-warm-light dark:bg-rh-warm-dark` with text `text-rh-ink dark:text-rh-chalk`. The site defaults to dark mode (`<html class="dark">`).
+Only one accent is ever used at a time. Also: `--radius-input:8px`, `--radius-card:12px`, `--radius-pill:999px`; spacing `--space-*` (4px base); motion `--ease-troth` (ease-out, never bounce), `--dur-quick:250ms` / `--dur-considered:380ms`; `--shadow-float` for the sticky bar only (cards are flat).
+
+### Dark mode ("Lamplight")
+
+Warm, low-contrast, deep browns/burgundies (`#1E1712` bg) — never OLED-black. Toggled by the `.troth-dark` class on `<html>` (also `[data-theme="dark"]`), persisted to `localStorage["troth-theme"]`, applied pre-paint by the FOUC script in `Layout.astro`. Light is the default. The "Sealed for two" section is always dark (it carries its own `.troth-dark` class).
 
 ### Fonts
 
-| Token       | Font           | Usage          |
-|-------------|----------------|----------------|
-| `font-body` | Inter          | Body copy      |
-| `font-heading` | Inter Tight | Headings       |
-| `font-mono` | JetBrains Mono | Labels, code   |
+| Token          | Font           | Usage                                                                    |
+| -------------- | -------------- | ------------------------------------------------------------------------ |
+| `--font-serif` | Newsreader     | headers, hero, letters, pull quotes (emphasis is **italic, never bold**) |
+| `--font-sans`  | Hanken Grotesk | labels, metadata, buttons, UI chrome                                     |
 
-### Reusable Elements (`src/elements/`)
+No third family.
 
-Always use these elements instead of writing raw markup for these patterns:
+### Voice (from the design system)
 
-**`SectionLabel`** — Terminal-style mono label (e.g. `> SYS.CORE // ONLINE`)
-```astro
-import SectionLabel from "../elements/SectionLabel.astro";
-<SectionLabel text="> SYS.MODULE // LABEL" />
-<SectionLabel text="> SYS.MODULE // LABEL" centered />
-<SectionLabel text="> SYS.MODULE // LABEL" dot />
-```
-Props: `text` (string), `centered` (bool), `dot` (bool, adds pulsing ember dot), `class` (string)
+Editorial, warm, unhurried, founder-authored. Address the couple as **"the two of you"** (never "users"/"customers"). Sentence case; small-caps only for quiet section markers. **No exclamation points, no emoji, no AI/"smart" language** (Troth has no AI). Prefer: sealed, kept, held, home, room, chapter, promise, borrowed rooms. Marketing closes with "— Clark". Founders: **Clark and Carrie Sell**.
 
-**`Heading`** — Section heading with size presets
-```astro
-import Heading from "../elements/Heading.astro";
-<Heading size="xl" as="h1">Hero Text</Heading>
-<Heading>Default h2/lg</Heading>
-<Heading size="md">Smaller heading</Heading>
-<Heading size="sm">Card heading</Heading>
-```
-Props: `as` ("h1"|"h2"|"h3", default "h2"), `size` ("xl"|"lg"|"md"|"sm", default "lg"), `centered` (bool), `class` (string). Sizes: xl = hero, lg = section, md = subsection, sm = card.
+## Style
 
-**`BodyText`** — Standard paragraph
-```astro
-import BodyText from "../elements/BodyText.astro";
-<BodyText>Paragraph content here.</BodyText>
-<BodyText class="mb-6">With spacing.</BodyText>
-```
-Props: `class` (string). Renders as `<p>` with `text-lg md:text-xl text-rh-ink/70 dark:text-rh-chalk/70 leading-relaxed`.
-
-**`CTAButton`** — Call-to-action link
-```astro
-import CTAButton from "../elements/CTAButton.astro";
-<CTAButton href="/apply">Apply Now</CTAButton>
-<CTAButton href="/book" variant="contrast">Read More →</CTAButton>
-```
-Props: `href` (string), `variant` ("solid"|"contrast", default "solid"), `class` (string). Solid = ember bg, rounded-full. Contrast = ink/chalk flip, rounded-xl.
-
-### Dark-only Sections
-
-Some sections (e.g. Manifesto) are always dark regardless of mode. When using elements in these sections, override light-mode colors with `!text-rh-chalk/50` etc.
+- Match the design's inline-`var(--token)` styling inside `TrothLanding.jsx`; use Tailwind utilities for anything new outside the ported page.
+- `npx prettier --write .` before committing.

@@ -3,7 +3,7 @@ Allow: /
 Disallow: /cdn-cgi/
 Disallow: /api/
 
-Sitemap: https://joinrehuman.com/sitemap-index.xml
+Sitemap: https://jointroth.co/sitemap-index.xml
 
 # Cloudflare Content-Signal directives
 ai-train: no

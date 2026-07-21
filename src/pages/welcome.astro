@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+import TrothConfirmation from "../components/troth/TrothConfirmation.jsx";
+---
+
+<Layout
+  title="You're on the list — Troth"
+  description="Thank you for joining the Troth waitlist."
+  noindex
+>
+  <TrothConfirmation client:load />
+</Layout>

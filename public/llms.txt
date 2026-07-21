@@ -1,32 +1,23 @@
-# re/Human
+# Troth
 
-> In the age of AI, your only unfair advantage is your people. re/Human builds systems that scale authentic connection.
+> A private, encrypted home for your marriage — where the conversations, memories, letters, and promises you're keeping all live in one place. Coming to iPhone.
 
-re/Human (by Unspecified Software Co.) is a community architecture firm. We design and deploy community-driven ecosystems for brands that want to turn audiences into lasting, self-sustaining communities.
+Troth is an iOS app for two married people who want to be intentional about the marriage they're building. Everything you put in Troth is end-to-end encrypted and never leaves your devices — no cloud, no AI, no company (including ours) can read it. Sealed for two.
 
-## What We Do
+This site is the waitlist landing page. Access opens to a few couples at a time in 2026.
 
-- Community architecture: designing systems that scale authentic human connection
-- Ecosystem diagnostics: mapping current community infrastructure and identifying structural gaps
-- Culture design frameworks: building the rituals, rhythms, and systems that make communities thrive
-- Deployment execution: hands-on implementation of community strategies
+## What Troth is
 
-## Founded By
+- A private conversation surface for the two of you — text, photos, voice notes, Face ID locked, never on the camera roll.
+- A place to write down what you're building — your values, promises, places, and people, in your own words.
+- A place to remember what matters — letters, milestones, and gratitude, kept where they won't get lost.
+- Your own marriage timeline — the story the way it actually happened.
 
-Clark Sell — community builder, speaker, and systems thinker. Over two decades of experience building developer communities, conferences (THAT Conference), and human-first technology systems.
+## Built by
 
-## Key Pages
+Clark and Carrie Sell, in partnership with the couples on the waitlist.
 
-- [Homepage](https://joinrehuman.com/): Overview of re/Human and what we build
-- [The Manifesto](https://joinrehuman.com/thesis/): Our thesis on why community is the last satisfying moat
-- [The Architect](https://joinrehuman.com/the-architect/): About Clark Sell, founder of re/Human
-- [Deployments](https://joinrehuman.com/deployments/): Case studies of community architecture projects
-- [Apply](https://joinrehuman.com/apply/): Apply to work with re/Human
-- [Book a Session](https://joinrehuman.com/book/): Schedule a private architecture session
+## Contact
 
-## Core Beliefs
-
-- Community is the new moat — the only unfair advantage in the age of AI
-- Audiences are rented; communities are owned
-- Systems beat tactics — scalable connection requires architecture, not hacks
-- Human connection is the product, not the byproduct
+- Email: clark@jointroth.co
+- Waitlist: https://jointroth.co/

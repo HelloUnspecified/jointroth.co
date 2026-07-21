@@ -1,0 +1,117 @@
+/* ============================================================================
+   Troth design tokens — imported verbatim in role/value from the Troth design
+   system (Claude Design project "Troth waitlist landing page").
+
+   Warm, low-saturation, editorial. Base is cream, accent is terracotta, text is
+   warm charcoal (never true black). Light is default; "Lamplight" is dark mode.
+   ============================================================================ */
+
+:root {
+  /* ---- Color: base palette (raw values) ---- */
+  --cream: #f4efe6; /* main app background */
+  --cream-lifted: #fbf6ec; /* elevated card surface (lighter = raised) */
+  --cream-sunken: #ebe3d3; /* recessed field / image placeholder */
+  --canvas: #dfd6c6; /* backdrop behind the phone frame */
+
+  --ink: #2b2623; /* warm charcoal, primary text */
+  --ink-2: #6b6156; /* supporting text, timestamps, attribution */
+  --ink-3: #98907f; /* quietest metadata, small-caps section markers */
+
+  --terracotta: #a24b34; /* the brand accent */
+  --terracotta-soft: #ae644e; /* softened accent for large display italics */
+  --terracotta-deep: #8a3d29; /* pressed / hover-darken */
+
+  --plum: #7a2e39; /* letters, keepsake attribution, category */
+  --foil: #b0862e; /* the keepsake gold — wax-seal mark */
+  --forest: #3d5842; /* place / value category */
+  --rose: #b07b86; /* place / value category */
+
+  --border-subtle: #e4dcc9; /* quiet dividers */
+  --border-strong: #b8ac94; /* deliberate emphasis, secondary-button outline */
+
+  /* ---- Color: semantic aliases (what components reference) ---- */
+  --color-bg: var(--cream);
+  --color-surface: var(--cream-lifted);
+  --color-surface-sunken: var(--cream-sunken);
+  --color-canvas: var(--canvas);
+
+  --color-text: var(--ink);
+  --color-text-secondary: var(--ink-2);
+  --color-text-tertiary: var(--ink-3);
+  --color-text-on-accent: var(--cream);
+
+  --color-accent: var(--terracotta);
+  --color-accent-soft: var(--terracotta-soft);
+  --color-accent-press: var(--terracotta-deep);
+
+  --color-keepsake: var(--foil);
+  --color-letter: var(--plum);
+
+  --color-border: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  /* ---- Type ---- */
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans:
+    "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* ---- Spacing (base unit 4px) ---- */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-s: 12px;
+  --space-m: 16px;
+  --space-l: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+  --space-xxxl: 72px;
+
+  --width-text-comfortable: 40rem;
+  --width-text-narrow: 32rem;
+
+  /* ---- Radius ---- */
+  --radius-input: 8px;
+  --radius-card: 12px;
+  --radius-sheet: 22px;
+  --radius-pill: 999px;
+
+  /* ---- Effects ---- */
+  --shadow-none: none;
+  --shadow-float: 0 8px 24px -8px rgba(43, 38, 35, 0.28);
+  --shadow-sheet: 0 -12px 40px -12px rgba(43, 38, 35, 0.22);
+  --shadow-seal: 0 2px 6px -1px rgba(43, 38, 35, 0.35);
+
+  /* motion — like turning a page or closing a book, never a game card */
+  --ease-troth: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-quick: 250ms;
+  --dur-considered: 380ms;
+
+  --blur-privacy: blur(18px);
+}
+
+/* ---- Dark mode: "Lamplight" — a private room by lamplight.
+   Warm, low contrast, deep browns and burgundies. Never OLED-black. ---- */
+:root[data-theme="dark"],
+.troth-dark {
+  --color-bg: #1e1712;
+  --color-surface: #28211b;
+  --color-surface-sunken: #181410;
+  --color-canvas: #14100c;
+
+  --color-text: #f0e8da;
+  --color-text-secondary: #b8ac94;
+  --color-text-tertiary: #7a7060;
+
+  --color-accent: #c2694c;
+  --color-accent-soft: #ce7c60;
+  --color-accent-press: #a9573d;
+
+  --color-keepsake: #c79a3e;
+  --color-letter: #b4707c;
+
+  --color-border: #2e2822;
+  --color-border-strong: #4a3f35;
+}
