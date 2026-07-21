@@ -1,0 +1,76 @@
+---
+const audiencePoints = [
+  'The "8th-Grade Dance" Dynamic',
+  "Hunting for Outbound Clients",
+  "Dependency on Algorithms",
+  "High Churn, Low LTV",
+];
+
+const communityPoints = [
+  "Peer-to-Peer Facilitation",
+  "Inbound, Undeniable Authority",
+  "Platform Agnostic Ecosystems",
+  "Fierce, Self-Sustaining Loyalty",
+];
+
+import SectionLabel from "../../../elements/SectionLabel.astro";
+---
+
+<section class="py-32 md:py-48 px-6 md:px-10" id="dichotomy-section">
+  <!-- Terminal Header -->
+  <SectionLabel text="> SYS.ANALYSIS // THE_DICHOTOMY" centered class="mb-8" />
+
+  <!-- Massive Header -->
+  <div class="mx-auto max-w-[1400px] mb-16 md:mb-24 text-center">
+    <h2
+      class="dichotomy-header font-heading text-6xl md:text-8xl font-black uppercase italic tracking-normal leading-[1.1] text-rh-ink dark:text-rh-chalk"
+    >
+      Crowd vs.Culture.
+    </h2>
+  </div>
+
+  <!-- The Split Screen -->
+  <div class="mx-auto max-w-[1400px]" id="dichotomy-split">
+    <div class="flex flex-col md:flex-row min-h-[60vh] md:items-stretch">
+      <!-- LEFT: The Algorithmic Audience -->
+      <div
+        class="dichotomy-col flex-1 flex flex-col justify-start bg-rh-warm-light p-12 md:p-24"
+      >
+        <SectionLabel text="> SYS.ERROR // THE AUDIENCE" class="mb-16" />
+        <ul class="space-y-16">
+          {
+            audiencePoints.map((point) => (
+              <li class="old-paradigm-item">
+                <span class="font-heading text-3xl md:text-4xl font-black uppercase tracking-normal text-rh-ink/50 leading-none line-through decoration-rh-ink/30">
+                  {point}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- RIGHT: The re/Human Community -->
+      <div
+        class="dichotomy-col flex-1 flex flex-col justify-start bg-rh-warm-dark p-12 md:p-24"
+      >
+        <SectionLabel
+          text="SYS.ACTIVE // THE COMMUNITY"
+          dot
+          class="mb-16 text-rh-chalk/50!"
+        />
+        <ul class="space-y-16">
+          {
+            communityPoints.map((point) => (
+              <li class="new-paradigm-item">
+                <span class="font-heading text-3xl md:text-4xl font-black uppercase tracking-normal text-rh-chalk leading-none">
+                  {point}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

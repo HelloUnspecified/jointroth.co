@@ -1,0 +1,57 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+import BodyText from "../../elements/BodyText.astro";
+---
+
+<section
+  class="bg-rh-ink py-32 md:py-48 px-6 md:px-10"
+  id="eramismatch-section"
+>
+  <div class="mx-auto w-full max-w-[1400px]">
+    <div class="eramismatch-reveal mb-10">
+      <SectionLabel text="> SYS.DIAGNOSTIC // ERA_MISMATCH" centered class="text-rh-chalk/50!" />
+    </div>
+
+    <Heading class="eramismatch-reveal mb-12 max-w-5xl mx-auto text-rh-chalk!" centered>
+      You're running a new era on an
+      <span class="text-rh-ember">old operating model.</span>
+    </Heading>
+
+    <div class="eramismatch-reveal max-w-3xl mx-auto mb-10 text-center">
+      <BodyText class="mb-6 text-rh-chalk/70!">
+        You're navigating the AI era with the operating model from the knowledge
+        economy. Or worse, the industrial one.
+      </BodyText>
+      <BodyText class="text-rh-chalk/70!">
+        The organizations that win this era won't win on technology, talent, or
+        content. They'll win on
+        <strong class="font-bold text-rh-chalk!"
+          >how their humans connect.</strong
+        >
+      </BodyText>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.fromTo(
+    ".eramismatch-reveal",
+    { opacity: 0, y: 50 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.3,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#eramismatch-section",
+        start: "top 70%",
+      },
+    },
+  );
+</script>

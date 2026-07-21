@@ -1,0 +1,295 @@
+---
+import SectionLabel from "../../../elements/SectionLabel.astro";
+import Heading from "../../../elements/Heading.astro";
+import BodyText from "../../../elements/BodyText.astro";
+---
+
+<section
+  class="min-h-screen flex flex-col justify-center items-center relative w-full py-32 md:py-48 px-6 bg-rh-warm-light dark:bg-rh-warm-dark overflow-hidden"
+  id="systems-section"
+>
+  <!-- Centered Terminal Header -->
+  <SectionLabel
+    text="> SYS.ARCHITECTURE // THE_SYSTEMS"
+    centered
+    class="mb-16"
+  />
+
+  <!-- Cards Wrapper - The Stacking Zone -->
+  <div
+    class="relative w-full max-w-4xl mx-auto h-[40vh] min-h-[400px] mt-32 md:mt-40"
+  >
+    <!-- Card 1: The Magnet -->
+    <div class="absolute top-0 left-0 w-full h-full z-10" id="systems-card-1">
+      <div
+        class="relative overflow-hidden rounded-2xl border border-rh-ink/10 dark:border-rh-chalk/10 bg-rh-warm-light dark:bg-rh-warm-dark opacity-100 px-10 pt-6 pb-12 md:px-12 md:pt-8 md:pb-16 h-full flex flex-col justify-between shadow-2xl"
+      >
+        <div>
+          <SectionLabel text="SYS.01 // THE MAGNET" class="mb-6" />
+          <Heading as="h3" size="md" class="mb-6">
+            The Mission-to-Content<br />Framework.
+          </Heading>
+          <BodyText class="max-w-xl">
+            It is not about making more noise; it is about <strong
+              class="font-bold text-rh-ink dark:text-rh-chalk">precision</strong
+            >. We deploy a proprietary set of AI skills designed to help you
+            work <em class="italic">on</em> your business, <strong
+              class="font-bold text-rh-ink dark:text-rh-chalk"
+              >aligning your core mission directly to your content.</strong
+            > You will know exactly what to create, and exactly who you are creating
+            it for.
+          </BodyText>
+        </div>
+        <!-- Rotating Wireframe SVG -->
+        <div
+          class="absolute bottom-10 right-10 md:bottom-16 md:right-16 opacity-10"
+        >
+          <svg
+            id="wireframe-svg"
+            width="200"
+            height="200"
+            viewBox="0 0 200 200"
+            fill="none"
+            class="text-rh-ink dark:text-rh-chalk"
+          >
+            <circle
+              cx="100"
+              cy="100"
+              r="80"
+              stroke="currentColor"
+              stroke-width="0.5"></circle>
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="80"
+              ry="30"
+              stroke="currentColor"
+              stroke-width="0.5"></ellipse>
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="30"
+              ry="80"
+              stroke="currentColor"
+              stroke-width="0.5"></ellipse>
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="60"
+              ry="80"
+              stroke="currentColor"
+              stroke-width="0.5"
+              transform="rotate(45 100 100)"></ellipse>
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="60"
+              ry="80"
+              stroke="currentColor"
+              stroke-width="0.5"
+              transform="rotate(-45 100 100)"></ellipse>
+            <line
+              x1="20"
+              y1="100"
+              x2="180"
+              y2="100"
+              stroke="currentColor"
+              stroke-width="0.5"></line>
+            <line
+              x1="100"
+              y1="20"
+              x2="100"
+              y2="180"
+              stroke="currentColor"
+              stroke-width="0.5"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: The Space -->
+    <div class="absolute top-0 left-0 w-full h-full z-20" id="systems-card-2">
+      <div
+        class="relative overflow-hidden rounded-2xl border border-rh-ink/10 dark:border-rh-chalk/10 bg-rh-warm-light dark:bg-rh-warm-dark opacity-100 px-10 pt-6 pb-12 md:px-12 md:pt-8 md:pb-16 h-full flex flex-col justify-between shadow-2xl"
+      >
+        <div>
+          <SectionLabel text="SYS.02 // THE SPACE" class="mb-6" />
+          <Heading as="h3" size="md" class="mb-6">
+            Architecting<br />the Ecosystem.
+          </Heading>
+          <BodyText class="max-w-xl">
+            We are both <strong class="font-bold text-rh-ink dark:text-rh-chalk"
+              >technical architects and community veterans.</strong
+            > We build the exact digital environments where your culture thrives, using
+            AI to augment humans, never to replace them. We design the deep-tech
+            infrastructure that turns rented audiences into <strong
+              class="font-bold text-rh-ink dark:text-rh-chalk"
+              >self-sustaining movements.</strong
+            >
+          </BodyText>
+        </div>
+        <!-- Live-typing Monospace Readout -->
+        <div
+          class="absolute bottom-10 right-10 md:bottom-16 md:right-16 opacity-20"
+        >
+          <pre
+            id="system-readout"
+            class="font-mono text-[10px] md:text-xs text-rh-ember leading-relaxed text-right">
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: The Glue -->
+    <div class="absolute top-0 left-0 w-full h-full z-30" id="systems-card-3">
+      <div
+        class="relative overflow-hidden rounded-2xl border border-rh-ink/10 dark:border-rh-chalk/10 bg-rh-warm-light dark:bg-rh-warm-dark opacity-100 px-10 pt-6 pb-12 md:px-12 md:pt-8 md:pb-16 h-full flex flex-col justify-between shadow-2xl"
+      >
+        <div>
+          <SectionLabel text="SYS.03 // THE GLUE" class="mb-6" />
+          <Heading as="h3" size="md" class="mb-6">
+            Designing<br />the Culture.
+          </Heading>
+          <BodyText class="max-w-xl">
+            We are <strong class="font-bold text-rh-ink dark:text-rh-chalk"
+              >strategic business thinkers first.</strong
+            > Because no two organizations are the same, your community cannot be
+            a template. It must be intentionally <strong
+              class="font-bold text-rh-ink dark:text-rh-chalk"
+              >designed, tested, and constantly refactored.</strong
+            > We architect the rituals and peer-to-peer facilitation models that
+            turn passive lurkers into <strong
+              class="font-bold text-rh-ink dark:text-rh-chalk"
+              >fierce advocates, driving your LTV and organic referrals through
+              the roof.</strong
+            >
+          </BodyText>
+        </div>
+        <!-- Pulsing EKG Waveform SVG -->
+        <div
+          class="absolute bottom-10 right-10 md:bottom-16 md:right-16 opacity-15 w-[200px] md:w-[300px]"
+        >
+          <svg id="ekg-svg" viewBox="0 0 300 80" fill="none" class="w-full">
+            <path
+              id="ekg-path"
+              d="M0,40 L30,40 L40,40 L50,20 L60,60 L70,10 L80,70 L90,35 L100,40 L130,40 L140,40 L150,20 L160,60 L170,10 L180,70 L190,35 L200,40 L230,40 L240,40 L250,20 L260,60 L270,10 L280,70 L290,35 L300,40"
+              stroke="#FF5733"
+              stroke-width="2"
+              fill="none"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.context(() => {
+    const card1 = "#systems-card-1";
+    const card2 = "#systems-card-2";
+    const card3 = "#systems-card-3";
+
+    // Push cards 2 & 3 below the viewport
+    gsap.set(card2, { yPercent: 120 });
+    gsap.set(card3, { yPercent: 120 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#systems-section",
+        start: "top top",
+        end: "+=200%",
+        scrub: 1,
+        pin: true,
+      },
+    });
+
+    // Step 1: Card 2 slides up, Card 1 recedes upward to expose SYS.01 label
+    tl.to(card2, { yPercent: 0, ease: "none" });
+    tl.to(card1, { y: -85, scale: 0.96, ease: "none" }, "<");
+
+    // Step 2: Card 3 slides up, Cards 1 & 2 recede to expose labels
+    tl.to(card3, { yPercent: 0, ease: "none" });
+    tl.to(card2, { y: -85, scale: 0.96, ease: "none" }, "<");
+    tl.to(card1, { y: -170, scale: 0.92, ease: "none" }, "<");
+  });
+
+  // Rotating wireframe
+  gsap.to("#wireframe-svg", {
+    rotation: 360,
+    duration: 30,
+    repeat: -1,
+    ease: "none",
+  });
+
+  // Live-typing monospace readout
+  const readoutEl = document.getElementById("system-readout");
+  if (readoutEl) {
+    const lines = [
+      "> LOADING COMMUNITY_STACK...",
+      "> INIT: PLATFORM_LAYER",
+      "> INIT: RITUAL_ENGINE",
+      "> INIT: WORKFLOW_MESH",
+      "> BIND: HUMAN <-> HUMAN",
+      "> STATUS: OPERATIONAL",
+      "> LATENCY: 0ms (soul-direct)",
+      "> CONNECTIONS: INFINITE",
+    ];
+    let currentLine = 0;
+    let currentChar = 0;
+    let displayText = "";
+
+    function typeChar() {
+      if (currentLine >= lines.length) {
+        setTimeout(() => {
+          displayText = "";
+          currentLine = 0;
+          currentChar = 0;
+          if (readoutEl) readoutEl.textContent = "";
+          typeChar();
+        }, 3000);
+        return;
+      }
+
+      const line = lines[currentLine];
+      if (currentChar < line.length) {
+        displayText += line[currentChar];
+        if (readoutEl) readoutEl.textContent = displayText;
+        currentChar++;
+        setTimeout(typeChar, 30 + Math.random() * 40);
+      } else {
+        displayText += "\n";
+        currentLine++;
+        currentChar = 0;
+        setTimeout(typeChar, 200);
+      }
+    }
+
+    ScrollTrigger.create({
+      trigger: "#systems-section",
+      start: "top 60%",
+      onEnter: () => typeChar(),
+      once: true,
+    });
+  }
+
+  // EKG pulse animation
+  const ekgPath = document.getElementById("ekg-path");
+  if (ekgPath) {
+    const length = (ekgPath as unknown as SVGPathElement).getTotalLength();
+    gsap.set(ekgPath, { strokeDasharray: length, strokeDashoffset: length });
+    gsap.to(ekgPath, {
+      strokeDashoffset: 0,
+      duration: 2,
+      ease: "power1.inOut",
+      repeat: -1,
+      scrollTrigger: {
+        trigger: "#ekg-svg",
+        start: "top 90%",
+      },
+    });
+  }
+</script>

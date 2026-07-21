@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /cdn-cgi/
+Disallow: /api/
+
+Sitemap: https://joinrehuman.com/sitemap-index.xml
+
+# Cloudflare Content-Signal directives
+ai-train: no
+search: yes
+ai-input: yes

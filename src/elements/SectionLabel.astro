@@ -1,0 +1,30 @@
+---
+interface Props {
+  text: string;
+  centered?: boolean;
+  dot?: boolean;
+  class?: string;
+}
+
+const {
+  text,
+  centered = false,
+  dot = false,
+  class: className = "",
+} = Astro.props;
+---
+
+<p
+  class:list={[
+    "font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ink/50 dark:text-rh-chalk/50 flex items-center",
+    centered && "justify-center",
+    className,
+  ]}
+>
+  {
+    dot && (
+      <span class="inline-block w-2 h-2 rounded-full bg-rh-ember animate-pulse mr-2 align-middle" />
+    )
+  }
+  <Fragment set:html={text} />
+</p>

@@ -1,0 +1,77 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+import BodyText from "../../elements/BodyText.astro";
+---
+
+<section
+  id="organization"
+  class="py-28 md:py-40 px-6 bg-rh-warm-light dark:bg-rh-warm-dark"
+>
+  <div
+    class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center"
+  >
+    <!-- Left Column: The Portrait -->
+    <div class="lg:col-span-5 relative">
+      <div
+        class="w-full aspect-4/5 bg-rh-ink rounded-4xl overflow-hidden relative border border-black/10 dark:border-white/10 shadow-2xl"
+      >
+        <img
+          src="/assets/img/people/the-architect.webp"
+          alt="Clark Sell"
+          width="800"
+          height="1000"
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 w-full h-full object-cover grayscale contrast-125 transition-all duration-700 hover:grayscale-0"
+        />
+        <div
+          class="absolute bottom-6 left-6 font-mono text-xs bg-black/80 backdrop-blur-md px-4 py-2 rounded text-rh-chalk border border-white/10 uppercase tracking-widest"
+        >
+          &gt; ID_VERIFIED
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: The Narrative -->
+    <div class="lg:col-span-7 flex flex-col justify-center">
+      <!-- Terminal Header -->
+      <SectionLabel text="> SYS.IDENTITY // THE_ARCHITECT" class="mb-8" />
+
+      <!-- Headline -->
+      <Heading size="md" class="mb-8 tracking-tight">
+        I Built the Code.<br />Then I Built the Culture.
+      </Heading>
+
+      <!-- Body Copy -->
+      <BodyText class="mb-6"> Hi, I'm Clark Sell. </BodyText>
+
+      <BodyText class="mb-6">
+        For 25 years, I engineered complex software ecosystems. I know how to
+        build secure, scalable infrastructure. But I quickly realized that the
+        most elegant code in the world is useless if the humans using it don't
+        feel like they belong.
+      </BodyText>
+
+      <BodyText class="mb-6">
+        So, I stepped out from behind the terminal. I went on to run one of the
+        largest community conferences in the United States, studying exactly how
+        thousands of people connect, trust, and build loyalty in the real world.
+      </BodyText>
+
+      <BodyText>
+        I founded re/Human because the internet is drowning in faked AI
+        authority and rented audiences. You don't need another marketer. You
+        need an architect who understands both the deep-tech infrastructure and
+        the human soul.
+      </BodyText>
+
+      <a
+        href="/the-architect"
+        class="inline-block font-mono text-sm uppercase tracking-widest text-rh-ember hover:underline mt-8"
+      >
+        Read the Full Story →
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Self-hosted fonts via @fontsource (eliminates Google Fonts CDN roundtrip) */
+/* Inter: body font — only latin subset, only weights used */
+@import "@fontsource/inter/latin-300.css";
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/inter/latin-700.css";
+
+/* Inter Tight: heading font */
+@import "@fontsource/inter-tight/latin-400.css";
+@import "@fontsource/inter-tight/latin-500.css";
+@import "@fontsource/inter-tight/latin-600.css";
+@import "@fontsource/inter-tight/latin-700.css";
+@import "@fontsource/inter-tight/latin-800.css";
+@import "@fontsource/inter-tight/latin-900.css";
+
+/* JetBrains Mono: mono font */
+@import "@fontsource/jetbrains-mono/latin-400.css";
+@import "@fontsource/jetbrains-mono/latin-500.css";
+@import "@fontsource/jetbrains-mono/latin-700.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+
+  --font-body: Inter, sans-serif;
+  --font-heading: "Inter Tight", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* re/Human Brand Tokens */
+  --color-rh-ember: #ff5733;
+  --color-rh-warm-light: #f9f8f6;
+  --color-rh-warm-dark: #1a1918;
+  --color-rh-ink: #121212;
+  --color-rh-chalk: #ebe9e4;
+  --color-rh-terracotta: #e07856;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility btn-text {
+  @apply text-base font-bold transition-all duration-400 ease-in-out;
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+/* Main Wrapper */
+.main-wrapper {
+  @apply overflow-hidden;
+}
+
+.container-default {
+  @apply mx-auto max-w-[1400px] px-4 sm:px-8 md:px-10 lg:px-8 xl:px-10;
+}

@@ -1,0 +1,148 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+---
+
+<section
+  class="bg-rh-warm-light dark:bg-rh-warm-dark py-28 md:py-40 px-6 md:px-10"
+  id="diagnostic-section"
+>
+  <span id="faq" class="sr-only"></span>
+  <div class="mx-auto w-full max-w-[1400px] text-center">
+    <!-- Terminal Header -->
+    <div class="diagnostic-reveal mb-10">
+      <SectionLabel text="> SYS.DIAGNOSTIC // STATUS_CRITICAL" centered />
+    </div>
+
+    <!-- Headline -->
+    <Heading class="diagnostic-reveal mb-12 max-w-5xl mx-auto tracking-tight" centered>
+      <div class="leading-[.9]">
+        AI is reshaping <br/> how we work.
+      </div>
+      <div class="pt-10 leading-[.9]">
+        <span class="text-rh-ember">Nobody is redesigning how we connect.</span>
+      </div>
+    </Heading>
+
+    <!-- Two cards with connector -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 text-left max-w-5xl mx-auto">
+      <!-- AI card -->
+      <div class="diagnostic-card border border-rh-ink/10 dark:border-rh-chalk/10 rounded-2xl p-6 md:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-rh-ink/5 dark:bg-rh-chalk/5">
+            <span class="font-mono text-xs text-rh-ink/40 dark:text-rh-chalk/40">AI</span>
+          </span>
+          <p class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40">
+            What AI does well
+          </p>
+        </div>
+        <div class="space-y-4">
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ink/30 dark:text-rh-chalk/30 mr-3">▸</span> Automate workflows and processes
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ink/30 dark:text-rh-chalk/30 mr-3">▸</span> Analyze data at scale
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ink/30 dark:text-rh-chalk/30 mr-3">▸</span> Generate content and code
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ink/30 dark:text-rh-chalk/30 mr-3">▸</span> Compress timelines and teams
+          </p>
+        </div>
+      </div>
+
+      <!-- Human card -->
+      <div class="diagnostic-card border border-rh-ember/20 rounded-2xl p-6 md:p-8">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-rh-ember/10">
+            <span class="font-mono text-xs text-rh-ember">US</span>
+          </span>
+          <p class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ember">
+            What only humans can do
+          </p>
+        </div>
+        <div class="space-y-4">
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ember mr-3">▸</span> Build trust and belonging
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ember mr-3">▸</span> Create culture that makes people stay
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ember mr-3">▸</span> Turn customers into community
+          </p>
+          <p class="diagnostic-line font-mono text-sm md:text-base text-rh-ink/60 dark:text-rh-chalk/60 leading-relaxed">
+            <span class="text-rh-ember mr-3">▸</span> Connect people to each other, not just to a product
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connector: the pair -->
+    <div class="diagnostic-reveal flex items-center justify-center gap-4 max-w-5xl mx-auto mt-8">
+      <div class="flex-1 h-px bg-rh-ink/10 dark:bg-rh-chalk/10"></div>
+      <p class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40 shrink-0">
+        Together, they're the unlock
+      </p>
+      <div class="flex-1 h-px bg-rh-ink/10 dark:bg-rh-chalk/10"></div>
+    </div>
+
+    <!-- The verdict (centered) -->
+    <div class="diagnostic-reveal max-w-3xl mx-auto text-center mt-16">
+      <p class="font-mono text-sm md:text-base text-rh-ink/50 dark:text-rh-chalk/50 leading-relaxed mb-8">
+        AI is the enabler. Humans are the unlock. But the way people connect,
+        inside your organization and with your customers, hasn't been
+        redesigned for this new era.
+      </p>
+      <p
+        class="font-heading text-2xl md:text-3xl font-black uppercase italic text-rh-ink dark:text-rh-chalk leading-tight"
+      >
+        Better tools won't fix that.
+      </p>
+      <p
+        class="font-heading text-2xl md:text-3xl font-black uppercase italic text-rh-ember leading-tight mt-3"
+      >
+        Better architecture will.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.fromTo(
+    ".diagnostic-reveal",
+    { opacity: 0, y: 50 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.3,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#diagnostic-section",
+        start: "top 70%",
+      },
+    },
+  );
+
+  gsap.fromTo(
+    ".diagnostic-card",
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#diagnostic-section",
+        start: "top 55%",
+      },
+    },
+  );
+</script>

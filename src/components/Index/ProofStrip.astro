@@ -1,0 +1,31 @@
+---
+import { getEntry } from "astro:content";
+
+const entry = await getEntry("index", "proofmarquee");
+const people = entry?.data?.people ?? [];
+const companies: string[] = [...new Set(people.map((p: { company: string }) => p.company))] as string[];
+---
+
+<div class="bg-rh-warm-light dark:bg-rh-warm-dark px-6 md:px-10 pb-16 md:pb-24">
+  <div class="mx-auto max-w-[1400px]">
+    <!-- Divider with centered label -->
+    <div class="flex items-center gap-4 mb-8 md:mb-10">
+      <div class="flex-1 h-px bg-rh-ink/10 dark:bg-rh-chalk/10"></div>
+      <span class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ink/30 dark:text-rh-chalk/30">
+        Trusted by
+      </span>
+      <div class="flex-1 h-px bg-rh-ink/10 dark:bg-rh-chalk/10"></div>
+    </div>
+
+    <!-- Company names -->
+    <div class="flex flex-wrap items-center justify-center gap-x-6 md:gap-x-8 gap-y-3">
+      {
+        companies.map((company: string) => (
+          <span class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40">
+            {company}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</div>

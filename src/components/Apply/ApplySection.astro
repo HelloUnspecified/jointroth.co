@@ -1,0 +1,147 @@
+---
+import { Image } from "astro:assets";
+import { getEntry } from "astro:content";
+const ApplyData = await getEntry("apply", "index");
+const { hero, communitySection, healthyCommunity } = ApplyData?.data;
+---
+
+
+<script src="https://server.fillout.com/embed/v1/"></script> 
+
+
+<!-- Hero Section -->
+<section class="section-getting-started-hero">
+  <div class="relative z-10 overflow-hidden rounded-bl-[30px] rounded-br-[30px] bg-rh-warm-light md:rounded-bl-[50px] md:rounded-br-[50px] xl:rounded-bl-[100px] xl:rounded-br-[100px]">
+    <div class="pt-20 pb-12 lg:pt-[100px] lg:pb-16 xl:pt-[120px] xl:pb-20">
+      <div class="container-default">
+      <div class="mx-auto max-w-[900px]">
+        <div class="flex flex-col items-center justify-center text-center mb-10 lg:mb-16">
+
+          <div class="jos mb-6">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight -tracking-[1px] text-rh-ink">
+              {hero?.header}
+            </h1>
+          </div>
+          <div class="jos max-w-[768px]">
+            <p class="text-lg md:text-xl text-rh-ink/80">
+              {hero?.subheader}
+            </p>
+          </div>
+        </div>
+
+        <!-- Video Placeholder -->
+        {hero?.videoPlaceholder && (
+          <div class="jos relative rounded-[20px] overflow-hidden bg-rh-ink/5 aspect-video flex items-center justify-center">
+            <div class="text-center p-8">
+              <div class="mb-4">
+                <i class="fa fa-play-circle text-6xl text-rh-terracotta"></i>
+              </div>
+              <p class="text-lg font-semibold text-rh-ink/60">Video Coming Soon</p>
+              <p class="text-sm text-rh-ink/40 mt-2">Watch a quick intro to re:Human</p>
+            </div>
+          </div>
+        )}
+
+        <!-- CTA Button -->
+        <div class="jos mt-8 lg:mt-10 text-center">
+          <div data-fillout-id="gctYQFDV2mus" data-fillout-embed-type="slider" data-fillout-button-text="Schedule a Free Strategy Review" data-fillout-button-color="#E07856" data-fillout-button-size="large" data-fillout-slider-direction="right" data-fillout-inherit-parameters data-fillout-popup-size="medium"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- Healthy Community Section -->
+<section class="section-healthy-community bg-white">
+  <div class="py-16 lg:py-20 xl:py-24">
+    <div class="container-default">
+      <div class="mx-auto max-w-[1200px]">
+
+        <!-- Section Header -->
+        <div class="jos mb-12 lg:mb-16 text-center">
+          <h2 class="text-3xl lg:text-4xl font-bold text-rh-ink mb-4">
+            {communitySection?.header}
+          </h2>
+          <p class="text-lg lg:text-xl text-rh-ink/70">
+            {communitySection?.subheader}
+          </p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {healthyCommunity?.map((item: any, index: number) => (
+            <div
+              class="jos bg-white rounded-[20px] p-6 lg:p-8 border border-rh-ink/10 hover:border-rh-terracotta/30 transition-all duration-300 hover:shadow-lg flex flex-col h-full"
+              data-jos_delay={index * 0.1}
+            >
+              <!-- Top Content -->
+              <div>
+                <!-- Icon -->
+                <div class="mb-6">
+                  <Image
+                    src={item.icon}
+                    alt={item.aspect}
+                    width="60"
+                    height="60"
+                    class="h-[60px] w-[60px]"
+                  />
+                </div>
+
+                <!-- Aspect Title -->
+                <h3 class="text-xl lg:text-2xl font-bold text-rh-ink mb-4">
+                  {item.aspect}
+                </h3>
+
+                <!-- Description -->
+                <p class="text-sm lg:text-base text-rh-ink/70 mb-6 leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+
+              <!-- Divider -->
+              <div class="border-t border-rh-terracotta/20 mb-6"></div>
+
+              <!-- Business Benefit (fills remaining space) -->
+              <div class="bg-rh-warm-light rounded-[10px] p-4 lg:p-5 flex-1 flex flex-col">
+                <div class="flex items-start gap-2 mb-3">
+                  <i class="fa fa-chart-line text-rh-terracotta mt-1 shrink-0"></i>
+                  <h4 class="text-base lg:text-lg font-bold text-rh-terracotta">
+                    {item.businessBenefit}
+                  </h4>
+                </div>
+                <p class="text-sm text-rh-ink/70 mb-3">
+                  {item.benefitDetails}
+                </p>
+                {item.sourceUrl && (
+                  <a
+                    href={item.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-xs text-rh-terracotta hover:text-rh-ink transition-colors inline-flex items-center gap-1 mt-auto"
+                  >
+                    <span>Read Research</span>
+                    <i class="fa fa-external-link text-[10px]"></i>
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Back to Home Link -->
+        <div class="jos mt-16 lg:mt-20 text-center">
+          <a
+            href="/"
+            class="btn-text hover:text-rh-terracotta inline-flex items-center gap-2"
+          >
+            <i class="fa fa-arrow-left"></i>
+            Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+

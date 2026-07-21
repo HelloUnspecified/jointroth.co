@@ -1,0 +1,125 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SectionLabel from "../../elements/SectionLabel.astro";
+import CTAButton from "../../elements/CTAButton.astro";
+---
+
+<Layout
+  title="Deployments"
+  description="Explore re/Human deployment case studies. Real community architecture projects and their outcomes."
+>
+  <main class="main-wrapper relative overflow-hidden">
+    <div class="max-w-4xl mx-auto pt-32 pb-24 px-6">
+      <!-- Terminal Header -->
+      <SectionLabel
+        text="> SYS.ARCHIVE // DEPLOYMENT_HISTORY"
+        dot
+        class="mb-8"
+      />
+
+      <!-- Title -->
+      <h1
+        class="text-5xl font-black uppercase tracking-tighter text-rh-ink dark:text-rh-chalk mb-12"
+      >
+        DECLASSIFIED DOSSIERS.
+      </h1>
+
+      <!-- The File List -->
+      <div class="border-t border-black/10 dark:border-white/10">
+        <!-- File Row 001 -->
+        <a
+          href="/deployments/project-alpha"
+          class="group block border-b border-black/10 dark:border-white/10 py-6 hover:bg-black/5 dark:hover:bg-white/5 transition-colors px-4"
+        >
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <span
+                class="font-mono text-xs text-rh-ink/50 dark:text-rh-chalk/50 tracking-widest uppercase block mb-1"
+              >
+                > FILE_001 // CREATOR_MIGRATION [ STATUS: RESOLVED ]
+              </span>
+              <span
+                class="font-mono text-sm text-rh-ink/30 dark:text-rh-chalk/30 tracking-widest uppercase"
+              >
+                + $50k MRR // 85% RETENTION
+              </span>
+            </div>
+            <span
+              class="font-mono text-xs text-rh-ember/40 group-hover:text-rh-ember tracking-widest uppercase transition-colors whitespace-nowrap"
+            >
+              [ OPEN_RECORD ]
+            </span>
+          </div>
+        </a>
+
+        <!-- File Row 002 -->
+        <a
+          href="/deployments/project-bravo"
+          class="group block border-b border-black/10 dark:border-white/10 py-6 hover:bg-black/5 dark:hover:bg-white/5 transition-colors px-4"
+        >
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <span
+                class="font-mono text-xs text-rh-ink/50 dark:text-rh-chalk/50 tracking-widest uppercase block mb-1"
+              >
+                > FILE_002 // COMMUNITY_OVERHAUL [ STATUS: RESOLVED ]
+              </span>
+              <span
+                class="font-mono text-sm text-rh-ink/30 dark:text-rh-chalk/30 tracking-widest uppercase"
+              >
+                + $35k MRR // 92% RETENTION
+              </span>
+            </div>
+            <span
+              class="font-mono text-xs text-rh-ember/40 group-hover:text-rh-ember tracking-widest uppercase transition-colors whitespace-nowrap"
+            >
+              [ OPEN_RECORD ]
+            </span>
+          </div>
+        </a>
+
+        <!-- File Row 003 -->
+        <a
+          href="/deployments/project-charlie"
+          class="group block border-b border-black/10 dark:border-white/10 py-6 hover:bg-black/5 dark:hover:bg-white/5 transition-colors px-4"
+        >
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <span
+                class="font-mono text-xs text-rh-ink/50 dark:text-rh-chalk/50 tracking-widest uppercase block mb-1"
+              >
+                > FILE_003 // REVENUE_RECAPTURE [ STATUS: RESOLVED ]
+              </span>
+              <span
+                class="font-mono text-sm text-rh-ink/30 dark:text-rh-chalk/30 tracking-widest uppercase"
+              >
+                + $72k MRR // 78% RETENTION
+              </span>
+            </div>
+            <span
+              class="font-mono text-xs text-rh-ember/40 group-hover:text-rh-ember tracking-widest uppercase transition-colors whitespace-nowrap"
+            >
+              [ OPEN_RECORD ]
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- The Trap Door (Final CTA) -->
+      <div
+        class="mt-24 pt-16 border-t border-black/10 dark:border-white/10 flex flex-col items-center text-center"
+      >
+        <SectionLabel text="> END_OF_FILES // READY_TO_DEPLOY?" class="mb-6" />
+        <h2
+          class="text-4xl md:text-5xl font-black uppercase tracking-tighter text-rh-ink dark:text-rh-chalk mb-10"
+        >
+          YOUR METRICS <span class="text-rh-ember">ARE NEXT.</span>
+        </h2>
+        <CTAButton href="/apply" variant="contrast">
+          <span class="w-3 h-3 rounded-full bg-rh-ember animate-pulse"></span>
+          > APPLY_FOR_BUILD
+        </CTAButton>
+      </div>
+    </div>
+  </main>
+</Layout>

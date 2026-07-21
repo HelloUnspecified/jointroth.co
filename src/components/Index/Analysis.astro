@@ -1,0 +1,156 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+import BodyText from "../../elements/BodyText.astro";
+---
+
+<section
+  class="bg-rh-warm-light dark:bg-rh-warm-dark py-28 md:py-40 px-6 md:px-10"
+  id="analysis-section"
+>
+  <div class="mx-auto w-full max-w-[1400px]">
+    <!-- Terminal Header -->
+    <div class="analysis-reveal mb-10">
+      <SectionLabel text="> SYS.ANALYSIS // PATTERN_RECOGNIZED" />
+    </div>
+
+    <!-- Headline -->
+    <Heading class="analysis-reveal mb-12 max-w-5xl">
+      Every revolution breaks the humans
+      <span class="text-rh-ember">first.</span>
+    </Heading>
+
+    <!-- Context -->
+    <div class="analysis-reveal max-w-3xl mb-16">
+      <BodyText>
+        This isn't new. Every revolution in how we work has followed the same
+        pattern: the tools change first. The human systems get figured out later,
+        painfully, expensively, after enormous damage.
+      </BodyText>
+    </div>
+
+    <!-- Revolution Examples -->
+    <div class="max-w-4xl space-y-14 mb-20">
+      <!-- Industrial Revolution -->
+      <div class="analysis-era">
+        <p
+          class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ember mb-4"
+        >
+          The Industrial Revolution
+        </p>
+        <BodyText>
+          Mechanized production. It took decades of exploitation, children in
+          factories and workers without rights, before anyone designed the human
+          protections the new era required.
+        </BodyText>
+      </div>
+
+      <!-- Knowledge Economy -->
+      <div class="analysis-era">
+        <p
+          class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ember mb-4"
+        >
+          The Knowledge Economy
+        </p>
+        <BodyText>
+          Connected information. It took a generation before most people had
+          access to the networks and credentials that actually determined who got
+          ahead.
+        </BodyText>
+      </div>
+
+      <!-- AI Revolution - longest, most visceral -->
+      <div class="analysis-era">
+        <p
+          class="font-mono text-xs md:text-sm uppercase tracking-widest text-rh-ember mb-4"
+        >
+          The AI Revolution
+        </p>
+        <BodyText class="mb-4">
+          Automating cognition. Entire teams eliminated overnight. Roles that
+          held organizations together, gone. The people who carried culture,
+          onboarded through relationships, connected humans to each other -
+          replaced by tools that can't do any of that.
+        </BodyText>
+        <BodyText>
+          The tools are moving faster than ever. The human side hasn't even
+          started.
+        </BodyText>
+      </div>
+    </div>
+
+    <!-- The Gap - key line, visually isolated -->
+    <div class="analysis-reveal max-w-4xl mb-10">
+      <p
+        class="font-heading text-2xl md:text-3xl font-black uppercase italic tracking-tight leading-none text-rh-ink dark:text-rh-chalk"
+      >
+        We are in the <span class="text-rh-ember">gap</span> right now.
+      </p>
+    </div>
+
+    <div class="analysis-reveal max-w-3xl mb-6">
+      <BodyText>
+        The window between the tool change and the human redesign. That's where
+        the damage happens.
+      </BodyText>
+    </div>
+
+    <!-- The Turn -->
+    <div class="analysis-reveal max-w-3xl mb-12">
+      <p
+        class="text-xl md:text-2xl font-heading font-bold text-rh-ink dark:text-rh-chalk leading-snug"
+      >
+        Every previous revolution, we waited.<br /><br />
+        This time, we don't have to.
+      </p>
+    </div>
+
+    <!-- CTA -->
+    <div class="analysis-reveal">
+      <a
+        href="/thesis"
+        class="inline-block font-mono text-sm uppercase tracking-widest text-rh-ember hover:underline"
+      >
+        Read the Full Thesis →
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.fromTo(
+    ".analysis-reveal",
+    { opacity: 0, y: 50 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.3,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#analysis-section",
+        start: "top 70%",
+      },
+    },
+  );
+
+  gsap.fromTo(
+    ".analysis-era",
+    { opacity: 0, x: -20 },
+    {
+      opacity: 1,
+      x: 0,
+      duration: 0.8,
+      stagger: 0.2,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: "#analysis-section",
+        start: "top 55%",
+      },
+    },
+  );
+</script>

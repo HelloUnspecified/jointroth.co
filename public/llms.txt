@@ -1,0 +1,32 @@
+# re/Human
+
+> In the age of AI, your only unfair advantage is your people. re/Human builds systems that scale authentic connection.
+
+re/Human (by Unspecified Software Co.) is a community architecture firm. We design and deploy community-driven ecosystems for brands that want to turn audiences into lasting, self-sustaining communities.
+
+## What We Do
+
+- Community architecture: designing systems that scale authentic human connection
+- Ecosystem diagnostics: mapping current community infrastructure and identifying structural gaps
+- Culture design frameworks: building the rituals, rhythms, and systems that make communities thrive
+- Deployment execution: hands-on implementation of community strategies
+
+## Founded By
+
+Clark Sell — community builder, speaker, and systems thinker. Over two decades of experience building developer communities, conferences (THAT Conference), and human-first technology systems.
+
+## Key Pages
+
+- [Homepage](https://joinrehuman.com/): Overview of re/Human and what we build
+- [The Manifesto](https://joinrehuman.com/thesis/): Our thesis on why community is the last satisfying moat
+- [The Architect](https://joinrehuman.com/the-architect/): About Clark Sell, founder of re/Human
+- [Deployments](https://joinrehuman.com/deployments/): Case studies of community architecture projects
+- [Apply](https://joinrehuman.com/apply/): Apply to work with re/Human
+- [Book a Session](https://joinrehuman.com/book/): Schedule a private architecture session
+
+## Core Beliefs
+
+- Community is the new moat — the only unfair advantage in the age of AI
+- Audiences are rented; communities are owned
+- Systems beat tactics — scalable connection requires architecture, not hacks
+- Human connection is the product, not the byproduct

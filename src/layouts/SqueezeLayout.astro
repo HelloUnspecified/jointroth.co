@@ -1,0 +1,64 @@
+---
+import "../css/tailwind.css";
+import PostHog from "../components/functional/posthog.astro";
+import SEO from "../components/functional/SEO.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+}
+
+const { title, description, ogImage, ogType, noindex, jsonLd } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      ogType={ogType}
+      noindex={noindex}
+      jsonLd={jsonLd}
+    />
+    <link rel="icon" href="/favicon.webp" />
+
+    <!-- Resource hints for third-party origins -->
+    <link rel="preconnect" href="https://us.i.posthog.com" />
+    <link rel="preconnect" href="https://us-assets.i.posthog.com" crossorigin />
+    <link rel="dns-prefetch" href="https://cal.joinrehuman.com" />
+    <link rel="dns-prefetch" href="https://blog.joinrehuman.com" />
+
+    <slot name="head" />
+  </head>
+  <body class="bg-rh-ink text-rh-chalk font-body antialiased">
+    <!-- Noise Overlay (reduced octaves for GPU perf) -->
+    <svg
+      class="pointer-events-none fixed inset-0 z-9999 h-full w-full opacity-[0.03]"
+      aria-hidden="true"
+    >
+      <filter id="noiseFilter">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.85"
+          numOctaves="2"
+          stitchTiles="stitch"></feTurbulence>
+      </filter>
+      <rect width="100%" height="100%" filter="url(#noiseFilter)"></rect>
+    </svg>
+
+    <main>
+      <slot />
+    </main>
+
+    <!-- Analytics: loaded after content for better LCP -->
+    <PostHog />
+  </body>
+</html>

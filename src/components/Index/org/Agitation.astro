@@ -1,0 +1,166 @@
+---
+import SectionLabel from "../../../elements/SectionLabel.astro";
+import Heading from "../../../elements/Heading.astro";
+import BodyText from "../../../elements/BodyText.astro";
+---
+
+<section
+  class="bg-rh-warm-light dark:bg-rh-warm-dark min-h-screen flex flex-col justify-center py-32 md:py-48 px-6 md:px-10"
+  id="agitation-section"
+>
+  <div class="mx-auto w-full max-w-[1400px]">
+    <!-- Centered Billboard: Terminal Header + Headline -->
+    <div
+      class="flex flex-col items-center text-center w-full max-w-6xl mx-auto mb-16 md:mb-24"
+    >
+      <SectionLabel text="> SYS.DIAGNOSTIC // THE_TWO_TRAPS" centered />
+      <Heading class="agitation-reveal mt-6">
+        Expertise is invisible.<br />
+        Audiences are rented.<br />
+        <span class="text-rh-ember">Trust is broken.</span>
+      </Heading>
+    </div>
+
+    <!-- Two-column layout: Copy left, Counter right -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center w-full max-w-7xl mx-auto"
+    >
+      <!-- Left: Copy -->
+      <div class="agitation-reveal">
+        <BodyText class="mb-6">
+          Right now, you are trapped in one of two realities. Either you have a
+          decade of world-class expertise but refuse to play the performative
+          marketing game, leaving you invisible. Or, you've built a massive
+          audience, but your back-end is an awkward 8th-grade dance, <strong
+            class="font-bold text-rh-ink dark:text-rh-chalk"
+            >people show up to see you, but leave because they don't connect
+            with each other.</strong
+          >
+        </BodyText>
+        <BodyText>
+          In an era where AI can manufacture infinite noise, authority is faked
+          and trust is broken. When anyone can generate 'expertise' with a
+          prompt, you can no longer compete on content alone. The only way to
+          survive is to build a culture that cannot be automated. <strong
+            class="font-bold text-rh-ink dark:text-rh-chalk"
+            >Community is your true moat.</strong
+          > And both of these traps, being invisible or bleeding an audience, <strong
+            class="font-bold text-rh-ember"
+            >are solved by the exact same architecture.</strong
+          >
+        </BodyText>
+      </div>
+
+      <!-- Right: Decay Counter -->
+      <div
+        class="agitation-reveal border border-rh-ink/10 dark:border-rh-chalk/10 p-10 md:p-14"
+      >
+        <div class="flex items-center gap-3 mb-8">
+          <span class="block w-2 h-2 rounded-full bg-rh-ember/40"></span>
+          <span
+            class="font-mono text-[10px] uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40"
+            >LIVE DIAGNOSTIC</span
+          >
+        </div>
+
+        <!-- Big Counter -->
+        <div class="mb-8">
+          <p
+            class="font-mono text-[10px] uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40 mb-3"
+          >
+            BROADCASTS_SENT_TODAY:
+          </p>
+          <p
+            class="font-mono text-3xl md:text-4xl lg:text-5xl font-bold text-rh-ink dark:text-rh-chalk tabular-nums tracking-tight"
+            id="decay-counter"
+          >
+            0
+          </p>
+        </div>
+
+        <!-- Contrast Stats -->
+        <div
+          class="border-t border-rh-ink/10 dark:border-rh-chalk/10 pt-6 grid grid-cols-2 gap-6"
+        >
+          <div>
+            <p
+              class="font-mono text-[10px] uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40 mb-2"
+            >
+              REAL_CONNECTIONS:
+            </p>
+            <p
+              class="font-mono text-3xl md:text-4xl font-bold text-rh-ember tabular-nums"
+            >
+              12
+            </p>
+          </div>
+          <div>
+            <p
+              class="font-mono text-[10px] uppercase tracking-widest text-rh-ink/40 dark:text-rh-chalk/40 mb-2"
+            >
+              RETENTION_RATE:
+            </p>
+            <p
+              class="font-mono text-3xl md:text-4xl font-bold text-rh-ink/15 dark:text-rh-chalk/15 tabular-nums"
+            >
+              0.02%
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Reveal animations
+  gsap.fromTo(
+    ".agitation-reveal",
+    { opacity: 0, y: 50 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.3,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#agitation-section",
+        start: "top 70%",
+      },
+    },
+  );
+
+  // Decay counter - starts when visible, rapidly increments
+  const counterEl = document.getElementById("decay-counter");
+  if (counterEl) {
+    let count = 3_847_291_044;
+    let running = false;
+
+    function formatNumber(n: number): string {
+      return n.toLocaleString("en-US");
+    }
+
+    function tick() {
+      if (!running) return;
+      count += Math.floor(Math.random() * 800) + 200;
+      counterEl!.textContent = formatNumber(count);
+      requestAnimationFrame(tick);
+    }
+
+    ScrollTrigger.create({
+      trigger: "#agitation-section",
+      start: "top 60%",
+      onEnter: () => {
+        if (!running) {
+          running = true;
+          counterEl.textContent = formatNumber(count);
+          tick();
+        }
+      },
+    });
+  }
+</script>

@@ -1,0 +1,135 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import NewsletterForm from "../functional/NewsletterForm.astro";
+---
+
+<footer
+  class="bg-rh-warm-dark text-rh-chalk pt-32 pb-12 px-6 md:px-12 lg:px-16 rounded-t-[4rem] mt-24 border-t border-white/10"
+>
+  <div class="mx-auto max-w-[1400px]">
+    <!-- Brand Row -->
+    <div class="mb-24">
+      <a
+        href="/"
+        class="font-heading font-black text-3xl md:text-4xl tracking-tighter text-rh-chalk uppercase italic hover:text-rh-ember transition-colors duration-300"
+      >
+        re/<span class="text-rh-ember">Human</span>
+      </a>
+    </div>
+
+    <!-- Newsletter + Terminal Row -->
+    <div
+      class="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-16 mb-0"
+    >
+      <!-- Left: Newsletter Section -->
+      <div class="flex-1">
+        <!-- Terminal Header -->
+        <SectionLabel
+          text="> SYS.ARCHIVE // LONG_FORM"
+          class="text-rh-chalk/50!"
+        />
+
+        <!-- Headline -->
+        <h2
+          class="font-heading text-4xl md:text-7xl font-black uppercase italic tracking-tight leading-[1.1] text-rh-chalk mt-6"
+        >
+          Read the Manual.
+        </h2>
+
+        <!-- Body -->
+        <p
+          class="text-lg md:text-xl text-rh-chalk/70 leading-relaxed max-w-2xl mt-4 mb-12"
+        >
+          Get our weekly dispatch on community architecture, frameworks, case
+          studies, and systems thinking for leaders building movements.
+        </p>
+
+        <!-- Email Input -->
+        <NewsletterForm id="footer-newsletter" />
+      </div>
+
+      <!-- Right: Terminal Window -->
+      <div
+        class="w-full max-w-full lg:w-auto lg:min-w-[380px] bg-rh-ink border border-rh-chalk/10 rounded-xl overflow-hidden self-start"
+      >
+        <!-- Title Bar -->
+        <div
+          class="flex items-center justify-between px-4 py-3 border-b border-rh-chalk/10"
+        >
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-rh-ember/60"></span>
+            <span class="w-3 h-3 rounded-full bg-rh-chalk/20"></span>
+            <span class="w-3 h-3 rounded-full bg-rh-chalk/20"></span>
+          </div>
+          <span
+            class="font-mono text-[10px] uppercase tracking-widest text-rh-chalk/30"
+            >rehuman_nav.sh</span
+          >
+        </div>
+        <!-- Terminal Body -->
+        <div
+          class="px-4 md:px-5 py-4 font-mono text-xs md:text-sm space-y-2 overflow-x-auto"
+        >
+          <!-- MOTD ASCII Art -->
+          <div
+            class="text-rh-ember/40 text-[9px] md:text-[10px] leading-tight mb-3"
+          >
+            <pre
+              class="whitespace-pre overflow-x-auto">╦═╗╔═╗  ╱ ╦ ╦╦ ╦╔╦╗╔═╗╔╗╔
+╠╦╝║╣  ╱  ╠═╣║ ║║║║╠═╣║║║
+╩╚═╚═╝╱   ╩ ╩╚═╝╩ ╩╩ ╩╝╚╝</pre>
+            <p class="text-rh-chalk/20 mt-1">
+              v2.0.26 // human protocol active
+            </p>
+          </div>
+          <p class="text-rh-ember/60 text-[10px] mb-1">select a destination:</p>
+          <p class="text-rh-chalk/50">&gt; ls -la /sitemap</p>
+          <div class="pl-4 space-y-1">
+            <a
+              href="https://blog.joinrehuman.com/"
+              class="block text-rh-chalk/70 hover:text-rh-ember transition-colors"
+              >drwxr-xr-x articles/</a
+            >
+            <a
+              href="/book"
+              class="block text-rh-chalk/70 hover:text-rh-ember transition-colors"
+              >-rwxr-xr-x book_session</a
+            >
+            <a
+              href="/the-architect"
+              class="block text-rh-chalk/70 hover:text-rh-ember transition-colors"
+              >-rw-r--r-- the_architect</a
+            >
+            <a
+              href="mailto:hello@joinrehuman.com"
+              class="block text-rh-chalk/70 hover:text-rh-ember transition-colors"
+              >-rw-r--r-- contact</a
+            >
+          </div>
+          <p class="text-rh-chalk/50 flex items-center pt-1">
+            &gt;&nbsp;&nbsp;<a
+              href="/book"
+              class="text-green-400 hover:underline">BOOK_STRATEGY_CALL</a
+            ><span
+              class="inline-block w-0.5 h-[1em] bg-rh-ember ml-1 animate-pulse"
+            ></span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Row: Copyright -->
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-32 pt-8 border-t border-white/10 font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-chalk/50"
+    >
+      <span class="flex items-center gap-2 text-rh-ember">
+        <span class="w-2 h-2 rounded-full bg-rh-ember animate-pulse"></span>
+        HUMAN PROTOCOL // ACTIVE
+      </span>
+      <span
+        >&copy; {new Date().getFullYear()} RE/HUMAN. ALL RIGHTS RESERVED.</span
+      >
+    </div>
+  </div>
+</footer>
+

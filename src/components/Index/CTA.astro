@@ -1,0 +1,29 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+import CTAButton from "../../elements/CTAButton.astro";
+---
+
+<section
+  class="py-28 md:py-40 flex flex-col items-center justify-center text-center px-6 bg-rh-warm-light dark:bg-rh-warm-dark overflow-hidden"
+>
+  <!-- Terminal Header -->
+  <SectionLabel text="> SYS.INITIATE // ENGAGEMENT" />
+
+  <!-- Headline -->
+  <Heading size="lg" centered class="mt-8 mb-12 tracking-tight">
+    Start Building<br />The Architecture.
+  </Heading>
+
+  <!-- CTA Button -->
+  <CTAButton href="/book">BOOK_ARCHITECTURE_REVIEW</CTAButton>
+
+  <p
+    class="font-mono text-sm text-rh-ink/40 dark:text-rh-chalk/40 mt-6"
+  >
+    Not ready yet?
+    <a href="#subscribe" class="text-rh-ember hover:underline"
+      >Subscribe to the Manual</a
+    >
+  </p>
+</section>

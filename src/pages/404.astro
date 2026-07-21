@@ -1,0 +1,108 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SectionLabel from "../elements/SectionLabel.astro";
+---
+
+<Layout title="404 | Signal Lost" description="This page could not be found." noindex>
+  <section
+    class="min-h-[80vh] flex flex-col items-center justify-center px-6 md:px-12 py-32"
+  >
+    <SectionLabel text="> SYS.ERROR // SIGNAL_LOST" centered class="mb-8" />
+
+    <!-- Terminal Window -->
+    <div
+      class="w-full max-w-7xl bg-rh-ink border border-rh-chalk/10 rounded-xl overflow-hidden"
+    >
+      <!-- Title Bar -->
+      <div
+        class="flex items-center justify-between px-4 py-3 border-b border-rh-chalk/10"
+      >
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-rh-ember/60"></span>
+          <span class="w-3 h-3 rounded-full bg-rh-chalk/20"></span>
+          <span class="w-3 h-3 rounded-full bg-rh-chalk/20"></span>
+        </div>
+        <span
+          class="font-mono text-[10px] uppercase tracking-widest text-rh-chalk/30"
+        >
+          recovery_protocol.sh
+        </span>
+      </div>
+      <!-- Terminal Body -->
+      <div
+        id="terminal-output"
+        class="px-5 py-4 font-mono text-xs md:text-sm space-y-1 text-rh-chalk/70"
+        style="height: 610px;"
+      >
+      </div>
+    </div>
+  </section>
+</Layout>
+
+
+<script>
+  const lines = [
+    { text: "> scanning /routes/...", cls: "text-rh-chalk/50" },
+    { text: "  drwxr-xr-x  home/", cls: "text-rh-chalk/40" },
+    { text: "  drwxr-xr-x  deployments/", cls: "text-rh-chalk/40" },
+    { text: "  drwxr-xr-x  thesis/", cls: "text-rh-chalk/40" },
+    { text: "> target route not found", cls: "text-rh-ember/70" },
+    { text: "> initiating recovery protocol...", cls: "text-rh-chalk/50" },
+    { text: "  [▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░] 50%", cls: "text-rh-chalk/30" },
+    { text: "  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░] 75%", cls: "text-rh-chalk/30" },
+    { text: "  [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%", cls: "text-rh-chalk/30" },
+    { text: "> recovery failed // route does not exist", cls: "text-rh-ember" },
+    { text: "", cls: "" },
+    {
+      text: "> status: 404 // SIGNAL LOST",
+      cls: "text-rh-ember font-bold",
+    },
+  ];
+
+  const terminal = document.getElementById("terminal-output");
+  if (terminal) {
+    let i = 0;
+    function addLine() {
+      if (i >= lines.length) {
+        // Add ASCII 404 art with padding and subtext
+        const artWrapper = document.createElement("div");
+        artWrapper.className = "py-4 mt-2";
+
+        const pre = document.createElement("pre");
+        pre.className =
+          "text-rh-ember text-sm sm:text-base md:text-lg lg:text-xl leading-tight select-none whitespace-pre";
+        pre.textContent =
+          "██╗  ██╗ ██████╗ ██╗  ██╗\n██║  ██║██╔═══██╗██║  ██║\n███████║██║   ██║███████║\n╚════██║██║   ██║╚════██║\n     ██║╚██████╔╝     ██║\n     ╚═╝ ╚═════╝      ╚═╝";
+        artWrapper.appendChild(pre);
+
+        const sub = document.createElement("p");
+        sub.className = "text-rh-chalk/40 text-[10px] md:text-xs mt-2";
+        sub.textContent =
+          "This signal has been lost in the void. It may have been decommissioned, relocated, or never existed in this timeline.";
+        artWrapper.appendChild(sub);
+
+        terminal.appendChild(artWrapper);
+
+        // Add the final clickable "return to base" line with blinking cursor
+        const a = document.createElement("a");
+        a.href = "/";
+        a.className =
+          "block text-rh-chalk/50 hover:text-rh-ember transition-colors duration-300 mt-1 flex items-center";
+        a.innerHTML =
+          '> suggestion: <span class="underline underline-offset-4 ml-1">return to base</span><span class="inline-block w-[2px] h-[1em] bg-rh-ember animate-pulse ml-1"></span>';
+        terminal.appendChild(a);
+        return;
+      }
+      const line = lines[i];
+      const p = document.createElement("p");
+      p.textContent = line.text;
+      p.className = line.cls;
+      if (line.text === "") p.innerHTML = "&nbsp;";
+      terminal.appendChild(p);
+      i++;
+      const delay = line.text.includes("▓") ? 400 : 300;
+      setTimeout(addLine, delay);
+    }
+    setTimeout(addLine, 500);
+  }
+</script>

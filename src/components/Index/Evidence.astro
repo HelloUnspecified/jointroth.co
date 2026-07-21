@@ -1,0 +1,309 @@
+---
+import SectionLabel from "../../elements/SectionLabel.astro";
+import Heading from "../../elements/Heading.astro";
+import CTAButton from "../../elements/CTAButton.astro";
+---
+
+<section
+  class="bg-rh-warm-dark dark:bg-rh-ink py-28 md:py-40 px-6 md:px-10"
+  id="evidence-section"
+>
+  <div class="mx-auto w-full max-w-4xl">
+    <!-- Terminal Header -->
+    <div class="mb-10">
+      <SectionLabel text="> SYS.SCAN // ORG_DIAGNOSTIC" class="text-rh-chalk/50!" />
+    </div>
+
+    <!-- Headline -->
+    <Heading class="mb-6 max-w-4xl text-rh-chalk! tracking-tight">
+      Run the scan on <span class="text-rh-ember">your organization.</span>
+    </Heading>
+
+    <p class="font-mono text-sm md:text-base text-rh-chalk/50 leading-relaxed max-w-2xl mb-16">
+      Two inputs. Real math. See what the missing human layer is actually costing you.
+    </p>
+
+    <!-- Terminal Input -->
+    <div class="max-w-3xl mb-16">
+      <div class="border border-rh-chalk/10 overflow-hidden">
+        <!-- Terminal title bar -->
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-rh-chalk/10">
+          <span class="w-2.5 h-2.5 rounded-full bg-rh-ember/60"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-rh-chalk/10"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-rh-chalk/10"></span>
+          <span class="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-rh-chalk/30 ml-2">org_scan.sh</span>
+        </div>
+
+        <!-- Terminal body -->
+        <div class="p-5 md:p-6 space-y-4 font-mono text-sm">
+          <p class="text-rh-chalk/40 text-xs uppercase tracking-widest">
+            ENTER ORG PARAMETERS TO BEGIN SCAN:
+          </p>
+
+          <!-- Org size input -->
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <span class="text-rh-ember shrink-0">&gt;</span>
+            <label for="org-size" class="text-rh-chalk/50 shrink-0">ORG_SIZE =</label>
+            <input
+              type="number"
+              id="org-size"
+              min="1"
+              value="100"
+              class="bg-transparent border-b border-rh-chalk/20 text-rh-chalk px-2 py-1 w-24 md:w-28 focus:outline-none focus:border-rh-ember transition-colors text-right"
+            />
+            <span class="text-rh-chalk/30">employees</span>
+          </div>
+
+          <!-- Avg salary input -->
+          <div class="flex flex-wrap items-center gap-2 md:gap-3">
+            <span class="text-rh-ember shrink-0">&gt;</span>
+            <label for="avg-salary" class="text-rh-chalk/50 shrink-0">AVG_SALARY =</label>
+            <span class="text-rh-chalk/30">$</span>
+            <input
+              type="number"
+              id="avg-salary"
+              min="1000"
+              step="1000"
+              value="85000"
+              class="bg-transparent border-b border-rh-chalk/20 text-rh-chalk px-2 py-1 w-28 md:w-32 focus:outline-none focus:border-rh-ember transition-colors text-right"
+            />
+            <span class="text-rh-chalk/30">/yr</span>
+          </div>
+
+          <!-- Run button -->
+          <div class="pt-2">
+            <button
+              id="run-scan"
+              class="font-mono text-sm uppercase tracking-widest text-rh-ember hover:bg-rh-ember/10 px-6 py-3 border border-rh-ember/30 hover:border-rh-ember transition-all"
+            >
+              [ RUN_DIAGNOSTIC ]
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan Results (pre-populated, visible on load) -->
+    <div id="scan-output" class="max-w-3xl space-y-0">
+      <!-- Progress bar -->
+      <div class="mb-10">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="inline-block w-2 h-2 rounded-full bg-green-500" id="scan-pulse"></span>
+          <p class="font-mono text-xs md:text-sm text-rh-chalk/40 uppercase tracking-widest">
+            SCANNING <span id="scan-org-echo">100</span> EMPLOYEES... <span id="scan-status">100%</span>
+          </p>
+        </div>
+        <div class="h-px bg-rh-chalk/10 overflow-hidden">
+          <div id="scan-bar" class="h-full bg-rh-ember w-full transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <!-- Results appear one by one -->
+      <div class="space-y-1" id="scan-lines">
+
+        <!-- Line 01: Turnover cost -->
+        <div class="scan-line border-l-2 border-rh-ember/30 pl-4 md:pl-6 py-4">
+          <div class="font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-ember mb-2">
+            FINDING_01 // TURNOVER_COST
+          </div>
+          <p class="font-mono text-sm md:text-base text-rh-chalk/60 leading-relaxed">
+            At industry-average turnover (18%), you lose ~<span class="text-rh-chalk font-bold" id="r-turnover-count">27</span> people per year. Replacement cost per head: <span class="text-rh-chalk font-bold" id="r-replace-cost">$127K</span>.
+          </p>
+          <p class="font-heading text-2xl md:text-4xl font-black text-rh-ember mt-3">
+            $<span id="r-turnover-total">3.4M</span><span class="font-mono text-sm md:text-base font-normal text-rh-chalk/40 ml-2">/yr walking out the door</span>
+          </p>
+          <p class="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-rh-chalk/20 mt-2">
+            SRC: <a href="https://www.gallup.com/workplace/247391/fixable-problem-costs-businesses-trillion.aspx" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">GALLUP</a> / <a href="https://www.shrm.org/executive-network/insights/shrm-report-workplace-culture-fosters-employee-retention" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">SHRM 2024</a>
+          </p>
+        </div>
+
+        <!-- Line 02: Disengagement -->
+        <div class="scan-line border-l-2 border-rh-chalk/5 pl-4 md:pl-6 py-4">
+          <div class="font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-ember mb-2">
+            FINDING_02 // DISENGAGEMENT
+          </div>
+          <p class="font-mono text-sm md:text-base text-rh-chalk/60 leading-relaxed">
+            79% global disengagement rate applied to your org:
+          </p>
+          <p class="font-heading text-2xl md:text-4xl font-black text-rh-ember mt-3">
+            <span id="r-disengaged-count">119</span> people<span class="font-mono text-sm md:text-base font-normal text-rh-chalk/40 ml-2">showing up but checked out</span>
+          </p>
+          <p class="font-mono text-sm md:text-base text-rh-chalk/60 leading-relaxed mt-2">
+            Estimated productivity loss: <span class="text-rh-chalk font-bold">$<span id="r-disengage-cost">2.1M</span>/yr</span>
+          </p>
+          <p class="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-rh-chalk/20 mt-2">
+            SRC: <a href="https://www.gallup.com/workplace/349484/state-of-the-global-workplace.aspx" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">GALLUP STATE OF THE GLOBAL WORKPLACE 2025</a>
+          </p>
+        </div>
+
+        <!-- Line 03: AI gap -->
+        <div class="scan-line border-l-2 border-rh-chalk/5 pl-4 md:pl-6 py-4">
+          <div class="font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-ember mb-2">
+            FINDING_03 // AI_TRANSFORMATION_RISK
+          </div>
+          <p class="font-mono text-sm md:text-base text-rh-chalk/60 leading-relaxed">
+            $2.5 trillion spent on AI globally in 2026. 70% of transformations fail because of people, not technology. Only 8% of organizations have a plan for the human side.
+          </p>
+          <p class="font-heading text-2xl md:text-4xl font-black text-rh-ember mt-3">
+            70% failure rate<span class="font-mono text-sm md:text-base font-normal text-rh-chalk/40 ml-2">is a people problem, not a tech problem</span>
+          </p>
+          <p class="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-rh-chalk/20 mt-2">
+            SRC: <a href="https://www.gartner.com/en/newsroom/press-releases/2026-1-15-gartner-says-worldwide-ai-spending-will-total-2-point-5-trillion-dollars-in-2026" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">GARTNER 2026</a> / <a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">MCKINSEY</a> / <a href="https://www.bcg.com/publications/2025/are-you-generating-value-from-ai-the-widening-gap" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">BCG 2024</a>
+          </p>
+        </div>
+
+        <!-- Line 04: What architecture saves -->
+        <div class="scan-line border-l-2 border-rh-chalk/5 pl-4 md:pl-6 py-4">
+          <div class="font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-ember mb-2">
+            FINDING_04 // ARCHITECTURE_UPSIDE
+          </div>
+          <p class="font-mono text-sm md:text-base text-rh-chalk/60 leading-relaxed">
+            Organizations with intentional human architecture see 59% less turnover, 3.7x engagement, 50% lower hiring costs. Applied to your org:
+          </p>
+          <p class="font-heading text-2xl md:text-4xl font-black text-rh-ember mt-3">
+            $<span id="r-savings">2.8M</span><span class="font-mono text-sm md:text-base font-normal text-rh-chalk/40 ml-2">/yr recoverable with architecture</span>
+          </p>
+          <p class="font-mono text-[9px] md:text-[10px] uppercase tracking-widest text-rh-chalk/20 mt-2">
+            SRC: <a href="https://business.linkedin.com/content/dam/business/talent-solutions/global/en_us/c/pdfs/ultimate-list-of-employer-brand-stats.pdf" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">LINKEDIN</a> / <a href="https://www.gallup.com/workplace/349484/state-of-the-global-workplace.aspx" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">GALLUP</a> / <a href="https://bevy.com/b/blog/top-11-community-engagement-metrics-for-2025" target="_blank" rel="noopener" class="hover:text-rh-ember transition-colors underline">BEVY</a>
+          </p>
+        </div>
+
+        <!-- Verdict -->
+        <div class="scan-line py-6 mt-4">
+          <div class="border border-rh-ember/30 p-6 md:p-8">
+            <div class="font-mono text-[10px] md:text-xs uppercase tracking-widest text-rh-ember mb-4">
+              <span class="inline-block w-2 h-2 rounded-full bg-rh-ember mr-2 align-middle"></span>
+              SCAN_COMPLETE // VERDICT
+            </div>
+            <p class="font-mono text-sm md:text-base text-rh-chalk/70 leading-relaxed mb-2">
+              Your organization is likely losing <span class="text-rh-ember font-bold">$<span id="r-total-loss">5.5M</span>/yr</span> to missing human infrastructure. This is not a soft cost. It is payroll, productivity, and competitive position leaking through gaps nobody designed around.
+            </p>
+            <p class="font-mono text-sm md:text-base text-rh-chalk/50 leading-relaxed mt-4">
+              &gt; RECOMMENDED_ACTION: <a href="/book" class="text-rh-ember hover:underline">BOOK_ARCHITECTURE_REVIEW</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div id="scan-cta" class="mt-12">
+      <CTAButton href="/book">BOOK_ARCHITECTURE_REVIEW</CTAButton>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  function formatMoney(n: number): string {
+    if (n >= 1_000_000) {
+      return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
+    if (n >= 1_000) {
+      return Math.round(n / 1_000) + "K";
+    }
+    return String(Math.round(n));
+  }
+
+  const runBtn = document.getElementById("run-scan") as HTMLButtonElement;
+  const orgSizeInput = document.getElementById("org-size") as HTMLInputElement;
+  const avgSalaryInput = document.getElementById("avg-salary") as HTMLInputElement;
+  const scanOutput = document.getElementById("scan-output") as HTMLElement;
+  const scanLines = document.querySelectorAll(".scan-line");
+  const scanBar = document.getElementById("scan-bar") as HTMLElement;
+  const scanStatus = document.getElementById("scan-status") as HTMLElement;
+  const scanOrgEcho = document.getElementById("scan-org-echo") as HTMLElement;
+  const scanPulse = document.getElementById("scan-pulse") as HTMLElement;
+  const scanCta = document.getElementById("scan-cta") as HTMLElement;
+
+  function calculate(orgSize: number, avgSalary: number) {
+    const turnoverRate = 0.18;
+    const turnoverCount = Math.round(orgSize * turnoverRate);
+    const replaceCost = avgSalary * 1.5;
+    const turnoverTotal = turnoverCount * replaceCost;
+
+    const disengagedCount = Math.round(orgSize * 0.79);
+    const disengageCost = disengagedCount * avgSalary * 0.18;
+
+    const turnoverSavings = turnoverTotal * 0.59;
+    const engagementSavings = disengageCost * 0.37;
+    const totalSavings = turnoverSavings + engagementSavings;
+    const totalLoss = turnoverTotal + disengageCost;
+
+    return { turnoverCount, replaceCost, turnoverTotal, disengagedCount, disengageCost, totalSavings, totalLoss };
+  }
+
+  function updateDOM(results: ReturnType<typeof calculate>, orgSize: number) {
+    (document.getElementById("r-turnover-count") as HTMLElement).textContent = String(results.turnoverCount);
+    (document.getElementById("r-replace-cost") as HTMLElement).textContent = "$" + formatMoney(results.replaceCost);
+    (document.getElementById("r-turnover-total") as HTMLElement).textContent = formatMoney(results.turnoverTotal);
+    (document.getElementById("r-disengaged-count") as HTMLElement).textContent = String(results.disengagedCount);
+    (document.getElementById("r-disengage-cost") as HTMLElement).textContent = formatMoney(results.disengageCost);
+    (document.getElementById("r-savings") as HTMLElement).textContent = formatMoney(results.totalSavings);
+    (document.getElementById("r-total-loss") as HTMLElement).textContent = formatMoney(results.totalLoss);
+    scanOrgEcho.textContent = String(orgSize);
+  }
+
+  // Pre-populate with default values immediately (no animation)
+  {
+    const results = calculate(100, 85000);
+    updateDOM(results, 100);
+    runBtn.textContent = "[ RE-RUN_DIAGNOSTIC ]";
+  }
+
+  // Re-run button: animate the scan results when user clicks
+  runBtn?.addEventListener("click", () => {
+    const orgSize = Math.max(1, parseInt(orgSizeInput.value) || 100);
+    const avgSalary = Math.max(1000, parseInt(avgSalaryInput.value) || 85000);
+
+    const results = calculate(orgSize, avgSalary);
+    updateDOM(results, orgSize);
+
+    // Disable button during scan
+    runBtn.textContent = "[ SCANNING... ]";
+    runBtn.disabled = true;
+    runBtn.classList.add("opacity-50", "animate-pulse");
+
+    // Reset scan state for animation
+    scanLines.forEach((line) => {
+      (line as HTMLElement).style.opacity = "0";
+      (line as HTMLElement).style.transform = "translateY(10px)";
+    });
+    scanCta.style.opacity = "0";
+    scanBar.style.width = "0%";
+    scanStatus.textContent = "0%";
+    scanPulse.classList.remove("bg-green-500");
+    scanPulse.classList.add("animate-pulse");
+
+    // Scroll output into view
+    scanOutput.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Animate scan lines appearing one by one
+    const totalLines = scanLines.length;
+    const lineDelay = 350;
+
+    scanLines.forEach((line, i) => {
+      const pct = Math.round(((i + 1) / totalLines) * 100);
+      setTimeout(() => {
+        gsap.to(line, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
+        scanBar.style.width = pct + "%";
+        scanStatus.textContent = pct + "%";
+
+        if (i === totalLines - 1) {
+          setTimeout(() => {
+            scanPulse.classList.remove("animate-pulse");
+            scanPulse.classList.add("bg-green-500");
+            gsap.to(scanCta, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" });
+            runBtn.textContent = "[ RE-RUN_DIAGNOSTIC ]";
+            runBtn.disabled = false;
+            runBtn.classList.remove("opacity-50", "animate-pulse");
+            ScrollTrigger.refresh();
+          }, 400);
+        }
+      }, (i + 1) * lineDelay);
+    });
+  });
+</script>
