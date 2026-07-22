@@ -20,6 +20,9 @@
 /* Troth design tokens (colors, type, spacing, radius, effects) + Lamplight */
 @import "./troth-tokens.css";
 
+/* Shared UI + motion */
+@import "./troth-ui.css";
+
 /* Lamplight is toggled via the `.troth-dark` class on <html> */
 @custom-variant dark (&:where(.troth-dark, .troth-dark *));
 

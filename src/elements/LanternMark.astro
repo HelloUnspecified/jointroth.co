@@ -1,0 +1,32 @@
+---
+// The two-lantern brand mark. tone: "brand" (terracotta + plum) | "mono" | "cream".
+interface Props {
+  size?: number;
+  tone?: "brand" | "mono" | "cream";
+  class?: string;
+}
+const { size = 40, tone = "brand", class: className } = Astro.props;
+const c =
+  tone === "brand"
+    ? ["#A24B34", "#7A2E39"]
+    : tone === "cream"
+      ? ["var(--cream)", "var(--cream)"]
+      : ["currentColor", "currentColor"];
+---
+
+<svg
+  width={size * 1.6}
+  height={size}
+  viewBox="0 0 64 40"
+  fill="none"
+  role="img"
+  aria-label="Troth"
+  class={className}
+>
+  <path
+    d="M18.5 6.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z"
+    fill={c[0]}></path>
+  <path
+    d="M39.5 6.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z"
+    fill={c[1]}></path>
+</svg>

@@ -1,0 +1,93 @@
+---
+// Primary / secondary / text button. Renders <a> when href is set, else <button>.
+// Hover/press/disabled are pure CSS. Extra attributes (type, style, data-*, id,
+// disabled) pass straight through.
+interface Props {
+  variant?: "primary" | "secondary" | "text";
+  size?: "large" | "medium" | "small";
+  href?: string;
+  class?: string;
+  [key: string]: any;
+}
+const {
+  variant = "primary",
+  size = "medium",
+  href,
+  class: className,
+  ...rest
+} = Astro.props;
+const Tag = href ? "a" : "button";
+if (!href && rest.type === undefined) rest.type = "button";
+---
+
+<Tag
+  href={href}
+  class:list={["btn", `btn-${variant}`, `btn-${size}`, className]}
+  {...rest}
+>
+  <slot />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    border-radius: var(--radius-input);
+    cursor: pointer;
+    border: 1px solid transparent;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      background var(--dur-quick) var(--ease-troth),
+      color var(--dur-quick) var(--ease-troth),
+      transform var(--dur-quick) var(--ease-troth);
+  }
+  .btn:active {
+    transform: scale(0.98);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .btn-large {
+    padding: 16px 28px;
+    font-size: 17px;
+  }
+  .btn-medium {
+    padding: 13px 22px;
+    font-size: 15px;
+  }
+  .btn-small {
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-text-on-accent);
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-press);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+  .btn-secondary:hover {
+    background: rgba(138, 63, 41, 0.06);
+  }
+  .btn-text {
+    background: transparent;
+    color: var(--color-accent);
+    padding: 6px 4px;
+  }
+  .btn-text:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

@@ -1,0 +1,41 @@
+/* Troth shared UI + motion (global, both pages). Component-specific styles live
+   in each .astro component; page-specific rules live in the page's <style>. */
+
+/* Content that rises into place on load (hero) or on scroll (screens). */
+@keyframes troth-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.troth-os {
+  opacity: 0;
+  animation: troth-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Hide the simulated iOS status bar on phones — a real device already shows one.
+   `.troth-phone` is set pre-paint in Layout.astro (device detection, not width).
+   !important is required because the status bar sets display:flex inline. */
+.troth-phone .troth-statusbar {
+  display: none !important;
+}
+
+/* Inline form error (warm, on-brand — no harsh red). */
+.t-error {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-accent);
+  margin: 2px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .troth-os {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}

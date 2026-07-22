@@ -1,0 +1,23 @@
+---
+// Single-initial partner circle.
+interface Props {
+  initial: string;
+  tone?: "plum" | "terracotta" | "forest" | "neutral";
+  size?: number;
+  class?: string;
+}
+const { initial, tone = "plum", size = 36, class: className } = Astro.props;
+const tones: Record<string, string> = {
+  plum: "var(--color-letter)",
+  terracotta: "var(--color-accent)",
+  forest: "var(--forest)",
+  neutral: "var(--border-strong)",
+};
+const bg = tones[tone] || tone;
+---
+
+<span
+  class={className}
+  style={`display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:50%;flex:none;background:${bg};color:var(--cream);font-family:var(--font-sans);font-weight:500;font-size:${size * 0.4}px;letter-spacing:0.01em`}
+  >{initial}</span
+>

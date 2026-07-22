@@ -1,0 +1,42 @@
+---
+// A Private Room message bubble (me / them, optional keepsake seal).
+import Avatar from "../../elements/Avatar.astro";
+import KeepsakeSeal from "./KeepsakeSeal.astro";
+interface Props {
+  from?: "them" | "me";
+  initial?: string;
+  tone?: "plum" | "terracotta" | "forest" | "neutral";
+  keepsake?: boolean;
+  class?: string;
+}
+const {
+  from = "them",
+  initial,
+  tone = "plum",
+  keepsake = false,
+  class: className,
+} = Astro.props;
+const mine = from === "me";
+---
+
+<div
+  class={className}
+  style={`display:flex;gap:12px;justify-content:${mine ? "flex-end" : "flex-start"};align-items:flex-end`}
+>
+  {!mine && initial && <Avatar initial={initial} tone={tone} size={36} />}
+  <div style="position:relative;max-width:72%">
+    <div
+      style={`font-family:var(--font-sans);font-size:17px;line-height:1.4;color:var(--color-text);background:${mine ? "rgba(162,75,52,0.16)" : "var(--color-surface)"};border:1px solid ${mine ? "transparent" : "var(--color-border)"};padding:12px 16px;border-radius:18px;border-bottom-right-radius:${mine ? "6px" : "18px"};border-bottom-left-radius:${mine ? "18px" : "6px"}`}
+    >
+      <slot />
+    </div>
+    {
+      keepsake && (
+        <KeepsakeSeal
+          size={30}
+          style={`position:absolute;top:-12px;${mine ? "right:-10px" : "left:-10px"}`}
+        />
+      )
+    }
+  </div>
+</div>

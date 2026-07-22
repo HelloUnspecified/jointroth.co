@@ -1,6 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import TrothConfirmation from "../components/troth/TrothConfirmation.jsx";
+import PhoneFrame from "../components/troth/PhoneFrame.astro";
+import LanternMark from "../elements/LanternMark.astro";
+import Eyebrow from "../elements/Eyebrow.astro";
+import Button from "../elements/Button.astro";
+import TextField from "../elements/TextField.astro";
 ---
 
 <Layout
@@ -8,5 +12,251 @@ import TrothConfirmation from "../components/troth/TrothConfirmation.jsx";
   description="Thank you for joining the Troth waitlist."
   noindex
 >
-  <TrothConfirmation client:load />
+  <PhoneFrame>
+    <div
+      style="min-height:100svh;padding:58px 30px 96px;display:flex;flex-direction:column"
+    >
+      {/* Subtle back link to the landing page */}
+      <a
+        href="/"
+        style="display:inline-flex;align-items:center;gap:4px;align-self:flex-start;margin-bottom:30px;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--color-text-tertiary);text-decoration:none"
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M15 18l-6-6 6-6"></path>
+        </svg>
+        Back to the page
+      </a>
+
+      {/* Acknowledge */}
+      <div class="troth-os" style="text-align:center">
+        <div style="display:flex;justify-content:center;margin-bottom:22px">
+          <LanternMark size={34} tone="brand" />
+        </div>
+        <h1
+          style="font-family:var(--font-serif);font-weight:400;font-size:clamp(34px,9vw,46px);line-height:1.06;letter-spacing:-0.014em;color:var(--color-text);margin:0"
+        >
+          You're on the list.
+        </h1>
+        <p
+          style="font-family:var(--font-serif);font-size:18px;line-height:1.6;color:var(--color-text-secondary);margin:18px auto 0;max-width:24rem;text-wrap:pretty"
+        >
+          Thank you. Please check your inbox in the next minute to confirm. I've
+          also written you a note about what happens next.
+        </p>
+      </div>
+
+      <div
+        class="troth-os"
+        style="height:1px;background:var(--color-border);margin:40px 0 34px;animation-delay:0.1s"
+      >
+      </div>
+
+      {/* Invite your spouse — the primary referral moment */}
+      <div
+        class="troth-os"
+        style="background:var(--color-surface);border:1px solid var(--color-border);border-left:3px solid var(--color-letter);border-radius:12px;padding:22px 22px 24px;animation-delay:0.16s"
+      >
+        <Eyebrow tone="letter">The most important step</Eyebrow>
+        <h2
+          style="font-family:var(--font-serif);font-weight:400;font-size:clamp(26px,7vw,32px);line-height:1.12;letter-spacing:-0.008em;color:var(--color-text);margin:12px 0 0"
+        >
+          Invite your spouse.
+        </h2>
+        <p
+          style="font-family:var(--font-serif);font-size:16.5px;line-height:1.6;color:var(--color-text-secondary);margin:14px 0 0;text-wrap:pretty"
+        >
+          Troth only works with the two of you together. We want your spouse's
+          feedback too.
+        </p>
+
+        <div style="margin-top:18px">
+          <div data-spouse-form-wrap>
+            <form
+              data-spouse-form
+              style="display:flex;flex-direction:column;gap:10px"
+            >
+              <TextField
+                type="email"
+                name="email"
+                required
+                placeholder="Your spouse's email"
+                aria-label="Your spouse's email"
+              />
+              <Button
+                variant="primary"
+                size="large"
+                type="submit"
+                style="width:100%">Send them an invite</Button
+              >
+              <p class="t-error" data-error role="alert" hidden></p>
+            </form>
+          </div>
+          <div
+            data-spouse-sent
+            hidden
+            style="display:flex;gap:12px;align-items:flex-start;border:1px solid var(--color-border-strong);border-radius:10px;padding:14px 16px"
+          >
+            <LanternMark size={18} tone="brand" />
+            <div
+              style="font-family:var(--font-serif);font-size:16px;line-height:1.45;color:var(--color-text)"
+            >
+              Sent. Please ask your spouse to check their inbox and confirm.
+            </div>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          data-copy
+          data-copied-label="Invite link copied"
+          style="margin-top:14px;background:none;border:none;padding:0;cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--color-accent)"
+        >
+          Or copy their invite link
+        </button>
+
+        <p
+          style="font-family:var(--font-sans);font-size:12px;line-height:1.6;color:var(--color-text-tertiary);margin:16px 0 0"
+        >
+          They'll get a warm note from me explaining what you signed up for and
+          what Troth is. No pressure, no gimmicks.
+        </p>
+      </div>
+
+      {/* Know another couple? — softer secondary referral */}
+      <div class="troth-os" style="margin-top:30px;animation-delay:0.24s">
+        <Eyebrow tone="tertiary">Spread the word</Eyebrow>
+        <h3
+          style="font-family:var(--font-serif);font-weight:400;font-size:clamp(22px,6vw,26px);line-height:1.18;color:var(--color-text);margin:10px 0 0"
+        >
+          Know another couple?
+        </h3>
+        <p
+          style="font-family:var(--font-serif);font-size:16px;line-height:1.6;color:var(--color-text-secondary);margin:12px 0 16px;text-wrap:pretty"
+        >
+          We build Troth in partnership with the couples on this list. Every
+          voice shapes what we make. If you know another couple who might care
+          about what we're building, send them the link.
+        </p>
+        <Button variant="secondary" data-copy data-copied-label="Link copied"
+          >Copy link</Button
+        >
+      </div>
+
+      {/* Expectation-setting + sign-off */}
+      <div
+        class="troth-os"
+        style="margin-top:34px;padding-top:24px;border-top:1px solid var(--color-border);animation-delay:0.3s"
+      >
+        <p
+          style="font-family:var(--font-serif);font-size:15.5px;line-height:1.6;color:var(--color-text-secondary);margin:0;text-wrap:pretty"
+        >
+          We're opening access to Troth carefully, a few couples at a time as we
+          build. When it's your turn, you'll hear from me at least 48 hours
+          before.
+        </p>
+        <p
+          style="font-family:var(--font-serif);font-size:15.5px;line-height:1.6;color:var(--color-text-secondary);margin:12px 0 0;text-wrap:pretty"
+        >
+          Have a question? Reply to any email from me. I read them all.
+        </p>
+        <p
+          style="font-family:var(--font-serif);font-style:italic;font-size:18px;color:var(--color-text-secondary);margin:18px 0 0"
+        >
+          — Clark
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div
+        class="troth-os"
+        style="font-family:var(--font-sans);font-size:11.5px;color:var(--color-text-tertiary);display:flex;gap:10px;flex-wrap:wrap;margin-top:30px;animation-delay:0.36s"
+      >
+        <a href="mailto:clark@jointroth.co" style="color:inherit"
+          >clark@jointroth.co</a
+        >
+      </div>
+    </div>
+  </PhoneFrame>
 </Layout>
+
+<script>
+  function subscribeError(status: number) {
+    return status === 429
+      ? "A lot of people are joining right now — give it a moment and try again."
+      : "Something went wrong on our end. Please try again in a moment.";
+  }
+
+  const form = document.querySelector<HTMLFormElement>("[data-spouse-form]");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = form.querySelector<HTMLInputElement>('input[type="email"]');
+      const btn = form.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      );
+      const errEl = form.querySelector<HTMLElement>("[data-error]");
+      if (!input || !btn) return;
+      const original = btn.textContent;
+      if (errEl) {
+        errEl.textContent = "";
+        errEl.hidden = true;
+      }
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      try {
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: input.value, ref: "spouse" }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          const wrap = document.querySelector<HTMLElement>(
+            "[data-spouse-form-wrap]",
+          );
+          const sent =
+            document.querySelector<HTMLElement>("[data-spouse-sent]");
+          if (wrap) wrap.hidden = true;
+          if (sent) sent.hidden = false;
+          return;
+        }
+        if (errEl) {
+          errEl.textContent = subscribeError(res.status);
+          errEl.hidden = false;
+        }
+      } catch {
+        if (errEl) {
+          errEl.textContent =
+            "We couldn't reach the server. Check your connection and try again.";
+          errEl.hidden = false;
+        }
+      }
+      btn.disabled = false;
+      btn.textContent = original;
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-copy]").forEach((btn) => {
+    const original = btn.textContent;
+    const copied = btn.dataset.copiedLabel || "Copied";
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("https://jointroth.co");
+      } catch {}
+      btn.textContent = copied;
+      window.setTimeout(() => {
+        btn.textContent = original;
+      }, 2200);
+    });
+  });
+</script>

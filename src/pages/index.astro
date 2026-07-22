@@ -1,8 +1,680 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import TrothLanding from "../components/troth/TrothLanding.jsx";
+import PhoneFrame from "../components/troth/PhoneFrame.astro";
+import LanternMark from "../elements/LanternMark.astro";
+import Eyebrow from "../elements/Eyebrow.astro";
+import Button from "../elements/Button.astro";
+import TextField from "../elements/TextField.astro";
+import Avatar from "../elements/Avatar.astro";
+import MessageBubble from "../components/troth/MessageBubble.astro";
+import QuestionCard from "../components/troth/QuestionCard.astro";
+import OnThisDayCard from "../components/troth/OnThisDayCard.astro";
+import ManifestoEntry from "../components/troth/ManifestoEntry.astro";
+
+const section =
+  "scroll-snap-align:start;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:76px 30px 132px";
+const h2 =
+  "font-family:var(--font-serif);font-weight:400;font-size:clamp(30px,8vw,40px);line-height:1.1;letter-spacing:-0.01em;color:var(--color-text);margin:16px 0 0;text-wrap:balance";
+
+const whoFor = [
+  ["Year one", "Still learning to live in the same room."],
+  ["Year seven", "Kids are small; the marriage is easy to overlook."],
+  ["Year fifteen", "Deciding whether to grow into the next season."],
+  ["Empty nesters", "Figuring out who they are as two again."],
+  ["Any hard year", "Something happened, and now they're rebuilding."],
+];
+const whatIs = [
+  [
+    "Talk without borrowing. ",
+    "A private surface — Face ID locked, never on the camera roll.",
+  ],
+  [
+    "Write down what you're building. ",
+    "Your values, promises, places, and people — in your own words.",
+  ],
+  [
+    "Remember what matters. ",
+    "Letters, milestones, gratitude — kept where they won't get lost.",
+  ],
+  [
+    "See the shape of the marriage. ",
+    "Your own timeline — the story the way it actually happened.",
+  ],
+];
 ---
 
 <Layout>
-  <TrothLanding client:load />
+  <PhoneFrame>
+    {/* S0 — Hero + primary waitlist capture */}
+    <section
+      id="screen-0"
+      data-screen="0"
+      style={`${section};position:relative`}
+    >
+      <div
+        aria-hidden="true"
+        data-troth-ignite
+        style="position:absolute;top:4%;left:-14%;width:128%;height:400px;background:radial-gradient(ellipse 58% 52% at 40% 42%, rgba(162,75,52,0.30), rgba(162,75,52,0.05) 55%, rgba(162,75,52,0) 74%);filter:blur(22px);pointer-events:none;animation:troth-ignite 2.4s var(--ease-troth) both"
+      >
+      </div>
+      <div style="position:relative">
+        <div
+          class="troth-os"
+          style="display:flex;align-items:center;gap:11px;margin-bottom:32px"
+        >
+          <LanternMark size={26} tone="brand" />
+          <span
+            style="font-family:var(--font-serif);font-size:15px;font-weight:500;letter-spacing:0.34em;text-transform:uppercase;color:var(--color-text);padding-left:0.34em"
+            >Troth</span
+          >
+        </div>
+        <h1
+          class="troth-os"
+          style="font-family:var(--font-serif);font-weight:400;font-size:clamp(37px,9.8vw,54px);line-height:1.04;letter-spacing:-0.015em;color:var(--color-text);margin:0;text-wrap:balance;animation-delay:0.12s"
+        >
+          Love isn't a feeling. It's what you <em
+            style="font-style:italic;color:var(--color-accent)">do.</em
+          >
+        </h1>
+        <p
+          class="troth-os"
+          style="font-family:var(--font-serif);font-size:18px;line-height:1.6;color:var(--color-text-secondary);margin:22px 0 0;text-wrap:pretty;animation-delay:0.26s"
+        >
+          A private, encrypted home for your marriage — where the conversations,
+          memories, letters, and promises you're keeping all live in one place.
+          Coming to iPhone.
+        </p>
+        <div class="troth-os" style="margin:30px 0 0;animation-delay:0.4s">
+          <form
+            data-waitlist-form
+            style="display:flex;flex-direction:column;gap:10px"
+          >
+            <TextField
+              type="email"
+              name="email"
+              required
+              placeholder="Your email"
+              aria-label="Your email"
+            />
+            <Button
+              variant="primary"
+              size="large"
+              type="submit"
+              style="width:100%">Join the waitlist</Button
+            >
+            <p class="t-error" data-error role="alert" hidden></p>
+          </form>
+        </div>
+        <p
+          class="troth-os"
+          style="font-family:var(--font-sans);font-size:12px;line-height:1.6;color:var(--color-text-tertiary);margin:20px 0 0;animation-delay:0.52s"
+        >
+          Built by Clark and Carrie Sell in partnership with couples like you
+          who are on this list. Sealed for two, you. Never us. Never anyone
+          else.
+        </p>
+      </div>
+      <button
+        type="button"
+        data-goto="1"
+        aria-label="Continue"
+        style="position:absolute;bottom:104px;left:50%;transform:translateX(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-tertiary)"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          data-troth-nudge
+          style="animation:troth-nudge 2s ease-in-out infinite"
+        >
+          <path d="M6 9l6 6 6-6"></path>
+        </svg>
+      </button>
+    </section>
+
+    {/* S1 — Who it's for */}
+    <section id="screen-1" data-screen="1" class="troth-screen" style={section}>
+      <Eyebrow>Who Troth is for</Eyebrow>
+      <h2 style={h2}>For any marriage worth doing well.</h2>
+      <p
+        style="font-family:var(--font-serif);font-size:17px;line-height:1.62;color:var(--color-text-secondary);margin:18px 0 22px;text-wrap:pretty"
+      >
+        Not only for marriages in crisis, and not only the ones with everything
+        figured out. It's for the couples in between — which is to say, most of
+        us.
+      </p>
+      <div
+        style="background:var(--color-surface-sunken);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:13px"
+      >
+        {
+          whoFor.map(([label, text]) => (
+            <div style="display:flex;gap:14px;align-items:baseline">
+              <span style="flex:none;font-family:var(--font-sans);font-size:11.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--color-accent);min-width:98px">
+                {label}
+              </span>
+              <span style="font-family:var(--font-serif);font-size:15.5px;line-height:1.45;color:var(--color-text-secondary)">
+                {text}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+      <p
+        style="font-family:var(--font-serif);font-size:16px;line-height:1.6;color:var(--color-text);margin:20px 0 0;text-wrap:pretty"
+      >
+        Every one of you belongs here — and the earlier you start, the more
+        Troth becomes over the years. It meets the two of you where you are,
+        with a gentle question now and then, never a demand.
+      </p>
+      <div class="tr-sm-hide" style="margin-top:22px">
+        <QuestionCard
+          question="Where did the two of you feel most like a team this week?"
+          secondaryLabel="Not today"
+        />
+      </div>
+    </section>
+
+    {/* S2 — The problem */}
+    <section id="screen-2" data-screen="2" class="troth-screen" style={section}>
+      <Eyebrow>The problem</Eyebrow>
+      <h2 style={h2}>Your marriage has been living in borrowed rooms.</h2>
+      <p
+        style="font-family:var(--font-serif);font-size:17px;line-height:1.64;color:var(--color-text);margin:18px 0 0;text-wrap:pretty"
+      >
+        The message that mattered when it arrived. The photo from a trip that
+        changed something. Try to find it three years later — it's buried in
+        iMessage, Photos, and Notes, under the grocery lists, the carpool, the
+        group thread with the in-laws.
+      </p>
+      <p
+        style="font-family:var(--font-serif);font-size:17px;line-height:1.64;color:var(--color-text-secondary);margin:14px 0 0;text-wrap:pretty"
+      >
+        Your marriage doesn't own any of those apps — it's borrowing space in
+        the same place your kids are texting from. Borrowed rooms are fine for
+        storage. They're terrible for accumulation.
+      </p>
+      <p
+        style="font-family:var(--font-serif);font-style:italic;font-size:19px;line-height:1.5;color:var(--color-accent);margin:22px 0 0"
+      >
+        Marriages deserve better than borrowed rooms.
+      </p>
+      <div style="margin-top:28px;display:flex;flex-direction:column;gap:14px">
+        <MessageBubble from="them" initial="M" tone="plum" keepsake>
+          You were right about waiting on the house. I'm glad we did.
+        </MessageBubble>
+        <MessageBubble from="me" class="tr-sm-hide">
+          I keep thinking about what you said in the car that night.
+        </MessageBubble>
+        <MessageBubble from="them" initial="M" tone="plum" class="tr-sm-hide">
+          That we'd figure it out together? I meant every word of it.
+        </MessageBubble>
+        <MessageBubble from="me">
+          Save this one. I don't want to lose it in the thread.
+        </MessageBubble>
+      </div>
+      <div
+        style="font-family:var(--font-sans);font-size:11.5px;color:var(--color-text-tertiary);margin-top:12px;padding-left:2px"
+      >
+        The conversations that matter most — buried three years deep in a group
+        thread.
+      </div>
+    </section>
+
+    {/* S3 — What Troth is */}
+    <section id="screen-3" data-screen="3" class="troth-screen" style={section}>
+      <Eyebrow>What Troth is</Eyebrow>
+      <h2 style={h2}>A room your marriage owns.</h2>
+      <p
+        style="font-family:var(--font-serif);font-size:17px;line-height:1.6;color:var(--color-text-secondary);margin:16px 0 24px;text-wrap:pretty"
+      >
+        One place, built for two people — sealed for you and no one else.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        {
+          whatIs.map(([lead, rest]) => (
+            <div style="display:flex;gap:13px;align-items:baseline">
+              <span style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--color-accent);transform:translateY(-2px)" />
+              <div>
+                <span style="font-family:var(--font-sans);font-size:15px;font-weight:600;color:var(--color-text)">
+                  {lead}
+                </span>
+                <span style="font-family:var(--font-serif);font-size:16px;line-height:1.5;color:var(--color-text-secondary)">
+                  {rest}
+                </span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <div style="margin-top:24px">
+        <OnThisDayCard
+          year="2019"
+          ago="5 years ago"
+          title="The apartment on Wells Street"
+        >
+          Where the two of you started — one room, almost no furniture, certain
+          of nothing except each other.
+        </OnThisDayCard>
+      </div>
+      <p
+        class="tr-sm-hide"
+        style="font-family:var(--font-serif);font-style:italic;font-size:17px;line-height:1.5;color:var(--color-text);margin:20px 0 0;text-wrap:pretty"
+      >
+        Nothing borrowed. Nothing buried. Everything the two of you keep, in one
+        place.
+      </p>
+    </section>
+
+    {/* S4 — Sealed for two (always dark) */}
+    <section
+      id="screen-4"
+      data-screen="4"
+      class="troth-dark troth-screen"
+      style="scroll-snap-align:start;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:76px 34px 132px;background:var(--color-bg);position:relative"
+    >
+      <div
+        aria-hidden="true"
+        style="position:absolute;top:22%;left:50%;transform:translateX(-50%);width:min(340px,82%);height:260px;background:radial-gradient(ellipse 60% 55% at 50% 42%, rgba(199,154,62,0.20), rgba(199,154,62,0) 70%);filter:blur(20px);pointer-events:none"
+      >
+      </div>
+      <div
+        style="position:relative;display:flex;justify-content:center;margin-bottom:26px"
+      >
+        <div
+          style="width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 32%, #C79A3E, #9C7523);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px -3px rgba(43,38,35,0.5), inset 0 1px 1px rgba(255,255,255,0.35)"
+        >
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#2B2623"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-label="Locked and private"
+            role="img"
+          >
+            <rect x="4.5" y="10.5" width="15" height="10" rx="2.4"></rect>
+            <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path>
+            <circle cx="12" cy="14.6" r="1.5"></circle>
+            <path d="M12 16.1v2"></path>
+          </svg>
+        </div>
+      </div>
+      <Eyebrow class="ppromise">The privacy promise</Eyebrow>
+      <h2
+        style="position:relative;font-family:var(--font-serif);font-weight:400;font-size:clamp(36px,10vw,50px);line-height:1.04;letter-spacing:-0.014em;color:var(--color-text);margin:14px 0 0"
+      >
+        Sealed for two.
+      </h2>
+      <p
+        style="position:relative;font-family:var(--font-serif);font-size:18px;line-height:1.64;color:var(--color-text-secondary);margin:22px auto 0;max-width:25rem;text-wrap:pretty"
+      >
+        Honesty needs a place where it's safe. What you put in Troth never
+        leaves your devices — no cloud, no AI, no company, including ours. Just
+        two iPhones, end-to-end encrypted. Only the two of you can open the
+        door.
+      </p>
+    </section>
+
+    {/* S5 — Founder credibility */}
+    <section id="screen-5" data-screen="5" class="troth-screen" style={section}>
+      <Eyebrow>How we're building this</Eyebrow>
+      <h2
+        style="font-family:var(--font-serif);font-weight:400;font-size:clamp(25px,6.6vw,33px);line-height:1.16;letter-spacing:-0.006em;color:var(--color-text);margin:16px 0 24px;text-wrap:balance"
+      >
+        In partnership with the couples on this list.
+      </h2>
+      <div
+        style="background:var(--color-surface);border:1px solid var(--color-border);border-left:3px solid var(--color-letter);border-radius:12px;padding:22px 22px 24px"
+      >
+        <div
+          style="display:flex;align-items:center;gap:12px;margin-bottom:14px"
+        >
+          <Avatar initial="C" tone="plum" size={36} />
+          <div>
+            <div
+              style="font-family:var(--font-sans);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-letter)"
+            >
+              A note from Clark
+            </div>
+            <div
+              style="font-family:var(--font-sans);font-size:12.5px;color:var(--color-text-tertiary);margin-top:2px"
+            >
+              Founder · married 23 years
+            </div>
+          </div>
+        </div>
+        <p
+          style="font-family:var(--font-serif);font-size:16.5px;line-height:1.62;color:var(--color-text);margin:0;text-wrap:pretty"
+        >
+          Troth is the tool I wished existed for our own marriage — through good
+          chapters and hard ones. The couples on this waitlist are shaping what
+          we build.
+        </p>
+        <p
+          style="font-family:var(--font-serif);font-size:16.5px;line-height:1.62;color:var(--color-text-secondary);margin:12px 0 0;text-wrap:pretty"
+        >
+          We're opening access carefully, a few couples at a time — so the first
+          ones are genuinely served by it. When you sign up, I'll write to you
+          personally. Every reply gets read.
+        </p>
+      </div>
+      <div class="tr-sm-hide" style="margin-top:22px">
+        <Eyebrow tone="tertiary" style="margin-bottom:11px"
+          >What the couples are writing</Eyebrow
+        >
+        <div
+          style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;padding:20px 22px 4px"
+        >
+          <ManifestoEntry
+            author="A couple on the list"
+            date="Year 4"
+            divider={false}
+          >
+            We're building a marriage where we say the true thing before it
+            hardens.
+          </ManifestoEntry>
+        </div>
+      </div>
+    </section>
+
+    {/* S6 — Final waitlist capture */}
+    <section
+      id="screen-6"
+      data-screen="6"
+      class="troth-screen"
+      style={`${section};padding:76px 30px 140px;position:relative`}
+    >
+      <div
+        aria-hidden="true"
+        style="position:absolute;top:8%;left:-14%;width:128%;height:360px;background:radial-gradient(ellipse 58% 52% at 50% 42%, rgba(162,75,52,0.26), rgba(162,75,52,0.05) 55%, rgba(162,75,52,0) 74%);filter:blur(22px);pointer-events:none"
+      >
+      </div>
+      <div style="position:relative">
+        <div style="display:flex;justify-content:center;margin-bottom:24px">
+          <LanternMark size={34} tone="brand" />
+        </div>
+        <Eyebrow tone="tertiary" class="centered"
+          >Coming to iPhone in 2026</Eyebrow
+        >
+        <h2
+          style="text-align:center;font-family:var(--font-serif);font-weight:400;font-size:clamp(32px,8.8vw,44px);line-height:1.06;letter-spacing:-0.012em;color:var(--color-text);margin:12px 0 0"
+        >
+          Keep your place.
+        </h2>
+        <p
+          style="text-align:center;font-family:var(--font-serif);font-size:17px;line-height:1.58;color:var(--color-text-secondary);margin:16px auto 0;max-width:24rem;text-wrap:pretty"
+        >
+          The two of you can begin keeping your marriage in one place the day
+          access opens.
+        </p>
+        <div style="max-width:360px;margin:28px auto 0">
+          <form
+            data-waitlist-form
+            style="display:flex;flex-direction:column;gap:10px"
+          >
+            <TextField
+              type="email"
+              name="email"
+              required
+              placeholder="Your email"
+              aria-label="Your email"
+            />
+            <Button
+              variant="primary"
+              size="large"
+              type="submit"
+              style="width:100%">Join the waitlist</Button
+            >
+            <p class="t-error" data-error role="alert" hidden></p>
+          </form>
+        </div>
+        <p
+          style="text-align:center;font-family:var(--font-sans);font-size:12px;line-height:1.6;color:var(--color-text-tertiary);margin:16px auto 0;max-width:24rem"
+        >
+          We'll never share your address. Unsubscribe anytime.
+        </p>
+        <p
+          style="text-align:center;font-family:var(--font-serif);font-style:italic;font-size:18px;color:var(--color-text-secondary);margin:18px 0 0"
+        >
+          Clark & Carrie
+        </p>
+        <div
+          style="text-align:center;font-family:var(--font-sans);font-size:11.5px;color:var(--color-text-tertiary);display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap"
+        >
+          <a href="mailto:clark@jointroth.co" style="color:inherit"
+            >clark@jointroth.co</a
+          >
+        </div>
+      </div>
+    </section>
+
+    {/* Persistent bottom bar: progress dots + always-present Join anchor */}
+    <div
+      style="position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;border-radius:999px;background:color-mix(in srgb, var(--color-bg) 80%, transparent);backdrop-filter:blur(14px);border:1px solid var(--color-border);box-shadow:var(--shadow-float)"
+    >
+      <div style="display:flex;gap:8px;align-items:center">
+        {
+          [0, 1, 2, 3, 4, 5, 6].map((i) => (
+            <button
+              type="button"
+              data-dot
+              data-goto={i}
+              class:list={["dot", i === 0 && "is-active"]}
+              aria-label={`Screen ${i + 1}`}
+            />
+          ))
+        }
+      </div>
+      <Button variant="primary" size="small" data-goto="6"
+        >Join the waitlist</Button
+      >
+    </div>
+  </PhoneFrame>
 </Layout>
+
+<style is:global>
+  /* Firm snapping so the page rests on one full screen at a time. */
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0;
+  }
+  @keyframes troth-ignite {
+    0% {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes troth-nudge {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.45;
+    }
+    50% {
+      transform: translateY(5px);
+      opacity: 1;
+    }
+  }
+
+  /* Each screen's content rises into place as it snaps in. Gated on .troth-js so
+     it never hides content without JS; decorative (aria-hidden) layers stay put. */
+  .troth-js .troth-screen > *:not([aria-hidden="true"]) {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .troth-js .troth-screen.is-shown > *:not([aria-hidden="true"]) {
+    opacity: 1;
+    transform: none;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(2) {
+    transition-delay: 0.03s;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(3) {
+    transition-delay: 0.06s;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(4) {
+    transition-delay: 0.09s;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(5) {
+    transition-delay: 0.12s;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(6) {
+    transition-delay: 0.15s;
+  }
+  .troth-js .troth-screen.is-shown > *:nth-child(n + 7) {
+    transition-delay: 0.18s;
+  }
+
+  /* Progress dots */
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: var(--color-border-strong);
+    transition:
+      width 380ms var(--ease-troth),
+      background 380ms var(--ease-troth);
+  }
+  .dot.is-active {
+    width: 22px;
+    background: var(--color-accent);
+  }
+
+  /* Centered eyebrows used on the dark + final screens */
+  .ppromise,
+  .centered {
+    text-align: center;
+  }
+  .ppromise {
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-snap-type: none !important;
+    }
+    [data-troth-ignite],
+    [data-troth-nudge] {
+      animation: none !important;
+    }
+    .troth-js .troth-screen > * {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+  @media (max-height: 740px), (max-width: 400px) {
+    .tr-sm-hide {
+      display: none !important;
+    }
+    .tr-sm-tight {
+      margin-top: 20px !important;
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  root.classList.add("troth-js");
+
+  function goTo(n: number) {
+    const el = document.getElementById("screen-" + n);
+    if (el)
+      window.scrollTo({
+        top: el.getBoundingClientRect().top + window.scrollY,
+        behavior: "smooth",
+      });
+  }
+  document
+    .querySelectorAll<HTMLElement>("[data-goto]")
+    .forEach((b) =>
+      b.addEventListener("click", () => goTo(Number(b.dataset.goto))),
+    );
+
+  const dots = Array.from(document.querySelectorAll<HTMLElement>("[data-dot]"));
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          const n = Number(e.target.getAttribute("data-screen"));
+          if (Number.isNaN(n)) return;
+          if (e.intersectionRatio >= 0.2) e.target.classList.add("is-shown");
+          if (e.intersectionRatio >= 0.5)
+            dots.forEach((d, i) => d.classList.toggle("is-active", i === n));
+        });
+      },
+      { threshold: [0.2, 0.5, 0.75] },
+    );
+    document.querySelectorAll("[data-screen]").forEach((s) => io.observe(s));
+  }
+
+  function subscribeError(status: number) {
+    return status === 429
+      ? "A lot of people are joining right now — give it a moment and try again."
+      : "Something went wrong on our end. Please try again in a moment.";
+  }
+
+  document
+    .querySelectorAll<HTMLFormElement>("[data-waitlist-form]")
+    .forEach((form) => {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const input = form.querySelector<HTMLInputElement>(
+          'input[type="email"]',
+        );
+        const btn = form.querySelector<HTMLButtonElement>(
+          'button[type="submit"]',
+        );
+        const errEl = form.querySelector<HTMLElement>("[data-error]");
+        if (!input || !btn) return;
+        const original = btn.textContent;
+        if (errEl) {
+          errEl.textContent = "";
+          errEl.hidden = true;
+        }
+        btn.disabled = true;
+        btn.textContent = "Joining…";
+        try {
+          const res = await fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: input.value }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.success) {
+            window.location.assign("/welcome");
+            return;
+          }
+          if (errEl) {
+            errEl.textContent = subscribeError(res.status);
+            errEl.hidden = false;
+          }
+        } catch {
+          if (errEl) {
+            errEl.textContent =
+              "We couldn't reach the server. Check your connection and try again.";
+            errEl.hidden = false;
+          }
+        }
+        btn.disabled = false;
+        btn.textContent = original;
+      });
+    });
+</script>

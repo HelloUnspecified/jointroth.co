@@ -18,20 +18,24 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
 
 `wrangler.jsonc` must **not** set `main` or `assets.directory`. `@astrojs/cloudflare` generates `dist/server/wrangler.json` with the real `main` (`entry.mjs`) and `assets.directory` (`../client`) at build time, merging in the top-level `name`/`compatibility_*`/`observability`/`assets.binding` from `wrangler.jsonc`. A self-referential `main: dist/_worker.js/index.js` (from the old template) **breaks the build** — the bundled `@cloudflare/vite-plugin` validates `main` before the output exists.
 
-Note: `npm run dev` needs the Cloudflare adapter's dev runtime, which may not boot inside restricted sandboxes (the production build is unaffected).
+**Deploy as a Cloudflare Worker, not Pages.** The adapter emits a Worker — static assets in `dist/client`, worker in `dist/server` — and `npx wrangler deploy` reads the build-generated `.wrangler/deploy/config.json`. A Pages project pointed at `dist` returns 404 because the site lives in `dist/client`, not `dist`. For Git auto-deploy, use Cloudflare **Workers Builds** (a Worker connected to the repo) with build command `npm run build` — not a Pages project.
 
 ## Architecture
 
-- Astro components (`.astro`) for the shell; a single React island (`client:load`) for the interactive landing page.
-- `src/layouts/Layout.astro` — minimal shell: `<head>`, SEO, Lamplight FOUC script, global body styles. No nav/footer chrome (waitlist pages carry zero navigation).
+- **Native Astro, no React.** Every page and component is `.astro`; interactivity is small vanilla `<script>`s (Astro bundles/inlines them). Hover, press, and focus states are CSS. There is no client-side framework — keep it that way.
+- `src/layouts/Layout.astro` — minimal shell: `<head>`, SEO, a pre-paint `is:inline` script (applies the saved Lamplight preference + adds `.troth-phone` via device detection), global body styles. No nav/footer chrome (waitlist pages carry zero navigation).
 - `src/components/functional/SEO.astro` — site-wide meta/OG/JSON-LD. Site URL `https://jointroth.co`.
-- `src/components/troth/TrothLanding.jsx` — the whole landing page + the design-system primitives it uses.
-- `src/pages/api/subscribe.ts` — waitlist email capture (server route, `prerender = false`) → Beehiiv (`BEEHIIV_API_KEY` / `BEEHIIV_PUBLICATION_ID` env vars, provided via Cloudflare/`.env.local`).
-- Self-hosted fonts via `@fontsource` (no Google Fonts CDN — the page targets sub-1s LCP).
+- **Reusable component library** — this is the pattern to extend for future sections (testimonials, instructions, etc.):
+  - `src/elements/` — primitives with scoped styles: `LanternMark`, `Eyebrow` (tone: accent/letter/tertiary), `Button` (variant/size, CSS hover/press, renders `<a>` when `href` set), `TextField` (CSS focus glow), `Avatar`.
+  - `src/components/troth/` — `PhoneFrame.astro` (the shared iPhone-frame shell: canvas, device frame, simulated status bar, Lamplight toggle + its theme `<script>`) and content components: `MessageBubble`, `QuestionCard`, `OnThisDayCard`, `ManifestoEntry`, `KeepsakeSeal`.
+- Pages compose the library: `src/pages/index.astro` (landing — 7 scroll-snap screens + a page `<script>` for scroll reveal/progress dots/forms) and `src/pages/welcome.astro` (confirmation — spouse invite + copy links, its own `<script>`).
+- `src/pages/api/subscribe.ts` — waitlist capture (server route, `prerender = false`) → **Loops** custom form (public newsletter-form endpoint, no API key; endpoint + list IDs + `source` hardcoded). Both landing forms and the spouse-invite form POST `{ email }` (spouse adds `ref: "spouse"`) here.
+- Self-hosted fonts via `@fontsource` (no Google Fonts CDN — sub-1s LCP).
+- CSS layering: design tokens in `src/css/troth-tokens.css`, shared UI/motion in `src/css/troth-ui.css` (both imported by `tailwind.css`, global). Page-specific rules (scroll snap, reveal, dots) live in each page's `<style is:global>`. Page/section layout uses inline `style="…var(--…)…"` to stay faithful to the design; reusable components carry scoped `<style>`.
 
 ## Design source
 
-The landing page is a faithful port of the Claude Design project **"Troth waitlist landing page"** (`Troth Landing Page.dc.html`) and its design system. Pull design files with the `claude-design` MCP (`DesignSync` tool) — project id `e4995b13-c9e2-4e36-9183-0331506b3373`. The `.dc.html` component format (`<x-dc>`, `<x-import>`, `<sc-if>`, `{{ }}` bindings) is translated to React state/props; the 8 design-system components used on the page are recreated 1:1 inside `TrothLanding.jsx` from the design bundle.
+The landing + confirmation pages are a faithful port of the Claude Design project **"Troth waitlist landing page"** (`Troth Landing Page.dc.html` + the `screenshots/*-confirm.png` mockups) and its design system. Pull design files with the `claude-design` MCP (`DesignSync` tool) — project id `e4995b13-c9e2-4e36-9183-0331506b3373`. The `.dc.html` component format (`<x-dc>`, `<x-import>`, `<sc-if>`, `{{ }}` bindings) and its React design-system bundle were translated into the native-Astro `src/elements/` + `src/components/troth/` library above; the layout/styling was ported verbatim (inline `var(--…)` styles), and stateful behavior became vanilla `<script>`s.
 
 ## Design System
 

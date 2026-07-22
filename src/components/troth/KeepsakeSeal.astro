@@ -1,0 +1,19 @@
+---
+// The foil wax seal that marks a kept message. Accepts a `style` for positioning.
+import LanternMark from "../../elements/LanternMark.astro";
+interface Props {
+  size?: number;
+  class?: string;
+  style?: string;
+}
+const { size = 34, class: className, style = "" } = Astro.props;
+---
+
+<span
+  class={className}
+  role="img"
+  aria-label="Sealed keepsake"
+  style={`display:inline-flex;align-items:center;justify-content:center;width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 38% 34%, #D8B25C, var(--color-keepsake) 62%, #8A6420);box-shadow:var(--shadow-seal);flex:none;${style}`}
+>
+  <LanternMark size={size * 0.35} tone="cream" />
+</span>

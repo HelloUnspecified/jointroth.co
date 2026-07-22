@@ -1,0 +1,33 @@
+---
+// Filled text input with a soft terracotta focus glow (CSS-only).
+// type, name, placeholder, required, aria-*, etc. pass straight through.
+interface Props {
+  class?: string;
+  [key: string]: any;
+}
+const { class: className, ...rest } = Astro.props;
+---
+
+<input class:list={["t-input", className]} {...rest} />
+
+<style>
+  .t-input {
+    font-family: var(--font-sans);
+    font-size: 17px;
+    color: var(--color-text);
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    background: var(--color-surface-sunken);
+    border: 1px solid transparent;
+    border-radius: var(--radius-input);
+    padding: 13px 16px;
+    box-shadow: none;
+    transition:
+      border-color var(--dur-quick) var(--ease-troth),
+      box-shadow var(--dur-quick) var(--ease-troth);
+  }
+  .t-input:focus {
+    box-shadow: 0 0 0 3px rgba(174, 100, 78, 0.18);
+  }
+</style>

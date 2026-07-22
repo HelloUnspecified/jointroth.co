@@ -1,0 +1,43 @@
+---
+// The gentle morning resurfacing card.
+import Eyebrow from "../../elements/Eyebrow.astro";
+interface Props {
+  year?: string;
+  ago?: string;
+  title?: string;
+  photo?: string;
+  class?: string;
+}
+const { year, ago, title, photo, class: className } = Astro.props;
+const thumb = photo
+  ? `center/cover url(${photo})`
+  : "repeating-linear-gradient(135deg, var(--color-surface-sunken) 0 10px, rgba(0,0,0,0.02) 10px 20px)";
+---
+
+<div
+  class={className}
+  style="display:flex;gap:16px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-card);padding:16px"
+>
+  <div
+    style={`width:108px;flex:none;border-radius:8px;overflow:hidden;background:${thumb};display:flex;align-items:center;justify-content:center;min-height:96px;font-family:var(--font-serif);font-size:22px;color:var(--color-text-tertiary)`}
+  >
+    {!photo && year}
+  </div>
+  <div>
+    <Eyebrow tone="accent" style="margin-bottom:8px"
+      >On this day{ago ? ` · ${ago}` : ""}</Eyebrow
+    >
+    {
+      title && (
+        <div style="font-family:var(--font-serif);font-size:21px;line-height:1.25;color:var(--color-text);margin-bottom:4px">
+          {title}
+        </div>
+      )
+    }
+    <div
+      style="font-family:var(--font-serif);font-style:italic;font-size:18px;line-height:1.45;color:var(--color-text-secondary)"
+    >
+      <slot />
+    </div>
+  </div>
+</div>
