@@ -20,6 +20,8 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
 
 **Deploy as a Cloudflare Worker, not Pages.** The adapter emits a Worker — static assets in `dist/client`, worker in `dist/server` — and `npx wrangler deploy` reads the build-generated `.wrangler/deploy/config.json`. A Pages project pointed at `dist` returns 404 because the site lives in `dist/client`, not `dist`. For Git auto-deploy, use Cloudflare **Workers Builds** (a Worker connected to the repo) with build command `npm run build` — not a Pages project.
 
+**Regenerate the lockfile with npm 10, not 11.** Cloudflare builds with the npm bundled in Node 22.15.0 (`npm@10.9.2`) and runs `npm ci`, which requires `package-lock.json` to match `package.json` exactly. npm 11 records the wasm / `@emnapi/*` optional dependencies differently than npm 10, so a lock regenerated with npm 11 fails the Cloudflare build with `Missing: @emnapi/* from lock file`. Whenever you change dependencies, regenerate the lock with the matching npm — `npx npm@10.9.2 install` — and verify it with `npx npm@10.9.2 ci --dry-run` before pushing.
+
 ## Architecture
 
 - **Native Astro, no React.** Every page and component is `.astro`; interactivity is small vanilla `<script>`s (Astro bundles/inlines them). Hover, press, and focus states are CSS. There is no client-side framework — keep it that way.
