@@ -665,7 +665,9 @@ export default function TrothLanding() {
            has one, so two would collide. On desktop the frame reads as a device
            mockup, so it stays. Phone detection is done pre-paint in Layout.astro
            (adds .troth-phone), not by screen width. */
-        .troth-phone .troth-statusbar { display: none; }
+        /* !important is required: the status bar div sets display:flex inline,
+           which a normal rule can't override. */
+        .troth-phone .troth-statusbar { display: none !important; }
         @keyframes troth-ignite {0%{opacity:0;transform:scale(0.82)}100%{opacity:1;transform:scale(1)}}
         @keyframes troth-rise {0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
         @keyframes troth-nudge {0%,100%{transform:translateY(0);opacity:0.45}50%{transform:translateY(5px);opacity:1}}

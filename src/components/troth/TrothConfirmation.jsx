@@ -534,7 +534,9 @@ export default function TrothConfirmation() {
         /* Hide the simulated iOS status bar on phones (real device already has
            one); keep it on desktop. Phone detection is done pre-paint in
            Layout.astro (adds .troth-phone), not by screen width. */
-        .troth-phone .troth-statusbar { display: none; }
+        /* !important is required: the status bar div sets display:flex inline,
+           which a normal rule can't override. */
+        .troth-phone .troth-statusbar { display: none !important; }
         @media (prefers-reduced-motion: reduce){
           .troth-os{opacity:1 !important;animation:none !important}
         }
