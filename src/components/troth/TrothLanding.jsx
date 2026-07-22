@@ -662,9 +662,10 @@ export default function TrothLanding() {
            like paging through an app rather than scrolling a website. */
         html { scroll-snap-type: y mandatory; scroll-padding-top: 0; }
         /* Hide the simulated iOS status bar on phones — the real device already
-           has one, so two would collide. Keep it on larger screens, where the
-           frame reads as a device mockup. */
-        @media (max-width: 640px) { .troth-statusbar { display: none; } }
+           has one, so two would collide. On desktop the frame reads as a device
+           mockup, so it stays. Phone detection is done pre-paint in Layout.astro
+           (adds .troth-phone), not by screen width. */
+        .troth-phone .troth-statusbar { display: none; }
         @keyframes troth-ignite {0%{opacity:0;transform:scale(0.82)}100%{opacity:1;transform:scale(1)}}
         @keyframes troth-rise {0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
         @keyframes troth-nudge {0%,100%{transform:translateY(0);opacity:0.45}50%{transform:translateY(5px);opacity:1}}

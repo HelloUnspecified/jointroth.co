@@ -33,14 +33,29 @@ const { title, description, ogImage, ogType, noindex, jsonLd } = Astro.props;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.webp" sizes="any" />
 
-    <!-- FOUC prevention: apply the saved Lamplight preference before first paint -->
+    <!-- Pre-paint setup (no flash): saved Lamplight preference + phone detection.
+         `troth-phone` hides the simulated iOS status bar (see the islands' CSS)
+         so a real phone doesn't show two status bars. userAgentData.mobile is the
+         precise signal but is Chromium-only (undefined in Safari/Firefox), so we
+         fall back to a UA check — which is what catches iPhones. -->
     <script is:inline>
       (function () {
+        var el = document.documentElement;
         try {
           if (localStorage.getItem("troth-theme") === "dark") {
-            document.documentElement.classList.add("troth-dark");
-            document.documentElement.setAttribute("data-theme", "dark");
+            el.classList.add("troth-dark");
+            el.setAttribute("data-theme", "dark");
           }
+        } catch (e) {}
+        try {
+          var uad = navigator.userAgentData;
+          var isPhone =
+            uad && typeof uad.mobile === "boolean"
+              ? uad.mobile
+              : /iPhone|iPod|Android.+Mobile|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
+                  navigator.userAgent || "",
+                );
+          if (isPhone) el.classList.add("troth-phone");
         } catch (e) {}
       })();
     </script>

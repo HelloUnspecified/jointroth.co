@@ -532,8 +532,9 @@ export default function TrothConfirmation() {
         @keyframes troth-rise {0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
         .troth-os {opacity:0;animation:troth-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards}
         /* Hide the simulated iOS status bar on phones (real device already has
-           one); keep it on larger screens where the frame reads as a mockup. */
-        @media (max-width: 640px) { .troth-statusbar { display: none; } }
+           one); keep it on desktop. Phone detection is done pre-paint in
+           Layout.astro (adds .troth-phone), not by screen width. */
+        .troth-phone .troth-statusbar { display: none; }
         @media (prefers-reduced-motion: reduce){
           .troth-os{opacity:1 !important;animation:none !important}
         }
