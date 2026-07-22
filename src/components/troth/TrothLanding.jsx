@@ -661,6 +661,10 @@ export default function TrothLanding() {
         /* Firm snapping so the page rests on one full screen at a time,
            like paging through an app rather than scrolling a website. */
         html { scroll-snap-type: y mandatory; scroll-padding-top: 0; }
+        /* Hide the simulated iOS status bar on phones — the real device already
+           has one, so two would collide. Keep it on larger screens, where the
+           frame reads as a device mockup. */
+        @media (max-width: 640px) { .troth-statusbar { display: none; } }
         @keyframes troth-ignite {0%{opacity:0;transform:scale(0.82)}100%{opacity:1;transform:scale(1)}}
         @keyframes troth-rise {0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
         @keyframes troth-nudge {0%,100%{transform:translateY(0);opacity:0.45}50%{transform:translateY(5px);opacity:1}}
@@ -715,8 +719,9 @@ export default function TrothLanding() {
           transition: "background var(--dur-considered) var(--ease-troth)",
         }}
       >
-        {/* iOS status bar */}
+        {/* iOS status bar (desktop-only — see .troth-statusbar media query) */}
         <div
+          className="troth-statusbar"
           aria-hidden="true"
           style={{
             position: "absolute",

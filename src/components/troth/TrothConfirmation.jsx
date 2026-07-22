@@ -531,6 +531,9 @@ export default function TrothConfirmation() {
       <style>{`
         @keyframes troth-rise {0%{opacity:0;transform:translateY(15px)}100%{opacity:1;transform:none}}
         .troth-os {opacity:0;animation:troth-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards}
+        /* Hide the simulated iOS status bar on phones (real device already has
+           one); keep it on larger screens where the frame reads as a mockup. */
+        @media (max-width: 640px) { .troth-statusbar { display: none; } }
         @media (prefers-reduced-motion: reduce){
           .troth-os{opacity:1 !important;animation:none !important}
         }
@@ -548,8 +551,9 @@ export default function TrothConfirmation() {
           transition: "background var(--dur-considered) var(--ease-troth)",
         }}
       >
-        {/* iOS status bar */}
+        {/* iOS status bar (desktop-only — see .troth-statusbar media query) */}
         <div
+          className="troth-statusbar"
           aria-hidden="true"
           style={{
             position: "absolute",
