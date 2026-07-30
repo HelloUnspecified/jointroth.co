@@ -484,6 +484,12 @@ const whatIs = [
     scroll-snap-type: y mandatory;
     scroll-padding-top: 0;
   }
+  /* …but never while a field is focused: on iOS the keyboard scrolls the input
+     into view and mandatory snapping instantly yanks it back under the keyboard.
+     See the focus handling in this page's script. */
+  html.troth-typing {
+    scroll-snap-type: none;
+  }
   @keyframes troth-ignite {
     0% {
       opacity: 0;
@@ -624,6 +630,54 @@ const whatIs = [
     );
     document.querySelectorAll("[data-screen]").forEach((s) => io.observe(s));
   }
+
+  /* Keyboard vs. snapping. On a shorter iPhone the email field sits below where
+     the keyboard lands, so Safari scrolls it up on focus — and `scroll-snap-type:
+     y mandatory` immediately snaps back to the top of the screen, burying the
+     field with no way to reach it. So: suspend snapping the moment a field takes
+     focus, nudge the field into view once the keyboard has settled, and re-arm
+     snapping only on the next real scroll gesture (never on blur, so dismissing
+     the keyboard leaves the page exactly where it is). */
+  const FIELD = "input, textarea";
+  let rearmPending = false;
+
+  const rearmSnap = () => {
+    if (!rearmPending) return;
+    rearmPending = false;
+    root.classList.remove("troth-typing");
+  };
+
+  function keepFieldVisible(el: HTMLElement) {
+    const vv = window.visualViewport;
+    let settled = false;
+    const check = () => {
+      if (settled) return;
+      settled = true;
+      if (vv) vv.removeEventListener("resize", check);
+      // Bottom edge of what's actually visible, in layout-viewport coordinates.
+      const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+      if (el.getBoundingClientRect().bottom > visibleBottom - 16)
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+    };
+    if (vv) vv.addEventListener("resize", check);
+    // Fallback for browsers that never fire the resize (no keyboard, or no vv).
+    setTimeout(check, 500);
+  }
+
+  const isField = (t: EventTarget | null) =>
+    t instanceof HTMLElement && t.matches(FIELD);
+
+  document.addEventListener("focusin", (e) => {
+    if (!isField(e.target)) return;
+    rearmPending = false;
+    root.classList.add("troth-typing");
+    keepFieldVisible(e.target as HTMLElement);
+  });
+  document.addEventListener("focusout", (e) => {
+    if (isField(e.target)) rearmPending = true;
+  });
+  window.addEventListener("touchmove", rearmSnap, { passive: true });
+  window.addEventListener("wheel", rearmSnap, { passive: true });
 
   function subscribeError(status: number) {
     return status === 429
