@@ -1,0 +1,183 @@
+---
+// A paper mock of the printable exercise: the prompt, a few answers written in,
+// one starred, and empty ruled lines waiting. Pure type and CSS — no image
+// asset, so it costs nothing and stays sharp everywhere.
+import LanternMark from "../../elements/LanternMark.astro";
+
+interface Props {
+  label?: string;
+  prompt: string;
+  answers?: { text: string; starred?: boolean }[];
+  blanks?: number;
+  class?: string;
+}
+const {
+  label = "The exercise",
+  prompt,
+  answers = [],
+  blanks = 2,
+  class: className,
+} = Astro.props;
+
+const empties = Array.from({ length: Math.max(0, blanks) });
+---
+
+<div class:list={["paper", className]} aria-hidden="true">
+  <div class="paper__sheet">
+    <div class="paper__top">
+      <LanternMark size={16} tone="brand" />
+      <span>{label}</span>
+    </div>
+
+    <p class="paper__prompt">
+      {prompt}<span class="paper__rule"></span>
+    </p>
+
+    <ol class="paper__lines">
+      {
+        answers.map((a) => (
+          <li class:list={["paper__line", a.starred && "is-starred"]}>
+            <span class="paper__star">
+              {a.starred ? (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2.6l2.7 5.9 6.4.7-4.8 4.3 1.3 6.3L12 16.7 6.4 19.8l1.3-6.3L2.9 9.2l6.4-.7L12 2.6Z" />
+                </svg>
+              ) : null}
+            </span>
+            <span class="paper__text">{a.text}</span>
+          </li>
+        ))
+      }
+      {empties.map(() => <li class="paper__line paper__line--empty" />)}
+    </ol>
+
+    <div class="paper__foot">
+      <span class="paper__sig">Signed</span>
+      <span class="paper__sigline"></span>
+      <span class="paper__sigline"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .paper {
+    perspective: 1200px;
+    /* Keep it page-shaped when the layout collapses to one column — a sheet of
+       paper stretched to full tablet width stops reading as paper. */
+    max-width: 460px;
+  }
+
+  .paper__sheet {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: clamp(22px, 3vw, 30px) clamp(20px, 2.8vw, 28px)
+      clamp(20px, 2.6vw, 26px);
+    box-shadow: var(--shadow-float);
+    transform: rotate(-1.1deg);
+    transition: transform var(--dur-considered) var(--ease-troth);
+  }
+  .paper:hover .paper__sheet {
+    transform: rotate(-0.3deg);
+  }
+
+  .paper__top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .paper__top span {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+
+  .paper__prompt {
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 2vw, 19px);
+    line-height: 1.5;
+    color: var(--color-text);
+    margin: 0 0 16px;
+  }
+  .paper__rule {
+    display: inline-block;
+    width: 5.5em;
+    border-bottom: 1px solid var(--color-accent);
+    margin-left: 0.3em;
+    transform: translateY(-0.12em);
+  }
+
+  .paper__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .paper__line {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: end;
+    gap: 8px;
+    min-height: 34px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 10px;
+  }
+
+  .paper__star {
+    color: var(--color-keepsake);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-bottom: 2px;
+  }
+
+  .paper__text {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.35;
+    color: var(--color-text-secondary);
+    text-wrap: pretty;
+  }
+  .is-starred .paper__text {
+    color: var(--color-text);
+  }
+
+  .paper__line--empty {
+    min-height: 30px;
+  }
+
+  .paper__foot {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .paper__sig {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    flex: none;
+  }
+  .paper__sigline {
+    flex: 1;
+    border-bottom: 1px solid var(--color-border-strong);
+    height: 14px;
+  }
+</style>

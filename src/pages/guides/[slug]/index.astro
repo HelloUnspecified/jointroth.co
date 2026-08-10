@@ -1,0 +1,321 @@
+---
+// /guides/<slug> — a lead-magnet landing page, driven entirely by the guide's
+// frontmatter. The MDX body, if any, renders as an extra prose section.
+import { getCollection, render } from "astro:content";
+import GuideLayout from "../../../layouts/GuideLayout.astro";
+import GuideForm from "../../../components/guides/GuideForm.astro";
+import ExercisePreview from "../../../components/guides/ExercisePreview.astro";
+import Eyebrow from "../../../elements/Eyebrow.astro";
+import Button from "../../../elements/Button.astro";
+
+export async function getStaticPaths() {
+  const guides = await getCollection("guides", ({ data }) => !data.draft);
+  return guides.map((guide) => ({
+    params: { slug: guide.id },
+    props: { guide },
+  }));
+}
+
+const { guide } = Astro.props;
+const d = guide.data;
+const { Content } = await render(guide);
+
+const slug = guide.id;
+const thanksUrl = `/guides/${slug}/thank-you`;
+// Most guides are frontmatter-only; the MDX body is optional extra prose.
+const hasBody = (guide.body ?? "").trim().length > 0;
+
+// `___` in a headline becomes a ruled blank you could write on.
+const headlineParts = d.headline.split(/_{3,}/);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: d.title,
+  description: d.description,
+  url: new URL(`/guides/${slug}`, "https://jointroth.co").href,
+  isPartOf: { "@type": "WebSite", name: "Troth", url: "https://jointroth.co" },
+  author: { "@type": "Person", name: "Clark Sell" },
+};
+---
+
+<GuideLayout
+  title={d.title}
+  description={d.description}
+  ogImage={d.ogImage}
+  jsonLd={jsonLd}
+  headerCta={d.form.cta}
+>
+  {/* ------------------------------------------------------------- hero -- */}
+  <section class="g-wrap g-hero">
+    <div>
+      <Eyebrow tone="accent">{d.eyebrow}</Eyebrow>
+      <h1 class="g-h1 hero__h1" aria-label={d.headline}>
+        {
+          headlineParts.map((part, i) => (
+            <>
+              {part}
+              {i < headlineParts.length - 1 && <span class="g-blank" />}
+            </>
+          ))
+        }
+      </h1>
+      <p class="g-lede hero__sub">{d.subhead}</p>
+    </div>
+
+    <div class="g-hero__aside" id="get">
+      <GuideForm
+        guide={slug}
+        redirect={thanksUrl}
+        id="hero"
+        heading={d.form.heading}
+        cta={d.form.cta}
+        microcopy={d.form.microcopy}
+        placeholder={d.form.placeholder}
+        waitlistLabel={d.form.waitlistLabel}
+        waitlistDefault={d.form.waitlistDefault}
+        privacy={d.form.privacy}
+      />
+      {
+        d.facts.length > 0 && (
+          <ul class="g-facts hero__facts">
+            {d.facts.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------- problem -- */}
+  {
+    d.problem && (
+      <section class="g-wrap g-section g-section--tight problem g-reveal">
+        <span class="problem__rule" aria-hidden="true" />
+        <p class="g-pull problem__text">{d.problem}</p>
+      </section>
+    )
+  }
+
+  {/* --------------------------------------------- what's inside + paper -- */}
+  {
+    d.inside && d.inside.steps.length > 0 && (
+      <section class="g-band">
+        <div
+          class:list={[
+            "g-wrap",
+            "g-section",
+            "g-reveal",
+            d.preview ? "g-split" : "g-wrap--narrow",
+          ]}
+        >
+          {d.preview && (
+            <div class="g-split__sticky">
+              <ExercisePreview
+                label={d.preview.label}
+                prompt={d.preview.prompt}
+                answers={d.preview.answers}
+                blanks={d.preview.blanks}
+              />
+            </div>
+          )}
+          <div>
+            <Eyebrow tone="tertiary">{d.inside.eyebrow}</Eyebrow>
+            {d.inside.heading && (
+              <h2 class="g-h2 inside__h2">{d.inside.heading}</h2>
+            )}
+            <ol class="g-steps inside__steps">
+              {d.inside.steps.map((step) => (
+                <li>
+                  <span class="g-steps__title">{step.title}</span>
+                  {step.body && <p class="g-steps__body">{step.body}</p>}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* ------------------------------------------------------------ photo -- */}
+  {
+    d.image && (
+      <section class="g-wrap g-section g-section--tight g-reveal">
+        <figure class="g-figure photo">
+          <img
+            src={d.image.src}
+            alt={d.image.alt}
+            loading="lazy"
+            decoding="async"
+          />
+          {d.image.caption && <figcaption>{d.image.caption}</figcaption>}
+        </figure>
+      </section>
+    )
+  }
+
+  {
+    /* -------------------------------------------------- optional MDX body -- */
+  }
+  {
+    hasBody && (
+      <section class="g-wrap g-section g-section--tight g-reveal">
+        <div class="g-prose">
+          <Content />
+        </div>
+      </section>
+    )
+  }
+
+  {
+    /* ------------------------------------------ founder note + second CTA -- */
+  }
+  <section class="g-wrap g-section g-split closer g-reveal">
+    {
+      d.founder && (
+        <div class="g-note">
+          <Eyebrow tone="letter">{d.founder.eyebrow}</Eyebrow>
+          <p class="note__body">{d.founder.note}</p>
+          <p class="g-sign">{d.founder.signature}</p>
+        </div>
+      )
+    }
+    <div class="g-split__sticky">
+      <GuideForm
+        guide={slug}
+        redirect={thanksUrl}
+        id="closer"
+        heading={d.form.heading}
+        cta={d.form.cta}
+        microcopy={d.form.microcopy}
+        placeholder={d.form.placeholder}
+        waitlistLabel={d.form.waitlistLabel}
+        waitlistDefault={d.form.waitlistDefault}
+        privacy={d.form.privacy}
+      />
+    </div>
+  </section>
+
+  {/* ----------------------------------------------------------- bridge -- */}
+  {
+    d.bridge && (
+      <section class="troth-dark g-dark">
+        <div class="g-wrap g-section g-wrap--narrow bridge">
+          <Eyebrow tone="accent">{d.bridge.eyebrow}</Eyebrow>
+          {d.bridge.heading && (
+            <h2 class="g-h2 bridge__h2">{d.bridge.heading}</h2>
+          )}
+          <p class="g-lede bridge__body">{d.bridge.body}</p>
+          {d.bridge.cta && (
+            <div class="bridge__cta">
+              <Button
+                variant="secondary"
+                size="medium"
+                href={d.bridge.cta.href}
+              >
+                {d.bridge.cta.label}
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    /* -------------------------------------------- phones: sticky offer bar -- */
+  }
+  <div class="g-stickybar" data-stickybar>
+    <span class="g-stickybar__label">{d.form.stickyLabel || d.eyebrow}</span>
+    <Button variant="primary" size="small" href="#get">{d.form.cta}</Button>
+  </div>
+</GuideLayout>
+
+<style>
+  .hero__h1 {
+    margin-top: 18px;
+  }
+  .hero__sub {
+    margin-top: 20px;
+    max-width: 34rem;
+  }
+  .problem__rule {
+    display: block;
+    width: 46px;
+    height: 2px;
+    background: var(--color-accent);
+    margin-bottom: 26px;
+  }
+  .problem__text {
+    max-width: 24ch;
+  }
+
+  .hero__facts {
+    margin-top: 16px;
+    padding-inline: 4px;
+  }
+
+  .inside__h2 {
+    margin-top: 14px;
+  }
+  .inside__steps {
+    margin-top: 26px;
+  }
+
+  .photo {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+
+  /* Trust first, ask second — the note leads on phones and on desktop. */
+  @media (min-width: 992px) {
+    .closer {
+      grid-template-columns: minmax(0, 1.06fr) minmax(340px, 0.94fr);
+    }
+  }
+
+  .note__body {
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 2vw, 19px);
+    line-height: 1.62;
+    color: var(--color-text);
+    margin: 14px 0 0;
+    text-wrap: pretty;
+  }
+
+  .bridge {
+    text-align: center;
+  }
+  .bridge__h2 {
+    margin-top: 14px;
+  }
+  .bridge__body {
+    margin: 18px auto 0;
+    max-width: 32rem;
+  }
+  .bridge__cta {
+    margin-top: 26px;
+  }
+</style>
+
+<script>
+  /* The offer follows you down the page on phones — but only while no real
+     form is on screen, so it never sits on top of the one you're filling in. */
+  const bar = document.querySelector<HTMLElement>("[data-stickybar]");
+  const forms = Array.from(document.querySelectorAll("[data-guide-form]"));
+  if (bar && forms.length && "IntersectionObserver" in window) {
+    const onScreen = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) =>
+          e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target),
+        );
+        bar.classList.toggle("is-on", onScreen.size === 0);
+      },
+      { threshold: 0 },
+    );
+    forms.forEach((f) => io.observe(f));
+  }
+</script>

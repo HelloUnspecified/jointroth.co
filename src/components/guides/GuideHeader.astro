@@ -1,0 +1,107 @@
+---
+// Slim sticky header for guide pages: wordmark home link, Lamplight toggle, and
+// an optional CTA that fades in once the hero scrolls away (desktop only — on
+// phones that job belongs to the sticky bottom bar).
+import LanternMark from "../../elements/LanternMark.astro";
+import LamplightToggle from "../../elements/LamplightToggle.astro";
+
+interface Props {
+  cta?: string;
+  ctaHref?: string;
+}
+const { cta, ctaHref = "#get" } = Astro.props;
+---
+
+<header class="gh">
+  <div class="g-wrap gh__inner">
+    <a href="/" class="gh__brand">
+      <LanternMark size={22} tone="brand" />
+      <span>Troth</span>
+    </a>
+    <div class="gh__right">
+      {
+        cta && (
+          <a href={ctaHref} class="gh__cta" data-header-cta>
+            {cta}
+          </a>
+        )
+      }
+      <LamplightToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .gh {
+    position: sticky;
+    top: 0;
+    z-index: 45;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-quick) var(--ease-troth);
+  }
+  :global(.g-scrolled) .gh {
+    border-bottom-color: var(--color-border);
+  }
+
+  .gh__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 62px;
+  }
+
+  .gh__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--color-text);
+  }
+  .gh__brand span {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    padding-left: 0.34em;
+  }
+
+  .gh__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .gh__cta {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-on-accent);
+    background: var(--color-accent);
+    border-radius: var(--radius-input);
+    padding: 9px 16px;
+    text-decoration: none;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--dur-considered) var(--ease-troth),
+      background var(--dur-quick) var(--ease-troth);
+  }
+  .gh__cta:hover {
+    background: var(--color-accent-press);
+  }
+  :global(.g-scrolled) .gh__cta {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    .gh__cta {
+      display: inline-flex;
+    }
+  }
+</style>

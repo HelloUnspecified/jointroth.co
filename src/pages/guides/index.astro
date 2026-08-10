@@ -1,0 +1,93 @@
+---
+// /guides — a plain index so the parent route isn't a dead end. Lists every
+// published guide; the guides themselves do the selling.
+import { getCollection } from "astro:content";
+import GuideLayout from "../../layouts/GuideLayout.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+
+const guides = (await getCollection("guides", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id),
+);
+---
+
+<GuideLayout
+  title="Exercises for the two of you — Troth"
+  description="Free, printable exercises for married couples. Written by Clark and Carrie Sell, who are building Troth."
+>
+  <section class="g-wrap g-wrap--narrow g-section">
+    <Eyebrow tone="accent">Free for the two of you</Eyebrow>
+    <h1 class="g-h1 idx__h1">Exercises for the two of you.</h1>
+    <p class="g-lede idx__sub">
+      Short, printable things we've used in our own marriage. No app required —
+      a pen each and an evening is enough.
+    </p>
+
+    <ul class="idx__list">
+      {
+        guides.map((guide) => (
+          <li>
+            <a href={`/guides/${guide.id}`}>
+              <span class="idx__eyebrow">{guide.data.eyebrow}</span>
+              <span class="g-h3 idx__title">
+                {guide.data.headline.replace(/_{3,}/g, "…")}
+              </span>
+              <span class="idx__body">{guide.data.subhead}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</GuideLayout>
+
+<style>
+  .idx__h1 {
+    margin-top: 16px;
+    font-size: clamp(34px, 5.6vw, 52px);
+  }
+  .idx__sub {
+    margin-top: 18px;
+  }
+  .idx__list {
+    list-style: none;
+    margin: clamp(32px, 5vw, 48px) 0 0;
+    padding: 0;
+  }
+  .idx__list li {
+    border-top: 1px solid var(--color-border);
+  }
+  .idx__list li:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .idx__list a {
+    display: block;
+    padding: 24px 0;
+    text-decoration: none;
+    transition: opacity var(--dur-quick) var(--ease-troth);
+  }
+  .idx__list a:hover {
+    opacity: 0.72;
+  }
+  .idx__eyebrow {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .idx__title {
+    display: block;
+    margin-top: 10px;
+  }
+  .idx__body {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-top: 8px;
+    text-wrap: pretty;
+  }
+</style>

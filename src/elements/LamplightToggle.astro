@@ -1,0 +1,87 @@
+---
+// Standalone Lamplight (dark mode) toggle for pages that don't use PhoneFrame.
+// Same contract as the one baked into PhoneFrame: flips `.troth-dark` +
+// `[data-theme]` on <html> and persists to localStorage["troth-theme"], which
+// the pre-paint script in Layout.astro reads back.
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  data-lamplight
+  aria-label="Toggle lamplight"
+  class:list={["lamp", className]}
+>
+  <svg
+    width="16"
+    height="11"
+    viewBox="0 0 64 40"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M18.5 6.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z"
+      fill="currentColor"
+      opacity="0.55"></path>
+    <path
+      d="M39.5 6.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z"
+      fill="currentColor"></path>
+  </svg>
+  <span data-lamplight-label>Lamplight</span>
+</button>
+
+<style>
+  .lamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    padding: 6px 12px 6px 10px;
+    cursor: pointer;
+    transition:
+      color var(--dur-quick) var(--ease-troth),
+      border-color var(--dur-quick) var(--ease-troth);
+  }
+  .lamp:hover {
+    color: var(--color-text);
+    border-color: var(--color-border-strong);
+  }
+  .lamp svg {
+    display: block;
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-lamplight]")
+    .forEach((btn) => {
+      const label = btn.querySelector<HTMLElement>("[data-lamplight-label]");
+      const sync = () => {
+        if (label)
+          label.textContent = root.classList.contains("troth-dark")
+            ? "Light"
+            : "Lamplight";
+      };
+      sync();
+      btn.addEventListener("click", () => {
+        const dark = root.classList.toggle("troth-dark");
+        if (dark) root.setAttribute("data-theme", "dark");
+        else root.removeAttribute("data-theme");
+        try {
+          localStorage.setItem("troth-theme", dark ? "dark" : "light");
+        } catch (e) {}
+        sync();
+      });
+    });
+</script>

@@ -1,0 +1,462 @@
+/* ============================================================================
+   Guide (lead-magnet) landing pages — /guides/<slug>
+
+   A second layout family alongside the phone-framed waitlist pages: full-bleed,
+   editorial, mobile-first, no device chrome. Same tokens, same two typefaces,
+   same restraint — different shape. Imported by GuideLayout.astro only, so the
+   waitlist pages never pay for it.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------- shell -- */
+
+.g-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background var(--dur-considered) var(--ease-troth);
+}
+
+.g-main {
+  flex: 1;
+}
+
+.g-wrap {
+  width: 100%;
+  max-width: 1112px;
+  margin-inline: auto;
+  padding-inline: clamp(22px, 5.5vw, 44px);
+}
+
+.g-wrap--narrow {
+  max-width: 704px;
+}
+
+.g-section {
+  padding-block: clamp(52px, 8.5vw, 104px);
+}
+
+.g-section--tight {
+  padding-block: clamp(40px, 6vw, 72px);
+}
+
+.g-rule {
+  height: 1px;
+  background: var(--color-border);
+  border: 0;
+  margin: 0;
+}
+
+/* ----------------------------------------------------------------- type -- */
+
+.g-h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(38px, 7vw, 68px);
+  line-height: 1.03;
+  letter-spacing: -0.021em;
+  color: var(--color-text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.g-h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(28px, 4.6vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -0.014em;
+  color: var(--color-text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.g-h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(21px, 2.6vw, 26px);
+  line-height: 1.18;
+  letter-spacing: -0.008em;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.g-lede {
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 2.1vw, 21px);
+  line-height: 1.58;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.g-body {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.g-meta {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+.g-em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+/* The ruled blank in a headline — a line you could actually write on. */
+.g-blank {
+  display: inline-block;
+  min-width: 2.4em;
+  vertical-align: baseline;
+  border-bottom: 0.055em solid var(--color-accent);
+  margin-inline: 0.08em;
+  /* Lift the rule to sit on the baseline rather than below the descenders. */
+  transform: translateY(-0.09em);
+}
+
+/* ------------------------------------------------------------- sections -- */
+
+/* Hero: single column on phones, copy + form card side by side from lg up. */
+.g-hero {
+  display: grid;
+  gap: clamp(34px, 5vw, 56px);
+  padding-block: clamp(38px, 6vw, 76px) clamp(52px, 8vw, 96px);
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .g-hero {
+    grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+    gap: clamp(48px, 5vw, 76px);
+  }
+  .g-hero__aside {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+/* The problem line — a quiet full-width band, set large. */
+.g-band {
+  background: var(--color-surface);
+  border-block: 1px solid var(--color-border);
+}
+
+.g-pull {
+  font-family: var(--font-serif);
+  font-size: clamp(23px, 3.4vw, 34px);
+  line-height: 1.32;
+  letter-spacing: -0.012em;
+  color: var(--color-text);
+  margin: 0;
+  max-width: 26ch;
+  text-wrap: pretty;
+}
+
+/* Two-up: a visual on one side, content on the other. */
+.g-split {
+  display: grid;
+  gap: clamp(34px, 5vw, 64px);
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .g-split {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  }
+  .g-split--reverse > :first-child {
+    order: 2;
+  }
+  .g-split__sticky {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+/* Numbered steps — terracotta serif numerals, hairline separated. */
+.g-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: g-step;
+  /* Hold the measure when the two-column split collapses. */
+  max-width: 36rem;
+}
+
+.g-steps > li {
+  counter-increment: g-step;
+  display: grid;
+  grid-template-columns: 2.1rem minmax(0, 1fr);
+  gap: 4px 14px;
+  padding-block: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.g-steps > li:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.g-steps > li::before {
+  content: counter(g-step);
+  grid-row: 1 / span 2;
+  font-family: var(--font-serif);
+  font-size: 21px;
+  line-height: 1.28;
+  color: var(--color-accent);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.g-steps__title {
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 2vw, 20px);
+  line-height: 1.28;
+  color: var(--color-text);
+}
+
+.g-steps__body {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
+  text-wrap: pretty;
+}
+
+/* Facts row under the hero form. */
+.g-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.g-facts > li {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: var(--color-text-tertiary);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.g-facts > li::before {
+  content: "";
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  flex: none;
+}
+
+/* Founder note — the trust block. Plum spine, flat card. */
+.g-note {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-letter);
+  border-radius: var(--radius-card);
+  padding: clamp(22px, 3.4vw, 32px);
+}
+
+.g-sign {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 18px 0 0;
+}
+
+/* Optional photo. */
+.g-figure {
+  margin: 0;
+}
+
+.g-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-sunken);
+}
+
+.g-figure figcaption {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--color-text-tertiary);
+  margin-top: 10px;
+}
+
+/* Closing bridge — always Lamplight, like "Sealed for two" on the landing page.
+   The hairline does the separating when the whole page is already dark. */
+.g-dark {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-top: 1px solid var(--color-border);
+}
+
+/* --------------------------------------------------------------- prose --- */
+/* Optional MDX body. Kept deliberately plain — most guides need no body. */
+
+.g-prose {
+  font-family: var(--font-serif);
+  font-size: 17.5px;
+  line-height: 1.66;
+  color: var(--color-text-secondary);
+  max-width: var(--width-text-comfortable);
+}
+
+.g-prose > * + * {
+  margin-top: 1.1em;
+}
+
+.g-prose h2 {
+  font-size: clamp(24px, 3.4vw, 30px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  color: var(--color-text);
+  margin-top: 1.7em;
+}
+
+.g-prose h3 {
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--color-text);
+  margin-top: 1.5em;
+}
+
+.g-prose em {
+  font-style: italic;
+}
+
+.g-prose strong {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.g-prose a {
+  color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
+.g-prose ul,
+.g-prose ol {
+  padding-left: 1.2em;
+}
+
+.g-prose li + li {
+  margin-top: 0.4em;
+}
+
+.g-prose blockquote {
+  margin: 0;
+  padding-left: 1em;
+  border-left: 2px solid var(--color-border-strong);
+  font-style: italic;
+  color: var(--color-text);
+}
+
+/* ---------------------------------------------------------- sticky bar --- */
+/* Phones only: the offer follows them down the page once the hero is gone.
+   --shadow-float exists for exactly this. */
+
+.g-stickybar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-float);
+  transform: translateY(120%);
+  transition: transform var(--dur-considered) var(--ease-troth);
+}
+
+.g-stickybar.is-on {
+  transform: none;
+}
+
+.g-stickybar__label {
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  line-height: 1.25;
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+  /* Never let a long label grow the bar past two lines. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .g-stickybar {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------- a11y ----- */
+
+.g-page :where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.g-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Scroll reveal — same vocabulary as the landing page (rise, never bounce). */
+.g-js .g-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s var(--ease-troth),
+    transform 0.6s var(--ease-troth);
+}
+
+.g-js .g-reveal.is-shown {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g-js .g-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .g-stickybar {
+    transition: none;
+  }
+}

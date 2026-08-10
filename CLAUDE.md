@@ -2,7 +2,7 @@
 
 ## Project
 
-Astro 5/7 marketing site for **Troth** (jointroth.co) — a private, encrypted iPhone app for married couples. The site is currently a single mobile-first **waitlist landing page**. Deployed to Cloudflare (Workers + static assets) via `@astrojs/cloudflare`.
+Astro 5/7 marketing site for **Troth** (jointroth.co) — a private, encrypted iPhone app for married couples. Two page families: the mobile-first **waitlist landing page** (inside an iPhone frame) and the **`/guides` lead-magnet landing pages** (full-bleed editorial, no phone frame). Deployed to Cloudflare (Workers + static assets) via `@astrojs/cloudflare`.
 
 The codebase was repurposed from a prior site (re/Human); the reusable Astro/Cloudflare skeleton was kept and everything product-specific was rebuilt. The commit tagged "Snapshot: re/Human codebase before Troth rebrand" is the restore point for anything from the old site.
 
@@ -31,9 +31,22 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
   - `src/elements/` — primitives with scoped styles: `LanternMark`, `Eyebrow` (tone: accent/letter/tertiary), `Button` (variant/size, CSS hover/press, renders `<a>` when `href` set), `TextField` (CSS focus glow), `Avatar`.
   - `src/components/troth/` — `PhoneFrame.astro` (the shared iPhone-frame shell: canvas, device frame, simulated status bar, Lamplight toggle + its theme `<script>`) and content components: `MessageBubble`, `QuestionCard`, `OnThisDayCard`, `ManifestoEntry`, `KeepsakeSeal`.
 - Pages compose the library: `src/pages/index.astro` (landing — 7 scroll-snap screens + a page `<script>` for scroll reveal/progress dots/forms) and `src/pages/welcome.astro` (confirmation — spouse invite + copy links, its own `<script>`).
-- `src/pages/api/subscribe.ts` — waitlist capture (server route, `prerender = false`) → **Loops** custom form (public newsletter-form endpoint, no API key; endpoint + list IDs + `source` hardcoded). Both landing forms and the spouse-invite form POST `{ email }` (spouse adds `ref: "spouse"`) here.
+- `src/pages/api/subscribe.ts` — the single email-capture route (server route, `prerender = false`) → **Loops** custom form (public newsletter-form endpoint, no API key). Two request shapes: `{ email }` (waitlist — landing + spouse invite, which adds `ref: "spouse"`) and `{ email, guide, waitlist }` (a `/guides` lead magnet). **The client never sends mailing-list IDs** — `guide` is a slug resolved server-side against `src/lib/loops.ts`.
 - Self-hosted fonts via `@fontsource` (no Google Fonts CDN — sub-1s LCP).
-- CSS layering: design tokens in `src/css/troth-tokens.css`, shared UI/motion in `src/css/troth-ui.css` (both imported by `tailwind.css`, global). Page-specific rules (scroll snap, reveal, dots) live in each page's `<style is:global>`. Page/section layout uses inline `style="…var(--…)…"` to stay faithful to the design; reusable components carry scoped `<style>`.
+- CSS layering: design tokens in `src/css/troth-tokens.css`, shared UI/motion in `src/css/troth-ui.css` (both imported by `tailwind.css`, global); `src/css/troth-guide.css` is imported by `GuideLayout.astro` only, so waitlist pages never load it. Page-specific rules (scroll snap, reveal, dots) live in each page's `<style is:global>`. Waitlist page/section layout uses inline `style="…var(--…)…"` to stay faithful to the ported design; the guide components and every reusable component carry scoped `<style>` with `var(--token)` values.
+
+## Lead-magnet pages (`/guides`)
+
+**Adding a guide is adding one `.mdx` file** — `src/content/guides/<slug>.mdx` — plus one row in `src/lib/loops.ts`. Nothing else. That file's frontmatter drives the entire page; the MDX body is optional extra prose rendered between the steps and the founder note (omit it entirely and the section disappears).
+
+- `src/content.config.mjs` — the `guides` collection schema (zod). Every section is optional except `title`/`description`/`headline`/`subhead`, so a sparse guide degrades gracefully.
+- `src/pages/guides/[slug]/index.astro` — the landing page: hero + form, problem statement, "what's inside" steps beside a CSS paper mock of the asset, optional photo, optional MDX prose, founder note + second form, dark closing bridge to the product, and a phone-only sticky offer bar (shown only while no real form is on screen).
+- `src/pages/guides/[slug]/thank-you.astro` — the double-opt-in ask (`noindex`). It **never links the PDF**; the asset travels only through the confirmation email. `?w=1` (set when the waitlist checkbox was ticked) swaps the waitlist CTA for an acknowledgement, via a pre-paint `is:inline` script so neither block flashes.
+- `src/pages/guides/index.astro` — plain listing so `/guides` isn't a dead end.
+- `src/layouts/GuideLayout.astro` + `src/components/guides/` (`GuideHeader`, `GuideFooter`, `GuideForm`, `ExercisePreview`) + `src/elements/` (`Checkbox`, `LamplightToggle`). Same tokens and two typefaces as the waitlist pages — different shape.
+- A `___` (3+ underscores) in `headline` renders as a ruled terracotta blank you could write on. The h1 keeps the raw string as its `aria-label`.
+- **PDFs and photos go in `public/guides/`** (see the README there). The `pdf:` frontmatter field is the URL to paste into the Loops confirmation email.
+- Guide slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$` before being echoed to Loops as a `source`. A slug with no configured list still captures the email (tagged by source) and logs a warning, so a new page can never silently drop a signup.
 
 ## Design source
 

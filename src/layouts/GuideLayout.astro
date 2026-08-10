@@ -1,0 +1,90 @@
+---
+// Shell for every /guides page. Same <head>, tokens, and fonts as the waitlist
+// pages (via Layout) — but no phone frame: full-bleed, editorial, responsive.
+// Guide-only CSS is imported here so the waitlist pages never load it.
+import Layout from "./Layout.astro";
+import GuideHeader from "../components/guides/GuideHeader.astro";
+import GuideFooter from "../components/guides/GuideFooter.astro";
+import "../css/troth-guide.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+  headerCta?: string;
+  headerCtaHref?: string;
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  noindex,
+  jsonLd,
+  headerCta,
+  headerCtaHref,
+} = Astro.props;
+---
+
+<Layout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  ogType="article"
+  noindex={noindex}
+  jsonLd={jsonLd}
+>
+  {
+    /* Mark JS before first paint so revealed sections never flash in and out. */
+  }
+  <script is:inline>
+    document.documentElement.classList.add("g-js");
+  </script>
+  <div class="g-page">
+    <GuideHeader cta={headerCta} ctaHref={headerCtaHref} />
+    <main class="g-main">
+      <slot />
+    </main>
+    <GuideFooter />
+  </div>
+</Layout>
+
+<style is:global>
+  /* Guide pages scroll normally — the landing page's snap behavior is scoped
+     to that page, but be explicit so nothing leaks in. */
+  html:has(.g-page) {
+    scroll-snap-type: none;
+    scroll-padding-top: 78px;
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+
+  /* Header hairline + header CTA appear once you're past the fold. */
+  const onScroll = () =>
+    root.classList.toggle("g-scrolled", window.scrollY > 240);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  /* Sections rise into place as they arrive. */
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add("is-shown");
+          io.unobserve(e.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+    document.querySelectorAll(".g-reveal").forEach((el) => io.observe(el));
+  } else {
+    document
+      .querySelectorAll(".g-reveal")
+      .forEach((el) => el.classList.add("is-shown"));
+  }
+</script>

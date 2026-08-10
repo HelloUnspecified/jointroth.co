@@ -1,0 +1,72 @@
+---
+// A real <input type="checkbox"> wearing a Troth-shaped box: warm hairline
+// square that fills terracotta when checked. Label text is the default slot.
+// name, checked, value, etc. pass straight through.
+interface Props {
+  id: string;
+  class?: string;
+  [key: string]: any;
+}
+const { id, class: className, ...rest } = Astro.props;
+---
+
+<div class:list={["cb", className]}>
+  <input type="checkbox" id={id} {...rest} />
+  <label for={id}><slot /></label>
+</div>
+
+<style>
+  .cb {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  input {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: none;
+    width: 19px;
+    height: 19px;
+    margin: 1px 0 0;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 5px;
+    background: var(--color-surface);
+    cursor: pointer;
+    position: relative;
+    transition:
+      background var(--dur-quick) var(--ease-troth),
+      border-color var(--dur-quick) var(--ease-troth);
+  }
+
+  input:hover {
+    border-color: var(--color-accent);
+  }
+
+  input:checked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Checkmark, drawn rather than typeset. */
+  input:checked::after {
+    content: "";
+    position: absolute;
+    left: 5.5px;
+    top: 2px;
+    width: 5px;
+    height: 9.5px;
+    border: solid var(--color-text-on-accent);
+    border-width: 0 1.8px 1.8px 0;
+    transform: rotate(43deg);
+  }
+
+  label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    user-select: none;
+  }
+</style>

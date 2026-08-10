@@ -8,7 +8,14 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   site: "https://jointroth.co",
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // Keep the noindex pages (waitlist + guide confirmations) out of the map.
+    sitemap({
+      filter: (page) =>
+        !page.endsWith("/welcome/") && !page.includes("/thank-you"),
+    }),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

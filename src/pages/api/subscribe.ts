@@ -1,24 +1,28 @@
 // src/pages/api/subscribe.ts
 //
-// Waitlist signup — proxies to a Loops custom form
-// (https://loops.so/docs/forms/custom-form). The landing and confirmation
-// forms POST JSON `{ email }` here; we forward it to Loops as
-// application/x-www-form-urlencoded. The Loops newsletter-form endpoint is
-// public (no API key), so this works in every environment, including local dev.
+// Email capture — proxies to a Loops custom form
+// (https://loops.so/docs/forms/custom-form). The Loops newsletter-form endpoint
+// is public (no API key), so this works in every environment, including local
+// dev. We forward JSON as application/x-www-form-urlencoded.
+//
+// Two shapes of request land here:
+//   { email }                      → the product waitlist (landing + welcome)
+//   { email, guide, waitlist }     → a /guides lead magnet, optionally also
+//                                    joining the waitlist via its checkbox
+//
+// The client never sends mailing-list IDs; `guide` is a slug resolved against
+// the server-side registry in src/lib/loops.ts.
 import type { APIRoute } from "astro";
+import { WAITLIST_LISTS, isGuideSlug, listsForGuide } from "../../lib/loops";
 
 export const prerender = false;
 
 const LOOPS_FORM_ENDPOINT =
   "https://app.loops.so/api/newsletter-form/cmrp99o22011o0jzln10zb8mm";
 
-// Every waitlist signup joins both mailing lists (comma-separated per Loops).
-const LOOPS_MAILING_LISTS = [
-  "cmrpalrap06m50ju5bz1a73sb",
-  "cmrpammmt08z30jzj0rl7cz2g",
-].join(",");
-
 const LOOPS_SOURCE = "joinTroth.co";
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function json(payload: unknown, status: number) {
   return new Response(JSON.stringify(payload), {
@@ -31,18 +35,43 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const data = (await request.json().catch(() => ({}))) as {
       email?: unknown;
+      guide?: unknown;
+      waitlist?: unknown;
     };
     const email = typeof data.email === "string" ? data.email.trim() : "";
 
     if (!email) {
       return json({ success: false, message: "Email is required" }, 400);
     }
+    if (!EMAIL.test(email)) {
+      return json({ success: false, message: "Enter a valid email" }, 400);
+    }
 
-    const body = new URLSearchParams({
-      email,
-      mailingLists: LOOPS_MAILING_LISTS,
-      source: LOOPS_SOURCE,
-    });
+    // A guide signup, or a plain waitlist signup?
+    let mailingLists: string[];
+    let source: string;
+
+    if (data.guide !== undefined) {
+      if (!isGuideSlug(data.guide)) {
+        return json({ success: false, message: "Unknown guide" }, 400);
+      }
+      const resolved = listsForGuide(data.guide, data.waitlist === true);
+      mailingLists = resolved.mailingLists;
+      source = resolved.source;
+      if (!resolved.configured) {
+        console.warn(
+          `No Loops list configured for guide "${data.guide}" — subscribing by source only. Add it to src/lib/loops.ts.`,
+        );
+      }
+    } else {
+      mailingLists = WAITLIST_LISTS;
+      source = LOOPS_SOURCE;
+    }
+
+    const body = new URLSearchParams({ email, source });
+    if (mailingLists.length) {
+      body.set("mailingLists", mailingLists.join(","));
+    }
 
     const loopsResponse = await fetch(LOOPS_FORM_ENDPOINT, {
       method: "POST",

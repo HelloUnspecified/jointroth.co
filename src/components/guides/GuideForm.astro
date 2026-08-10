@@ -1,0 +1,221 @@
+---
+// Lead-magnet capture. Posts { email, guide, waitlist } to /api/subscribe,
+// which maps the guide slug to its Loops mailing list server-side (the client
+// never names a list), then redirects to the guide's thank-you page — with
+// ?w=1 when they also asked to join the waitlist, so that page can adapt.
+//
+// Safe to render more than once per page: the script binds every instance, and
+// Astro hoists it into the page bundle exactly once.
+import TextField from "../../elements/TextField.astro";
+import Checkbox from "../../elements/Checkbox.astro";
+import Button from "../../elements/Button.astro";
+
+interface Props {
+  /** Guide slug — the server resolves this to a mailing list. */
+  guide: string;
+  /** Where to send them on success (the guide's thank-you page). */
+  redirect: string;
+  /** Unique per instance: a page may carry two of these. */
+  id: string;
+  heading?: string;
+  cta?: string;
+  microcopy?: string;
+  placeholder?: string;
+  waitlistLabel?: string;
+  waitlistDefault?: boolean;
+  privacy?: string;
+  /** "card" is the elevated hero panel; "bare" sits inside another surface. */
+  variant?: "card" | "bare";
+  class?: string;
+}
+
+const {
+  guide,
+  redirect,
+  id,
+  heading,
+  cta = "Send it to me",
+  microcopy,
+  placeholder = "Your email",
+  waitlistLabel,
+  waitlistDefault = false,
+  privacy,
+  variant = "card",
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={["gform", `gform--${variant}`, className]}>
+  {heading && <h2 class="gform__heading">{heading}</h2>}
+
+  <form data-guide-form data-guide={guide} data-redirect={redirect} novalidate>
+    <div class="gform__field">
+      <label class="g-sr" for={`${id}-email`}>Your email</label>
+      <TextField
+        type="email"
+        id={`${id}-email`}
+        name="email"
+        required
+        autocomplete="email"
+        inputmode="email"
+        placeholder={placeholder}
+      />
+    </div>
+
+    {
+      waitlistLabel && (
+        <div class="gform__opt">
+          <Checkbox
+            id={`${id}-waitlist`}
+            name="waitlist"
+            checked={waitlistDefault}
+            data-waitlist
+          >
+            {waitlistLabel}
+          </Checkbox>
+        </div>
+      )
+    }
+
+    <Button variant="primary" size="large" type="submit" style="width:100%">
+      {cta}
+    </Button>
+
+    <p class="t-error" data-error role="alert" hidden></p>
+  </form>
+
+  {microcopy && <p class="gform__micro">{microcopy}</p>}
+  {privacy && <p class="gform__privacy">{privacy}</p>}
+</div>
+
+<style>
+  .gform--card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: clamp(22px, 3.2vw, 30px);
+  }
+
+  .gform__heading {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(22px, 2.6vw, 26px);
+    line-height: 1.16;
+    letter-spacing: -0.008em;
+    color: var(--color-text);
+    margin: 0 0 16px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .gform__field {
+    display: block;
+  }
+
+  .gform__opt {
+    margin-top: -2px;
+  }
+
+  .gform__micro {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 14px 0 0;
+  }
+
+  .gform__privacy {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--color-text-tertiary);
+    margin: 8px 0 0;
+  }
+
+  /* Inside a card the field should read as recessed; on the bare page it needs
+     its own edge, since sunken-on-cream is nearly invisible. */
+  .gform--bare :global(.t-input) {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface);
+  }
+</style>
+
+<script>
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function failure(status: number) {
+    return status === 429
+      ? "A lot of people are signing up right now — give it a moment and try again."
+      : "Something went wrong on our end. Please try again in a moment.";
+  }
+
+  document
+    .querySelectorAll<HTMLFormElement>("[data-guide-form]")
+    .forEach((form) => {
+      const input = form.querySelector<HTMLInputElement>('input[type="email"]');
+      const box = form.querySelector<HTMLInputElement>("[data-waitlist]");
+      const btn = form.querySelector<HTMLButtonElement>(
+        'button[type="submit"]',
+      );
+      const errEl = form.querySelector<HTMLElement>("[data-error]");
+      if (!input || !btn) return;
+
+      const showError = (msg: string) => {
+        if (!errEl) return;
+        errEl.textContent = msg;
+        errEl.hidden = false;
+      };
+      const clearError = () => {
+        if (!errEl) return;
+        errEl.textContent = "";
+        errEl.hidden = true;
+      };
+      input.addEventListener("input", clearError);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const email = input.value.trim();
+        if (!EMAIL.test(email)) {
+          showError("That email doesn't look right — mind checking it?");
+          input.focus();
+          return;
+        }
+
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+
+        try {
+          const res = await fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email,
+              guide: form.dataset.guide,
+              waitlist: !!box?.checked,
+            }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.ok && data.success) {
+            const to = form.dataset.redirect || "/";
+            window.location.assign(box?.checked ? `${to}?w=1` : to);
+            return;
+          }
+          showError(failure(res.status));
+        } catch {
+          showError(
+            "We couldn't reach the server. Check your connection and try again.",
+          );
+        }
+
+        btn.disabled = false;
+        btn.textContent = original;
+      });
+    });
+</script>
