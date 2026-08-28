@@ -5,7 +5,8 @@ Disallow: /api/
 
 Sitemap: https://jointroth.co/sitemap-index.xml
 
-# Cloudflare Content-Signal directives
-ai-train: no
-search: yes
-ai-input: yes
+# Cloudflare Content Signals Policy — one directive line, comma-separated.
+# search=yes      build a search index and link back to us
+# ai-input=yes    quote us in an AI answer that cites the source
+# ai-train=no     do not train or fine-tune a model on this content
+Content-Signal: search=yes, ai-input=yes, ai-train=no

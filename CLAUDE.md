@@ -48,6 +48,15 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
 - **PDFs and photos go in `public/guides/`** (see the README there). The `pdf:` frontmatter field is the URL to paste into the Loops confirmation email.
 - Guide slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$` before being echoed to Loops as a `source`. A slug with no configured list still captures the email (tagged by source) and logs a warning, so a new page can never silently drop a signup.
 
+## Social cards (Open Graph)
+
+`og:image` **must be a real, absolute, already-rendered file** — social crawlers don't run JS and don't come back to retry a broken one. The cards are baked ahead of time:
+
+- `node scripts/build-og.mjs` renders `public/og/*.png` at **1200×630** (the 1.91:1 ratio Facebook and LinkedIn both ask for, which X also crops `summary_large_image` to). It lays each card out in headless Chrome using the real tokens and the real self-hosted webfonts, then screenshots it — so a card can never drift from the design system.
+- Card copy lives in the `CARDS` map at the top of that script. `<em>` renders the italic terracotta emphasis; `___` renders the ruled blank.
+- **A new guide gets a card by adding one `CARDS` entry keyed by its slug**, re-running the script, and setting `ogImage: "/og/<slug>.png"` + `ogImageAlt:` in its frontmatter. Skip all that and it falls back to `/og/default.png` — still a valid card, just not specific.
+- `SEO.astro` hardcodes `og:image:width/height` as 1200×630, so any custom `ogImage` must be that size.
+
 ## Design source
 
 The landing + confirmation pages are a faithful port of the Claude Design project **"Troth waitlist landing page"** (`Troth Landing Page.dc.html` + the `screenshots/*-confirm.png` mockups) and its design system. Pull design files with the `claude-design` MCP (`DesignSync` tool) — project id `e4995b13-c9e2-4e36-9183-0331506b3373`. The `.dc.html` component format (`<x-dc>`, `<x-import>`, `<sc-if>`, `{{ }}` bindings) and its React design-system bundle were translated into the native-Astro `src/elements/` + `src/components/troth/` library above; the layout/styling was ported verbatim (inline `var(--…)` styles), and stateful behavior became vanilla `<script>`s.

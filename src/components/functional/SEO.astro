@@ -1,12 +1,21 @@
 ---
+// Site-wide <head> metadata: title/description, canonical, robots, Open Graph,
+// X (Twitter) cards, and JSON-LD.
+//
+// Social crawlers don't run JS and don't retry a broken image, so og:image must
+// point at a real, absolute, already-rendered file. Ours are baked to
+// public/og/*.png at 1200x630 by `node scripts/build-og.mjs` — the 1.91:1 ratio
+// Facebook and LinkedIn both ask for, which X also crops its large card to.
 interface Props {
   title?: string;
   description?: string;
   canonical?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   ogType?: "website" | "article";
   noindex?: boolean;
-  jsonLd?: Record<string, unknown>;
+  // One JSON-LD object, or several — each is emitted as its own script tag.
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const SITE_URL = "https://jointroth.co";
@@ -14,67 +23,97 @@ const SITE_NAME = "Troth";
 const DEFAULT_TITLE = "Troth — a private, encrypted home for your marriage";
 const DEFAULT_DESCRIPTION =
   "A private, encrypted home for your marriage — where the conversations, memories, letters, and promises you're keeping all live in one place. Coming to iPhone.";
-const DEFAULT_OG_IMAGE = "/og-image.png";
+const DEFAULT_OG_IMAGE = "/og/default.png";
+const DEFAULT_OG_IMAGE_ALT =
+  "Troth — a private, encrypted home for your marriage. Coming to iPhone.";
 
 const {
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
   canonical,
   ogImage = DEFAULT_OG_IMAGE,
+  ogImageAlt = DEFAULT_OG_IMAGE_ALT,
   ogType = "website",
   noindex = false,
   jsonLd,
 } = Astro.props;
 
-const pageTitle = title;
+// Astro builds directory-style URLs, so the canonical always carries the
+// trailing slash. Everything else (og:url, JSON-LD @id) reuses this exact
+// string so the page never claims two different addresses for itself.
 const canonicalURL = canonical || new URL(Astro.url.pathname, SITE_URL).href;
+
 const ogImageURL = ogImage.startsWith("http")
   ? ogImage
   : new URL(ogImage, SITE_URL).href;
+const ogImageType =
+  ogImageURL.endsWith(".jpg") || ogImageURL.endsWith(".jpeg")
+    ? "image/jpeg"
+    : ogImageURL.endsWith(".webp")
+      ? "image/webp"
+      : "image/png";
 
-const structuredData = jsonLd || {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: SITE_NAME,
-  url: SITE_URL,
-  description: DEFAULT_DESCRIPTION,
-  founder: {
-    "@type": "Person",
-    name: "Clark Sell",
-  },
-};
+// "index, follow" is the default and has no effect, so it's dropped. These
+// three are real directives: they let Search show a full-width image preview
+// and an unclipped snippet — which is also what feeds AI Overviews, since a
+// page has to be snippet-eligible to be cited there.
+const ROBOTS_INDEX =
+  "max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
+const structuredData = (
+  jsonLd
+    ? Array.isArray(jsonLd)
+      ? jsonLd
+      : [jsonLd]
+    : [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": `${SITE_URL}/#website`,
+          name: SITE_NAME,
+          url: SITE_URL,
+          description: DEFAULT_DESCRIPTION,
+        },
+      ]
+).filter(Boolean);
 ---
 
-<title>{pageTitle}</title>
+<title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalURL} />
-{
-  noindex ? (
-    <meta name="robots" content="noindex, nofollow" />
-  ) : (
-    <meta name="robots" content="index, follow" />
-  )
-}
+<meta name="robots" content={noindex ? "noindex" : ROBOTS_INDEX} />
 <meta name="author" content="Clark Sell" />
 <meta name="theme-color" content="#f4efe6" />
 
-<!-- Open Graph -->
-<meta property="og:title" content={pageTitle} />
+<!-- Open Graph. width/height let the crawler reserve the slot without
+     downloading the image first; alt is what renders if it can't. -->
+<meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonicalURL} />
-<meta property="og:image" content={ogImageURL} />
 <meta property="og:type" content={ogType} />
 <meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:locale" content="en_US" />
+<meta property="og:image" content={ogImageURL} />
+<meta property="og:image:secure_url" content={ogImageURL} />
+<meta property="og:image:type" content={ogImageType} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={ogImageAlt} />
 
-<!-- Twitter Card -->
+<!-- X (Twitter) card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImageURL} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
 
 <!-- Structured Data -->
-<script
-  is:inline
-  type="application/ld+json"
-  set:html={JSON.stringify(structuredData)}
-/>
+{
+  structuredData.map((data) => (
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(data)}
+    />
+  ))
+}

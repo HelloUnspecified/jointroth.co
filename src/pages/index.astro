@@ -11,6 +11,44 @@ import QuestionCard from "../components/troth/QuestionCard.astro";
 import OnThisDayCard from "../components/troth/OnThisDayCard.astro";
 import ManifestoEntry from "../components/troth/ManifestoEntry.astro";
 
+// Organization + WebSite, linked by @id. Only claims things visible on the
+// page or in the footer copy — Google asks that structured data match the
+// rendered text, and there is no rating, price, or release date to claim yet.
+const SITE_URL = "https://jointroth.co";
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: "Troth",
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/favicon.png`,
+      width: 512,
+      height: 512,
+    },
+    description:
+      "A private, encrypted home for your marriage. Built by Clark and Carrie Sell.",
+    email: "clark@jointroth.co",
+    founder: [
+      { "@type": "Person", name: "Clark Sell" },
+      { "@type": "Person", name: "Carrie Sell" },
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: "Troth",
+    url: SITE_URL,
+    description:
+      "A private, encrypted home for your marriage — where the conversations, memories, letters, and promises you're keeping all live in one place. Coming to iPhone.",
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: "en-US",
+  },
+];
+
 const section =
   "scroll-snap-align:start;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:76px 30px 132px";
 const h2 =
@@ -43,7 +81,7 @@ const whatIs = [
 ];
 ---
 
-<Layout>
+<Layout jsonLd={jsonLd}>
   <PhoneFrame>
     {/* S0 — Hero + primary waitlist capture */}
     <section

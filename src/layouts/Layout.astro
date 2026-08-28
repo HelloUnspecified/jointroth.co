@@ -1,17 +1,23 @@
 ---
 import "../css/tailwind.css";
 import SEO from "../components/functional/SEO.astro";
+// The hero headline is Newsreader 400 — it's the LCP element on both page
+// families. Preloading the one file it needs removes the round trip that
+// @fontsource's CSS would otherwise have to be parsed before starting.
+import newsreader400 from "@fontsource/newsreader/files/newsreader-latin-400-normal.woff2?url";
 
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   ogType?: "website" | "article";
   noindex?: boolean;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, ogImage, ogType, noindex, jsonLd } = Astro.props;
+const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
+  Astro.props;
 ---
 
 <!doctype html>
@@ -26,12 +32,21 @@ const { title, description, ogImage, ogType, noindex, jsonLd } = Astro.props;
       title={title}
       description={description}
       ogImage={ogImage}
+      ogImageAlt={ogImageAlt}
       ogType={ogType}
       noindex={noindex}
       jsonLd={jsonLd}
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.webp" sizes="any" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={newsreader400}
+      crossorigin
+    />
 
     <!-- Pre-paint setup (no flash): saved Lamplight preference + phone detection.
          `troth-phone` hides the simulated iOS status bar (see the islands' CSS)

@@ -16,7 +16,10 @@ const guides = defineCollection({
     /* ---- Meta / SEO ---- */
     title: z.string(), // browser + OG title
     description: z.string(), // meta description
+    // Social card. Bake one with `node scripts/build-og.mjs` and point here;
+    // omit and the guide falls back to the site-wide card.
     ogImage: z.string().optional(),
+    ogImageAlt: z.string().optional(),
     draft: z.boolean().default(false), // draft guides are not built
     order: z.number().default(0), // ordering on the /guides index
 

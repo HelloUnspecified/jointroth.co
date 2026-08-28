@@ -8,9 +8,34 @@ import Eyebrow from "../../elements/Eyebrow.astro";
 const guides = (await getCollection("guides", ({ data }) => !data.draft)).sort(
   (a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id),
 );
+
+const SITE_URL = "https://jointroth.co";
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${SITE_URL}/guides/`,
+    name: "Exercises for the two of you",
+    description:
+      "Free, printable exercises for married couples. Written by Clark and Carrie Sell, who are building Troth.",
+    url: `${SITE_URL}/guides/`,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: "en-US",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Troth", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Exercises" },
+    ],
+  },
+];
 ---
 
 <GuideLayout
+  jsonLd={jsonLd}
   title="Exercises for the two of you — Troth"
   description="Free, printable exercises for married couples. Written by Clark and Carrie Sell, who are building Troth."
 >
@@ -26,7 +51,7 @@ const guides = (await getCollection("guides", ({ data }) => !data.draft)).sort(
       {
         guides.map((guide) => (
           <li>
-            <a href={`/guides/${guide.id}`}>
+            <a href={`/guides/${guide.id}/`}>
               <span class="idx__eyebrow">{guide.data.eyebrow}</span>
               <span class="g-h3 idx__title">
                 {guide.data.headline.replace(/_{3,}/g, "…")}
