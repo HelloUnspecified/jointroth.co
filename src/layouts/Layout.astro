@@ -37,9 +37,13 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
       noindex={noindex}
       jsonLd={jsonLd}
     />
+    <!-- Icons, all derived from favicon.svg by scripts/build-icons.mjs.
+         .ico first as the universal fallback — Google Search doesn't accept an
+         SVG favicon (ICO/PNG/JPEG/GIF/BMP only) and Safari has never read a
+         WebP one, so without it there's no icon beside a search result. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon.webp" sizes="any" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link
       rel="preload"
       as="font"

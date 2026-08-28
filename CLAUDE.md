@@ -48,6 +48,17 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
 - **PDFs and photos go in `public/guides/`** (see the README there). The `pdf:` frontmatter field is the URL to paste into the Loops confirmation email.
 - Guide slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$` before being echoed to Loops as a `source`. A slug with no configured list still captures the email (tagged by source) and logs a warning, so a new page can never silently drop a signup.
 
+## Icons
+
+**`public/favicon.svg` is the single source of truth for the mark.** Every raster is derived from it by `node scripts/build-icons.mjs` — never hand-edit the outputs, and re-run the script after touching the SVG:
+
+- `favicon.ico` (32×32) — the universal fallback, and the one that matters for Search: Google accepts BMP/GIF/ICO/PNG/JPEG/PPM/TIFF favicons but **not SVG**, so without it there's no icon beside a result. Safari has never supported WebP favicons either.
+- `favicon.png` (512×512) — also the `logo` in the homepage `Organization` JSON-LD.
+- `apple-touch-icon.png` (180×180) — flattened onto cream and square-edged, because iOS applies its own squircle mask and transparent corners render black.
+- `favicon.webp` (512×512) — kept in sync but **not referenced by any page**; WebP favicons aren't broadly supported. Safe to delete.
+
+Inside the SVG the two lanterns are drawn about x=24.5/45.5 spanning y 14.2–42.2, which is off-centre on the 64 canvas; the single `translate(-3 3.8)` on their group is what lands them on 32,32. Keep that transform if you edit the paths.
+
 ## Social cards (Open Graph)
 
 `og:image` **must be a real, absolute, already-rendered file** — social crawlers don't run JS and don't come back to retry a broken one. The cards are baked ahead of time:
