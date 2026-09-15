@@ -31,9 +31,29 @@ The codebase was repurposed from a prior site (re/Human); the reusable Astro/Clo
   - `src/elements/` — primitives with scoped styles: `LanternMark`, `Eyebrow` (tone: accent/letter/tertiary), `Button` (variant/size, CSS hover/press, renders `<a>` when `href` set), `TextField` (CSS focus glow), `Avatar`.
   - `src/components/troth/` — `PhoneFrame.astro` (the shared iPhone-frame shell: canvas, device frame, simulated status bar, Lamplight toggle + its theme `<script>`) and content components: `MessageBubble`, `QuestionCard`, `OnThisDayCard`, `ManifestoEntry`, `KeepsakeSeal`.
 - Pages compose the library: `src/pages/index.astro` (landing — 7 scroll-snap screens + a page `<script>` for scroll reveal/progress dots/forms) and `src/pages/welcome.astro` (confirmation — spouse invite + copy links, its own `<script>`).
-- `src/pages/api/subscribe.ts` — the single email-capture route (server route, `prerender = false`) → **Loops** custom form (public newsletter-form endpoint, no API key). Two request shapes: `{ email }` (waitlist — landing + spouse invite, which adds `ref: "spouse"`) and `{ email, guide, waitlist }` (a `/guides` lead magnet). **The client never sends mailing-list IDs** — `guide` is a slug resolved server-side against `src/lib/loops.ts`.
+- `src/pages/api/subscribe.ts` — the single email-capture route (server route, `prerender = false`) → **Loops**. Two request shapes: `{ email }` (waitlist — landing + spouse invite, which adds `ref: "spouse"`) and `{ email, guide, waitlist }` (a `/guides` lead magnet). **The client never sends mailing-list IDs** — `guide` is a slug resolved server-side against `src/lib/loops.ts`. It picks one of two paths into Loops — see "Loops: two paths in" below.
 - Self-hosted fonts via `@fontsource` (no Google Fonts CDN — sub-1s LCP).
 - CSS layering: design tokens in `src/css/troth-tokens.css`, shared UI/motion in `src/css/troth-ui.css` (both imported by `tailwind.css`, global); `src/css/troth-guide.css` is imported by `GuideLayout.astro` only, so waitlist pages never load it. Page-specific rules (scroll snap, reveal, dots) live in each page's `<style is:global>`. Waitlist page/section layout uses inline `style="…var(--…)…"` to stay faithful to the ported design; the guide components and every reusable component carry scoped `<style>` with `var(--token)` values.
+
+## Loops: two paths in
+
+The **"Contact added to list"** workflow trigger fires on a _change_ in subscription state, not on a form submission. Re-posting the form for someone already on the list is a silent no-op — no trigger, no email, and the site still shows success. So `/api/subscribe` branches on whether the contact is already on the list that delivers what they just asked for:
+
+- **Not on it** (new, pending, or never subscribed) → the public **form endpoint**, exactly as before. This is the only Loops endpoint gated behind [double opt-in](https://loops.so/docs/contacts/double-opt-in), so new contacts get the confirmation email; the list subscription — and the workflow that delivers the PDF — happen when they confirm.
+- **Already on it** → `POST /v1/events/send` with a custom event (`guideRequested` / `waitlistRequested`, in `src/lib/loops.ts`). Events fire every time. Any list they're _not_ yet on rides along in the same request, so the subscription and the trigger can't disagree — that's why there's no two-step and no race. Membership is only ever granted on confirmation, so nobody reaches this path unconfirmed.
+
+`src/lib/loops-api.ts` is the API client (`findContact`, `sendEvent`). It needs **`LOOPS_API_KEY`** — a Worker secret (`npx wrangler secret put LOOPS_API_KEY`), and `.env.local` for dev. **Without the key the route behaves exactly as it did before**, so local dev and previews need no secrets; the re-send path simply doesn't run.
+
+`guideRequested` carries `guide`, `guideTitle` and `pdfUrl` properties (read from the guide's own frontmatter), so **one** re-send workflow serves every lead magnet and adding a guide stays one `.mdx` file plus one row in `loops.ts`.
+
+Setup this depends on, in the Loops dashboard:
+
+1. Create the event properties `guide`, `guideTitle`, `pdfUrl` — the API won't invent them.
+2. A workflow triggered by **Event received: `guideRequested`**, frequency **Every time**, whose email links `{{pdfUrl}}`. This is the re-send, so the copy can differ from the first delivery.
+3. A workflow triggered by **Event received: `waitlistRequested`**, frequency **Every time**.
+4. Leave the existing "Contact added to list" workflows alone — they still handle every first-time signup.
+
+Check the **trigger frequency** on the existing list-triggered workflows too: set to "One time" they won't re-fire even on a genuine remove-and-re-add.
 
 ## Lead-magnet pages (`/guides`)
 

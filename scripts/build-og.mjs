@@ -40,7 +40,7 @@ const CARDS = {
   default: {
     eyebrow: "Coming to iPhone",
     /* `em` marks the italic terracotta emphasis — italic, never bold. */
-    headline: "Love isn't a feeling. It's what you <em>do.</em>",
+    headline: "Love is more than a feeling. It's what you <em>do.</em>",
     sub: "A private, encrypted home for your marriage.",
     foot: "jointroth.co",
   },
