@@ -1,8 +1,11 @@
 ---
-// Lead-magnet capture. Posts { email, guide, waitlist } to /api/subscribe,
-// which maps the guide slug to its Loops mailing list server-side (the client
-// never names a list), then redirects to the guide's thank-you page — with
-// ?w=1 when they also asked to join the waitlist, so that page can adapt.
+// Email capture for the editorial (guide-layout) pages. Posts one of
+//   { email, guide, waitlist }       — a lead magnet (pass `guide`)
+//   { email, newsletter, waitlist }  — the newsletter (pass `newsletter`)
+// to /api/subscribe, which maps the ask to its Loops mailing list server-side
+// (the client never names a list), then redirects to the matching thank-you
+// page — with ?w=1 when they also asked to join the waitlist, and ?already=1
+// when the server found them already subscribed, so that page can adapt.
 //
 // Safe to render more than once per page: the script binds every instance, and
 // Astro hoists it into the page bundle exactly once.
@@ -12,7 +15,9 @@ import Button from "../../elements/Button.astro";
 
 interface Props {
   /** Guide slug — the server resolves this to a mailing list. */
-  guide: string;
+  guide?: string;
+  /** The newsletter instead of a guide. */
+  newsletter?: boolean;
   /** Where to send them on success (the guide's thank-you page). */
   redirect: string;
   /** Unique per instance: a page may carry two of these. */
@@ -26,11 +31,14 @@ interface Props {
   privacy?: string;
   /** "card" is the elevated hero panel; "bare" sits inside another surface. */
   variant?: "card" | "bare";
+  /** Email and button side by side (from 640px up) — for a masthead form. */
+  inline?: boolean;
   class?: string;
 }
 
 const {
   guide,
+  newsletter = false,
   redirect,
   id,
   heading,
@@ -41,25 +49,44 @@ const {
   waitlistDefault = false,
   privacy,
   variant = "card",
+  inline = false,
   class: className,
 } = Astro.props;
 ---
 
-<div class:list={["gform", `gform--${variant}`, className]}>
+<div
+  class:list={[
+    "gform",
+    `gform--${variant}`,
+    inline && "gform--inline",
+    className,
+  ]}
+>
   {heading && <h2 class="gform__heading">{heading}</h2>}
 
-  <form data-guide-form data-guide={guide} data-redirect={redirect} novalidate>
-    <div class="gform__field">
-      <label class="g-sr" for={`${id}-email`}>Your email</label>
-      <TextField
-        type="email"
-        id={`${id}-email`}
-        name="email"
-        required
-        autocomplete="email"
-        inputmode="email"
-        placeholder={placeholder}
-      />
+  <form
+    data-guide-form
+    data-guide={guide}
+    data-newsletter={newsletter ? "" : undefined}
+    data-redirect={redirect}
+    novalidate
+  >
+    <div class="gform__row">
+      <div class="gform__field">
+        <label class="g-sr" for={`${id}-email`}>Your email</label>
+        <TextField
+          type="email"
+          id={`${id}-email`}
+          name="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder={placeholder}
+        />
+      </div>
+      <Button variant="primary" size="large" type="submit" class="gform__btn">
+        {cta}
+      </Button>
     </div>
 
     {
@@ -76,10 +103,6 @@ const {
         </div>
       )
     }
-
-    <Button variant="primary" size="large" type="submit" style="width:100%">
-      {cta}
-    </Button>
 
     <p class="t-error" data-error role="alert" hidden></p>
   </form>
@@ -112,8 +135,35 @@ const {
     gap: 14px;
   }
 
+  /* Stacked by default: the row is invisible and its children take the
+     column's gap. Inline mode turns it into a real row. */
+  .gform__row {
+    display: contents;
+  }
   .gform__field {
     display: block;
+  }
+  .gform__btn {
+    width: 100%;
+  }
+  @media (min-width: 640px) {
+    .gform--inline .gform__row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .gform--inline .gform__field {
+      flex: 1;
+      min-width: 0;
+    }
+    .gform--inline .gform__btn {
+      width: auto;
+      flex: none;
+    }
+  }
+  /* The checkbox row sits at the reading width, not the whole row's. */
+  .gform--inline .gform__opt {
+    margin-top: 0;
   }
 
   .gform__opt {
@@ -197,14 +247,20 @@ const {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email,
+              // Exactly one of these is set per form; JSON drops undefined.
               guide: form.dataset.guide,
+              newsletter: "newsletter" in form.dataset ? true : undefined,
               waitlist: !!box?.checked,
             }),
           });
           const data = await res.json().catch(() => ({}));
           if (res.ok && data.success) {
             const to = form.dataset.redirect || "/";
-            window.location.assign(box?.checked ? `${to}?w=1` : to);
+            const q = new URLSearchParams();
+            if (box?.checked) q.set("w", "1");
+            if (data.already) q.set("already", "1");
+            const qs = q.toString();
+            window.location.assign(qs ? `${to}?${qs}` : to);
             return;
           }
           showError(failure(res.status));

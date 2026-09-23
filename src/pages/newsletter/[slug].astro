@@ -1,0 +1,377 @@
+---
+// /newsletter/<slug> — one issue at its own address, built to be found and
+// shared: its own title and description, its own social card, Article
+// structured data, article: meta, the feed link, and a share row. The form at
+// the end is the only ask on the page.
+import { render } from "astro:content";
+import GuideLayout from "../../layouts/GuideLayout.astro";
+import GuideForm from "../../components/guides/GuideForm.astro";
+import LetterArticle from "../../components/guides/LetterArticle.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+import {
+  NAME,
+  CADENCE,
+  SITE_URL,
+  ARCHIVE_URL,
+  getLetters,
+  formatDate,
+  isoDate,
+  letterDescription,
+  letterOgAlt,
+  letterOgImage,
+  letterUrl,
+  wordCount,
+} from "../../lib/newsletter";
+
+export async function getStaticPaths() {
+  const letters = await getLetters();
+  return letters.map((letter) => ({
+    params: { slug: letter.id },
+    props: { letter },
+  }));
+}
+
+const { letter } = Astro.props;
+const { Content } = await render(letter);
+const all = await getLetters();
+const others = all.filter((l) => l.id !== letter.id).slice(0, 5);
+const moreThanShown = all.length - 1 > others.length;
+
+const pageUrl = `${SITE_URL}${letterUrl(letter)}`;
+const title = `${letter.data.seoTitle ?? letter.data.title} — ${NAME}`;
+const description = letterDescription(letter);
+const ogImage = letterOgImage(letter);
+const ogImageAlt = letterOgAlt(letter);
+const published = isoDate(letter.data.date);
+const modified = isoDate(letter.data.updated ?? letter.data.date);
+
+// Share: a mailto with the letter's title and link, and a copy-link button
+// (the script below fills in the live URL, so previews and forks stay right).
+const mailShare = `mailto:?subject=${encodeURIComponent(letter.data.title)}&body=${encodeURIComponent(`${letter.data.summary}\n\n${pageUrl}`)}`;
+
+/* ---- structured data ---------------------------------------------------- */
+// The Organization and WebSite nodes are repeated here (same @id as the
+// homepage) so the Article's publisher resolves on this page alone — search
+// engines evaluate a page's structured data in isolation.
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: "Troth",
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/favicon.png`,
+      width: 512,
+      height: 512,
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    name: "Troth",
+    url: SITE_URL,
+    publisher: { "@id": `${SITE_URL}/#organization` },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "@id": pageUrl,
+    headline: letter.data.title,
+    description,
+    image: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}${ogImage}`,
+      width: 1200,
+      height: 630,
+    },
+    datePublished: published,
+    dateModified: modified,
+    wordCount: wordCount(letter.body),
+    url: pageUrl,
+    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    isPartOf: {
+      "@type": "Periodical",
+      name: NAME,
+      url: `${SITE_URL}/newsletter/`,
+    },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    author: [
+      { "@type": "Person", name: "Clark Sell", url: SITE_URL },
+      { "@type": "Person", name: "Carrie Sell", url: SITE_URL },
+    ],
+    inLanguage: "en-US",
+    isAccessibleForFree: true,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Troth", item: `${SITE_URL}/` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: NAME,
+        item: `${SITE_URL}/newsletter/`,
+      },
+      { "@type": "ListItem", position: 3, name: letter.data.title },
+    ],
+  },
+];
+---
+
+<GuideLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  ogImageAlt={ogImageAlt}
+  jsonLd={jsonLd}
+  headerCta="Get the letter"
+>
+  <Fragment slot="head">
+    <meta property="article:published_time" content={published} />
+    <meta property="article:modified_time" content={modified} />
+    <meta property="article:author" content="Clark Sell" />
+    <meta property="article:author" content="Carrie Sell" />
+    <meta property="article:section" content={NAME} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={NAME}
+      href={`${SITE_URL}/newsletter/rss.xml`}
+    />
+  </Fragment>
+
+  <section class="g-wrap g-section issue">
+    <div class="issue__inner">
+      <a href={ARCHIVE_URL} class="issue__back">← All letters</a>
+      <LetterArticle
+        title={letter.data.title}
+        date={letter.data.date}
+        level={1}
+        class="issue__article"
+      >
+        <Content />
+      </LetterArticle>
+
+      <div class="share" data-share>
+        <span class="share__label">Share this letter</span>
+        <div class="share__actions">
+          <button type="button" class="share__btn" data-share-copy>
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M6.5 9.5l3-3M5 7.2 3.6 8.6a2.4 2.4 0 0 0 3.4 3.4L8.4 10.6M8 5.4l1.4-1.4a2.4 2.4 0 0 1 3.4 3.4L11.4 8.8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"></path>
+            </svg>
+            <span data-share-copy-label>Copy link</span>
+          </button>
+          <a class="share__btn" href={mailShare}>
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <rect
+                x="2"
+                y="3.5"
+                width="12"
+                height="9"
+                rx="1.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"></rect>
+              <path
+                d="M2.5 4.5 8 9l5.5-4.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"></path>
+            </svg>
+            Email it to someone
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="g-band" id="get">
+    <div class="g-wrap g-section g-section--tight">
+      <div class="issue__inner">
+        <GuideForm
+          id="issue"
+          newsletter
+          redirect="/newsletter/thank-you"
+          heading="Get the next one"
+          cta="Send me the next letter"
+          microcopy={`One letter ${CADENCE}. You'll get a confirmation email first.`}
+          waitlistLabel="Also add me to the Troth waitlist."
+          waitlistDefault
+          privacy="We'll never share your address. Unsubscribe anytime."
+        />
+      </div>
+    </div>
+  </section>
+
+  {
+    others.length > 0 && (
+      <section class="g-wrap g-section g-section--tight">
+        <div class="issue__inner">
+          <Eyebrow tone="tertiary">More letters</Eyebrow>
+          <ul class="more">
+            {others.map((l) => (
+              <li>
+                <a href={letterUrl(l)}>
+                  <span class="more__date">{formatDate(l.data.date)}</span>
+                  <span class="more__title">{l.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          {moreThanShown && (
+            <a href={ARCHIVE_URL} class="more__all">
+              All {all.length} letters <span aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+      </section>
+    )
+  }
+</GuideLayout>
+
+<style>
+  .issue__inner {
+    max-width: var(--width-text-comfortable);
+    margin-inline: auto;
+  }
+  .issue__back {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+    margin-bottom: 26px;
+  }
+  .issue__back:hover {
+    color: var(--color-accent);
+  }
+
+  .share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    margin-top: clamp(30px, 4vw, 44px);
+    padding-top: 22px;
+    border-top: 1px solid var(--color-border);
+  }
+  .share__label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .share__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .share__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    padding: 8px 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-quick) var(--ease-troth),
+      color var(--dur-quick) var(--ease-troth);
+  }
+  .share__btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .more {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+  }
+  .more li {
+    border-top: 1px solid var(--color-border);
+  }
+  .more li:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .more a {
+    display: block;
+    padding: 16px 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .more a:hover .more__title {
+    color: var(--color-accent);
+  }
+  .more__date {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .more__all {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .more__all:hover {
+    color: var(--color-accent-press);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .more__title {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.3;
+    color: var(--color-text);
+    margin-top: 6px;
+    transition: color var(--dur-quick) var(--ease-troth);
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("[data-share-copy]");
+  const label = btn?.querySelector<HTMLElement>("[data-share-copy-label]");
+  if (btn && label) {
+    // The canonical address, not whatever query string they arrived with.
+    const url =
+      document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href ||
+      location.href.split(/[?#]/)[0];
+    const original = label.textContent;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        label.textContent = "Copied";
+      } catch {
+        label.textContent = url;
+      }
+      setTimeout(() => (label.textContent = original), 1800);
+    });
+  }
+</script>

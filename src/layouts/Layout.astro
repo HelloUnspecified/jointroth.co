@@ -78,6 +78,8 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
         } catch (e) {}
       })();
     </script>
+    <!-- Page-specific head tags (feed links, article: meta). -->
+    <slot name="head" />
   </head>
   <body class="font-sans antialiased">
     <slot />

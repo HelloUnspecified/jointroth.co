@@ -1,0 +1,164 @@
+---
+// /newsletter/thank-you — the double opt-in ask, with the newest letter under
+// it. Nothing about the letter is gated, so the most useful thing to hand
+// someone while the confirmation email lands is the letter itself.
+//
+//   ?w=1        they left the waitlist box ticked → the waitlist ask becomes a
+//               quiet acknowledgement
+//   ?already=1  the server found them already on the list → say so. No email
+//               was sent, so the page must not tell them to check their inbox.
+import { render } from "astro:content";
+import GuideLayout from "../../layouts/GuideLayout.astro";
+import WaitlistAsk from "../../components/guides/WaitlistAsk.astro";
+import LetterArticle from "../../components/guides/LetterArticle.astro";
+import LanternMark from "../../elements/LanternMark.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+import { getLetters } from "../../lib/newsletter";
+
+const latest = (await getLetters())[0];
+const { Content } = latest
+  ? await render(latest)
+  : { Content: null as unknown as null };
+
+const t = {
+  eyebrow: "One more step",
+  heading: "Check your inbox.",
+  body: "I just sent you an email. Open it and click the confirm link — that's what puts you on the list, and it's how I keep this list honest.",
+  steps: [
+    "Open the email from Clark from Troth.",
+    "Click the confirm link inside it.",
+    "The next letter arrives on schedule. The latest one is right here in the meantime.",
+  ],
+  note: "Nothing after a few minutes? Check your promotions or spam folder — and if it's still not there, write to me at hello@jointroth.co and I'll sort it out myself.",
+  already: {
+    eyebrow: "Already with us",
+    heading: "You're already on the list.",
+    body: "Nothing to confirm — that email was signed up and confirmed a while ago. The next letter arrives on schedule, and the latest one is right here in the meantime.",
+  },
+  waitlistHeading: "One more thing, if you want it.",
+  waitlistBody:
+    "Troth is a private, encrypted home for your marriage — the conversations, memories, letters, and promises you're keeping, all in one place. We build it in partnership with the couples on this list.",
+  waitlistCta: "Join the waitlist",
+  privacy: "We'll never share your address. Unsubscribe anytime.",
+};
+---
+
+<GuideLayout
+  title={`${t.heading} — Troth`}
+  description="Confirm your email and the next letter is on its way."
+  noindex
+>
+  {/* Runs before the blocks below paint, so neither waitlist block flashes. */}
+  <script is:inline>
+    (function () {
+      try {
+        var q = new URLSearchParams(location.search);
+        var root = document.documentElement;
+        if (q.get("w") === "1") root.classList.add("g-joined");
+        if (q.get("already") === "1") root.classList.add("g-already");
+      } catch (e) {}
+    })();
+  </script>
+
+  <section class="g-wrap g-wrap--narrow g-section confirm">
+    <div class="confirm__mark">
+      <LanternMark size={32} tone="brand" />
+    </div>
+
+    {/* New subscriber: the double opt-in ask. */}
+    <div class="confirm--new">
+      <Eyebrow tone="accent">{t.eyebrow}</Eyebrow>
+      <h1 class="g-h1 confirm__h1">{t.heading}</h1>
+      <p class="g-lede confirm__body">{t.body}</p>
+
+      <ol class="g-steps confirm__steps">
+        {
+          t.steps.map((step) => (
+            <li>
+              <span class="g-steps__title">{step}</span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="confirm__note">{t.note}</p>
+    </div>
+
+    {/* Already subscribed: nothing was sent, so say so. */}
+    <div class="confirm--already">
+      <Eyebrow tone="accent">{t.already.eyebrow}</Eyebrow>
+      <h1 class="g-h1 confirm__h1">{t.already.heading}</h1>
+      <p class="g-lede confirm__body">{t.already.body}</p>
+    </div>
+  </section>
+
+  {
+    latest && Content && (
+      <section class="g-band">
+        <div class="g-wrap g-wrap--narrow g-section">
+          <Eyebrow tone="tertiary" class="latest__eyebrow">
+            While you wait, the latest letter
+          </Eyebrow>
+          <LetterArticle
+            title={latest.data.title}
+            date={latest.data.date}
+            href={`/newsletter/${latest.id}/`}
+            level={2}
+          >
+            <Content />
+          </LetterArticle>
+        </div>
+      </section>
+    )
+  }
+
+  <WaitlistAsk
+    heading={t.waitlistHeading}
+    body={t.waitlistBody}
+    cta={t.waitlistCta}
+    privacy={t.privacy}
+  />
+</GuideLayout>
+
+<style is:global>
+  /* Exactly one of the two confirm blocks is ever shown. */
+  .confirm--already,
+  .g-already .confirm--new {
+    display: none;
+  }
+  .g-already .confirm--already {
+    display: block;
+  }
+</style>
+
+<style>
+  .confirm {
+    padding-block: clamp(44px, 7vw, 84px) clamp(36px, 5vw, 60px);
+  }
+  .confirm__mark {
+    margin-bottom: 22px;
+  }
+  .confirm__h1 {
+    margin-top: 14px;
+    font-size: clamp(34px, 5.6vw, 52px);
+  }
+  .confirm__body {
+    margin-top: 18px;
+    max-width: 34rem;
+  }
+  .confirm__steps {
+    margin-top: 30px;
+  }
+  .confirm__note {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text-tertiary);
+    margin: 26px 0 0;
+    max-width: 34rem;
+    text-wrap: pretty;
+  }
+  .latest__eyebrow {
+    margin-bottom: 18px;
+  }
+</style>

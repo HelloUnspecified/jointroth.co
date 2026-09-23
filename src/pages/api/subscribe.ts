@@ -16,6 +16,10 @@
 //       already subscribed is a silent no-op and they'd get nothing back. The
 //       event fires every time. Any list they're not yet on rides along in the
 //       same request, so the subscription and the trigger can't disagree.
+//       The response carries `already: true` so the thank-you page can say
+//       "you're already on the list" instead of "check your inbox" — for the
+//       newsletter that's the whole story (no workflow needed); for a guide the
+//       `guideRequested` workflow re-sends the PDF, so the inbox line holds.
 //
 // Nobody reaches the event path without having confirmed already — list
 // membership is only granted on confirmation — so double opt-in still holds.
@@ -23,22 +27,26 @@
 // Without LOOPS_API_KEY set, only the first path runs, which is exactly the old
 // behaviour: local dev needs no secrets.
 //
-// Two shapes of request land here:
-//   { email }                      → the product waitlist (landing + welcome)
-//   { email, guide, waitlist }     → a /guides lead magnet, optionally also
-//                                    joining the waitlist via its checkbox
+// Three shapes of request land here:
+//   { email }                        → the product waitlist (landing + welcome)
+//   { email, guide, waitlist }       → a /guides lead magnet, optionally also
+//                                      joining the waitlist via its checkbox
+//   { email, newsletter, waitlist }  → /newsletter, optionally also joining the
+//                                      waitlist via its (pre-ticked) checkbox
 //
 // The client never sends mailing-list IDs; `guide` is a slug resolved against
-// the server-side registry in src/lib/loops.ts.
+// the server-side registry in src/lib/loops.ts, and `newsletter` is a flag.
 import type { APIRoute } from "astro";
 import { getEntry } from "astro:content";
 import { env } from "cloudflare:workers";
 import {
   EVENT_GUIDE,
+  EVENT_NEWSLETTER,
   EVENT_WAITLIST,
   WAITLIST_LISTS,
   isGuideSlug,
   listsForGuide,
+  listsForNewsletter,
 } from "../../lib/loops";
 import { findContact, sendEvent } from "../../lib/loops-api";
 
@@ -80,6 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
     const data = (await request.json().catch(() => ({}))) as {
       email?: unknown;
       guide?: unknown;
+      newsletter?: unknown;
       waitlist?: unknown;
     };
     const email = typeof data.email === "string" ? data.email.trim() : "";
@@ -91,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ success: false, message: "Enter a valid email" }, 400);
     }
 
-    // A guide signup, or a plain waitlist signup?
+    // A guide signup, a newsletter signup, or a plain waitlist signup?
     let plan: Plan;
 
     if (data.guide !== undefined) {
@@ -122,6 +131,16 @@ export const POST: APIRoute = async ({ request }) => {
           guideTitle: entry?.data.headline ?? slug,
           pdfUrl: entry?.data.pdf ? `${SITE}${entry.data.pdf}` : "",
         },
+      };
+    } else if (data.newsletter === true) {
+      const resolved = listsForNewsletter(data.waitlist === true);
+
+      plan = {
+        lists: resolved.mailingLists,
+        delivers: [resolved.listId],
+        source: resolved.source,
+        eventName: EVENT_NEWSLETTER,
+        eventProperties: {},
       };
     } else {
       plan = {
@@ -166,7 +185,7 @@ export const POST: APIRoute = async ({ request }) => {
           );
         }
 
-        return json({ success: true }, 200);
+        return json({ success: true, already: true }, 200);
       }
     }
 

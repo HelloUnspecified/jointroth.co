@@ -1,0 +1,36 @@
+---
+// Phones only: the offer follows you down the page — but only while no real
+// form is on screen, so it never sits on top of the one you're filling in.
+// Styles live in troth-guide.css (.g-stickybar); this is the markup + logic.
+import Button from "../../elements/Button.astro";
+
+interface Props {
+  label: string;
+  cta: string;
+  href?: string;
+}
+const { label, cta, href = "#get" } = Astro.props;
+---
+
+<div class="g-stickybar" data-stickybar>
+  <span class="g-stickybar__label">{label}</span>
+  <Button variant="primary" size="small" href={href}>{cta}</Button>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-stickybar]");
+  const forms = Array.from(document.querySelectorAll("[data-guide-form]"));
+  if (bar && forms.length && "IntersectionObserver" in window) {
+    const onScreen = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) =>
+          e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target),
+        );
+        bar.classList.toggle("is-on", onScreen.size === 0);
+      },
+      { threshold: 0 },
+    );
+    forms.forEach((f) => io.observe(f));
+  }
+</script>

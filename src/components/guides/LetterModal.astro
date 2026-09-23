@@ -1,0 +1,236 @@
+---
+// The reader. One <dialog> for the whole page: clicking a LetterCard clones
+// that letter's <template> into the dialog and opens it, so the front page
+// stays short while every letter is still one click away. Without JS the
+// cards are plain links to the issue pages, which is also what "Open in its
+// own page" points at for sharing.
+//
+// Put the letters in the slot, each as
+//   <template data-letter-tpl={slug}><LetterArticle …>…</LetterArticle></template>
+import type { ComponentProps } from "astro/types";
+import GuideForm from "./GuideForm.astro";
+import { NAME } from "../../lib/newsletter";
+
+interface Props {
+  /** Props for the form that follows the letter (id is set here). */
+  form: Omit<ComponentProps<typeof GuideForm>, "id">;
+}
+const { form } = Astro.props;
+---
+
+<dialog class="lm" data-letter-modal aria-label="Letter">
+  <div class="lm__sheet">
+    <div class="lm__bar">
+      <span class="lm__name">{NAME}</span>
+      <a class="lm__link" data-letter-link href="/newsletter/"
+        >Open in its own page</a
+      >
+      <button
+        type="button"
+        class="lm__close"
+        data-letter-close
+        aria-label="Close the letter"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M3 3l10 10M13 3L3 13"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="lm__body" data-letter-slot></div>
+    <div class="lm__after">
+      <GuideForm id="reader" {...form} />
+    </div>
+  </div>
+</dialog>
+
+<slot />
+
+<style is:global>
+  /* The page behind the reader holds still. */
+  html.lm-open {
+    overflow: hidden;
+  }
+</style>
+
+<style>
+  .lm {
+    /* The dialog is the scroll container; the sheet sits inside it. */
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .lm::backdrop {
+    background: rgba(43, 38, 35, 0.55);
+    backdrop-filter: blur(6px);
+  }
+
+  .lm__sheet {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 46rem;
+    min-height: 100%;
+    margin: 0 auto;
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-float);
+    padding: 0 clamp(20px, 5vw, 56px) clamp(40px, 6vw, 64px);
+  }
+  @media (min-width: 640px) {
+    .lm__sheet {
+      min-height: 0;
+      margin: 5svh auto 6svh;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-card);
+    }
+  }
+
+  .lm[open] .lm__sheet {
+    animation: lm-rise var(--dur-considered) var(--ease-troth);
+  }
+  @keyframes lm-rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Sticky top bar so Close is always within reach in a long letter. */
+  .lm__bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-inline: calc(-1 * clamp(20px, 5vw, 56px));
+    padding: 12px clamp(20px, 5vw, 56px);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .lm__name {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    flex: 1;
+  }
+  .lm__link {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+  }
+  .lm__link:hover {
+    color: var(--color-accent);
+  }
+  .lm__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+      background var(--dur-quick) var(--ease-troth),
+      border-color var(--dur-quick) var(--ease-troth);
+  }
+  .lm__close:hover {
+    background: var(--color-surface-sunken);
+    border-color: var(--color-accent);
+  }
+
+  .lm__body {
+    padding-top: clamp(28px, 4vw, 40px);
+  }
+  .lm__after {
+    margin-top: clamp(32px, 5vw, 48px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lm[open] .lm__sheet {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>(
+    "[data-letter-modal]",
+  );
+
+  if (dialog && typeof dialog.showModal === "function") {
+    const slot = dialog.querySelector<HTMLElement>("[data-letter-slot]")!;
+    const link = dialog.querySelector<HTMLAnchorElement>("[data-letter-link]");
+    const root = document.documentElement;
+
+    const open = (slug: string, href: string) => {
+      const tpl = document.querySelector<HTMLTemplateElement>(
+        `template[data-letter-tpl="${CSS.escape(slug)}"]`,
+      );
+      if (!tpl) return false;
+      slot.replaceChildren(tpl.content.cloneNode(true));
+      if (link) link.href = href;
+      root.classList.add("lm-open");
+      dialog.showModal();
+      dialog.scrollTop = 0;
+      return true;
+    };
+
+    document
+      .querySelectorAll<HTMLAnchorElement>("[data-letter-open]")
+      .forEach((a) => {
+        a.addEventListener("click", (e) => {
+          // Let modified clicks open the issue page in a new tab as usual.
+          if (
+            e.metaKey ||
+            e.ctrlKey ||
+            e.shiftKey ||
+            e.altKey ||
+            e.button !== 0
+          )
+            return;
+          if (open(a.dataset.letterOpen || "", a.href)) e.preventDefault();
+        });
+      });
+
+    dialog
+      .querySelector("[data-letter-close]")
+      ?.addEventListener("click", () => dialog.close());
+
+    // A click on the dialog itself (outside the sheet) is the backdrop.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener("close", () => {
+      root.classList.remove("lm-open");
+      slot.replaceChildren();
+    });
+  }
+</script>

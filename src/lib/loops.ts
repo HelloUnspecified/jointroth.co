@@ -4,11 +4,14 @@
 // the only place that maps a slug to Loops list IDs. Adding a new lead magnet
 // means adding one entry here alongside the .mdx file in src/content/guides/.
 
-/** Everyone who joins the product waitlist lands on both of these. */
-export const WAITLIST_LISTS = [
-  "cmrpalrap06m50ju5bz1a73sb",
-  "cmrpammmt08z30jzj0rl7cz2g",
-];
+/** The newsletter — practical letters for married couples, from Clark. */
+export const NEWSLETTER_LIST = "cmrpammmt08z30jzj0rl7cz2g";
+
+/**
+ * Everyone who joins the product waitlist lands on both of these: the waitlist
+ * proper, and the newsletter — so the couples waiting hear from us in between.
+ */
+export const WAITLIST_LISTS = ["cmrpalrap06m50ju5bz1a73sb", NEWSLETTER_LIST];
 
 export interface GuideList {
   /** Loops mailing list ID for this lead magnet. */
@@ -41,6 +44,7 @@ export const GUIDE_LISTS: Record<string, GuideList> = {
  */
 export const EVENT_GUIDE = "guideRequested";
 export const EVENT_WAITLIST = "waitlistRequested";
+export const EVENT_NEWSLETTER = "newsletterRequested";
 
 /** Slug shape we're willing to echo into Loops as a source string. */
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -69,5 +73,24 @@ export function listsForGuide(slug: string, waitlist: boolean) {
     listId: guide?.listId,
     source: guide?.source ?? `joinTroth.co/guides/${slug}`,
     configured: Boolean(guide?.listId),
+  };
+}
+
+/**
+ * Lists a /newsletter signup should join, plus the Loops `source` to record.
+ * `waitlist` reflects the "also add me to the waitlist" checkbox, which is
+ * ticked by default on that page.
+ *
+ * `listId` is the newsletter itself — already being on it is what tells
+ * /api/subscribe to fire `newsletterRequested` instead of re-posting the form.
+ */
+export function listsForNewsletter(waitlist: boolean) {
+  const lists = new Set<string>([NEWSLETTER_LIST]);
+  if (waitlist) WAITLIST_LISTS.forEach((id) => lists.add(id));
+
+  return {
+    mailingLists: Array.from(lists),
+    listId: NEWSLETTER_LIST,
+    source: "joinTroth.co/newsletter",
   };
 }

@@ -1,0 +1,192 @@
+---
+// One letter on the shelf: a sheet of paper you can pick up. The link goes to
+// the issue's own page; with JS, the page intercepts it and opens the letter
+// in a modal instead (see LetterModal). `featured` is the newest issue — a
+// wider sheet, a "Latest" mark, and the opening lines fading out.
+import { NAME, formatDate } from "../../lib/newsletter";
+
+interface Props {
+  slug: string;
+  title: string;
+  date: Date;
+  summary: string;
+  /** Opening lines of the letter, for the featured sheet. */
+  excerpt?: string;
+  featured?: boolean;
+}
+const { slug, title, date, summary, excerpt, featured = false } = Astro.props;
+---
+
+<a
+  href={`/newsletter/${slug}/`}
+  class:list={["lc", featured && "lc--featured"]}
+  data-letter-open={slug}
+>
+  {featured && <span class="lc__badge">Latest</span>}
+  <div class="lc__meta">
+    <p class="lc__dateline">
+      <span class="lc__name">{NAME}</span>
+      <time datetime={date.toISOString().slice(0, 10)}>{formatDate(date)}</time>
+    </p>
+    <p class="lc__title">{title}</p>
+    <p class="lc__summary">{summary}</p>
+    <span class="lc__cta"
+      >Read the letter <span aria-hidden="true">→</span></span
+    >
+  </div>
+  {
+    featured && (
+      <div class="lc__open" aria-hidden="true">
+        <p>{excerpt ?? summary}</p>
+      </div>
+    )
+  }
+</a>
+
+<style>
+  .lc {
+    position: relative;
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: clamp(20px, 2.6vw, 26px) clamp(20px, 2.6vw, 26px)
+      clamp(18px, 2.4vw, 22px);
+    text-decoration: none;
+    color: inherit;
+    box-shadow: var(--shadow-float);
+    transition:
+      transform var(--dur-considered) var(--ease-troth),
+      border-color var(--dur-quick) var(--ease-troth);
+  }
+  .lc:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-border-strong);
+  }
+
+  .lc__dateline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+  .lc__name {
+    color: var(--color-accent);
+  }
+  .lc__title {
+    font-family: var(--font-serif);
+    font-size: clamp(21px, 2.4vw, 25px);
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: var(--color-text);
+    margin: 12px 0 0;
+    text-wrap: balance;
+  }
+  .lc__summary {
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 10px 0 0;
+    text-wrap: pretty;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
+  .lc__cta {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-accent);
+    margin-top: 16px;
+    transition: color var(--dur-quick) var(--ease-troth);
+  }
+  .lc:hover .lc__cta {
+    color: var(--color-accent-press);
+  }
+
+  /* ---- the featured sheet: wider, tilted a hair, the opening lines shown ---- */
+  .lc--featured {
+    transform: rotate(-0.6deg);
+    padding-block: clamp(24px, 3vw, 32px);
+  }
+  .lc--featured:hover {
+    transform: rotate(-0.2deg) translateY(-3px);
+  }
+  .lc__badge {
+    position: absolute;
+    top: -11px;
+    right: clamp(18px, 3vw, 28px);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-on-accent);
+    background: var(--color-accent);
+    border-radius: var(--radius-pill);
+    padding: 5px 11px;
+  }
+  .lc--featured .lc__title {
+    font-size: clamp(26px, 3.4vw, 34px);
+    line-height: 1.1;
+    letter-spacing: -0.014em;
+  }
+  .lc--featured .lc__summary {
+    font-size: 16.5px;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    margin-top: 12px;
+  }
+  .lc__open {
+    position: relative;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border);
+    max-height: 9.6em;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+  }
+  .lc__open p {
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  @media (min-width: 768px) {
+    .lc--featured {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(24px, 4vw, 44px);
+      align-items: start;
+    }
+    .lc__open {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+      padding-left: clamp(24px, 4vw, 44px);
+      border-left: 1px solid var(--color-border);
+      max-height: 11em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lc,
+    .lc:hover {
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

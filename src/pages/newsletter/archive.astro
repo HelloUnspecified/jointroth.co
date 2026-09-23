@@ -1,0 +1,322 @@
+---
+// /newsletter/archive — every letter, newest first, grouped by year once the
+// letters span more than one. A reading list, not a shelf: date, title, deck,
+// each row a link to the issue's own page. The front page links here once it
+// has more letters than it shows (SHELF_LIMIT in src/lib/newsletter.ts).
+//
+// Note: this static route shadows a letter whose file is named archive.mdx.
+import GuideLayout from "../../layouts/GuideLayout.astro";
+import GuideForm from "../../components/guides/GuideForm.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+import LanternMark from "../../elements/LanternMark.astro";
+import {
+  NAME,
+  TAGLINE,
+  CADENCE,
+  SITE_URL,
+  ARCHIVE_URL,
+  getLetters,
+  letterUrl,
+} from "../../lib/newsletter";
+
+const letters = await getLetters();
+const pageUrl = `${SITE_URL}${ARCHIVE_URL}`;
+
+// Group by year, newest year first. With a single year the heading is skipped.
+const byYear = new Map<number, typeof letters>();
+for (const letter of letters) {
+  const y = letter.data.date.getUTCFullYear();
+  byYear.set(y, [...(byYear.get(y) ?? []), letter]);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+const showYears = years.length > 1;
+
+const shortDate = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+
+const copy = {
+  eyebrow: "The letters",
+  heading: "Every letter, in order.",
+  body: `${letters.length === 1 ? "One letter so far" : `${letters.length} letters so far`}, newest first. ${TAGLINE}`,
+  closingEyebrow: "Get the next one",
+  closingHeading: "The next one is yours.",
+};
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": pageUrl,
+    name: `All letters — ${NAME}`,
+    description: copy.body,
+    url: pageUrl,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: "en-US",
+    mainEntity: {
+      "@type": "ItemList",
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      numberOfItems: letters.length,
+      itemListElement: letters.map((letter, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: letter.data.title,
+        url: `${SITE_URL}${letterUrl(letter)}`,
+      })),
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Troth", item: `${SITE_URL}/` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: NAME,
+        item: `${SITE_URL}/newsletter/`,
+      },
+      { "@type": "ListItem", position: 3, name: "All letters" },
+    ],
+  },
+];
+---
+
+<GuideLayout
+  title={`All letters — ${NAME}`}
+  description={copy.body}
+  ogImage="/og/newsletter.png"
+  ogImageAlt={`${NAME}. ${TAGLINE}`}
+  jsonLd={jsonLd}
+  headerCta="Get the letter"
+>
+  <Fragment slot="head">
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={NAME}
+      href={`${SITE_URL}/newsletter/rss.xml`}
+    />
+  </Fragment>
+
+  <section class="g-wrap g-section arc">
+    <div class="arc__inner">
+      <header class="arc__head">
+        <a href="/newsletter/" class="arc__back">
+          <LanternMark size={16} tone="brand" />
+          <span>{NAME}</span>
+        </a>
+        <Eyebrow tone="tertiary" class="arc__eyebrow">{copy.eyebrow}</Eyebrow>
+        <h1 class="g-h1 arc__h1">{copy.heading}</h1>
+        <p class="g-lede arc__body">{copy.body}</p>
+        <a
+          class="arc__rss"
+          href="/newsletter/rss.xml"
+          type="application/rss+xml"
+        >
+          RSS feed <span aria-hidden="true">→</span>
+        </a>
+      </header>
+
+      {
+        years.map((year) => (
+          <section class="arc__year">
+            {showYears && <h2 class="arc__year-h">{year}</h2>}
+            <ol class="arc__list">
+              {byYear.get(year)!.map((letter) => (
+                <li>
+                  <a href={letterUrl(letter)} class="arc__row">
+                    <time
+                      class="arc__date"
+                      datetime={letter.data.date.toISOString().slice(0, 10)}
+                    >
+                      {shortDate(letter.data.date)}
+                    </time>
+                    <span class="arc__text">
+                      <span class="arc__title">{letter.data.title}</span>
+                      <span class="arc__summary">{letter.data.summary}</span>
+                    </span>
+                    <span class="arc__go" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="g-band" id="get">
+    <div class="g-wrap g-section g-section--tight">
+      <div class="arc__inner arc__closing">
+        <Eyebrow tone="accent">{copy.closingEyebrow}</Eyebrow>
+        <h2 class="g-h2 arc__closing-h2">{copy.closingHeading}</h2>
+        <div class="arc__form">
+          <GuideForm
+            id="archive"
+            variant="bare"
+            inline
+            newsletter
+            redirect="/newsletter/thank-you"
+            cta="Send me the next letter"
+            microcopy={`One letter ${CADENCE}. You'll get a confirmation email first.`}
+            waitlistLabel="Also add me to the Troth waitlist."
+            waitlistDefault
+            privacy="We'll never share your address. Unsubscribe anytime."
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+</GuideLayout>
+
+<style>
+  .arc__inner {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+  .arc__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 30px;
+  }
+  .arc__back:hover span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .arc__eyebrow {
+    display: block;
+  }
+  .arc__h1 {
+    margin-top: 14px;
+    font-size: clamp(34px, 5.6vw, 52px);
+  }
+  .arc__body {
+    margin-top: 16px;
+    max-width: 34rem;
+  }
+  .arc__rss {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+  }
+  .arc__rss:hover {
+    color: var(--color-accent);
+  }
+
+  .arc__year {
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  .arc__year-h {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(22px, 2.6vw, 26px);
+    letter-spacing: -0.008em;
+    color: var(--color-text-tertiary);
+    margin: 0 0 6px;
+  }
+  .arc__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .arc__list li {
+    border-top: 1px solid var(--color-border);
+  }
+  .arc__list li:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .arc__row {
+    display: grid;
+    grid-template-columns: 4.6rem minmax(0, 1fr) 1.2rem;
+    gap: 6px 16px;
+    align-items: baseline;
+    padding: 20px 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  @media (max-width: 639px) {
+    .arc__row {
+      grid-template-columns: minmax(0, 1fr) 1.2rem;
+    }
+    .arc__date {
+      grid-column: 1 / -1;
+    }
+  }
+  .arc__date {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .arc__text {
+    display: block;
+    min-width: 0;
+  }
+  .arc__title {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: clamp(20px, 2.3vw, 23px);
+    line-height: 1.22;
+    color: var(--color-text);
+    transition: color var(--dur-quick) var(--ease-troth);
+  }
+  .arc__summary {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin-top: 6px;
+    text-wrap: pretty;
+  }
+  .arc__go {
+    font-family: var(--font-sans);
+    color: var(--color-text-tertiary);
+    justify-self: end;
+    transition:
+      color var(--dur-quick) var(--ease-troth),
+      transform var(--dur-quick) var(--ease-troth);
+  }
+  .arc__row:hover .arc__title,
+  .arc__row:hover .arc__go {
+    color: var(--color-accent);
+  }
+  .arc__row:hover .arc__go {
+    transform: translateX(3px);
+  }
+
+  .arc__closing {
+    text-align: center;
+  }
+  .arc__closing-h2 {
+    margin-top: 14px;
+  }
+  .arc__form {
+    max-width: 34rem;
+    margin: 26px auto 0;
+    text-align: left;
+  }
+</style>

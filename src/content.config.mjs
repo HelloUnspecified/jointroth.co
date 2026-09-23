@@ -6,6 +6,12 @@
 // rendered between the steps and the founder note. Adding a guide = adding one
 // file. See src/content/guides/were-building.mdx for the canonical example, and
 // src/lib/loops.ts for the mailing list each guide subscribes to.
+//
+// `letters` — issues of the newsletter. One .mdx file per issue: frontmatter is
+// the subject line, date and a one-line summary; the body is the letter itself,
+// exactly as it went out. The newest issue is rendered in full on /newsletter
+// (the writing is the pitch), every issue lives at /newsletter/<slug>, and the
+// thank-you page shows the newest one while the confirmation email lands.
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
@@ -146,6 +152,34 @@ const guides = defineCollection({
   }),
 });
 
-const collections = { guides };
+const letters = defineCollection({
+  loader: glob({ base: "./src/content/letters", pattern: "**/*.{md,mdx}" }),
+  schema: z.object({
+    title: z.string(), // the subject line, as sent
+    date: z.coerce.date(), // the day it went out
+    // One or two sentences: the deck on the shelf card, the RSS description,
+    // and — unless `description` is set — the meta description. Written, not
+    // extracted, so it reads like a deck.
+    summary: z.string(),
+
+    /* ---- SEO / sharing, all optional ---- */
+    // Meta + social description, if the summary is too long or too oblique
+    // for a search snippet (aim for ~155 characters).
+    description: z.string().optional(),
+    // Browser-tab / search-result title, if the subject line needs help. The
+    // page appends " — Brick by Brick" either way.
+    seoTitle: z.string().optional(),
+    // Social card. `node scripts/build-og.mjs` bakes one per letter at
+    // public/og/letters/<slug>.png and the page picks it up automatically;
+    // set this only to override it with a custom 1200×630 image.
+    ogImage: z.string().optional(),
+    ogImageAlt: z.string().optional(),
+    // When the letter was last revised on the site (dateModified).
+    updated: z.coerce.date().optional(),
+    draft: z.boolean().default(false), // drafts are not built
+  }),
+});
+
+const collections = { guides, letters };
 
 export { collections };

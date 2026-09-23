@@ -1,0 +1,129 @@
+---
+// One issue of the letter, laid out to be read: a dateline, the subject as the
+// title, and the body at a comfortable measure. The body comes in as the slot
+// (the rendered MDX), so the same article works on /newsletter, on the issue's
+// own page, and on the thank-you page.
+import { NAME, formatDate } from "../../lib/newsletter";
+
+interface Props {
+  title: string;
+  date: Date;
+  /** Link the title to the issue's own page. */
+  href?: string;
+  /** Render the title as the page's h1 (the issue page) or an h2 (elsewhere). */
+  level?: 1 | 2;
+  class?: string;
+}
+const { title, date, href, level = 2, class: className } = Astro.props;
+const Heading = level === 1 ? "h1" : "h2";
+---
+
+<article class:list={["letter", className]}>
+  <header class="letter__head">
+    <p class="letter__dateline">
+      <span class="letter__name">{NAME}</span>
+      <time datetime={date.toISOString().slice(0, 10)}>{formatDate(date)}</time>
+    </p>
+    <Heading class="letter__title">
+      {href ? <a href={href}>{title}</a> : title}
+    </Heading>
+  </header>
+
+  <div class="letter__body">
+    <slot />
+  </div>
+</article>
+
+<style>
+  .letter {
+    max-width: var(--width-text-comfortable);
+  }
+
+  .letter__head {
+    padding-bottom: clamp(20px, 3vw, 28px);
+    margin-bottom: clamp(24px, 3.5vw, 36px);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .letter__dateline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+  .letter__name {
+    color: var(--color-accent);
+  }
+  .letter__title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(30px, 4.6vw, 42px);
+    line-height: 1.1;
+    letter-spacing: -0.014em;
+    color: var(--color-text);
+    margin: 14px 0 0;
+    text-wrap: balance;
+  }
+  .letter__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .letter__title a:hover {
+    color: var(--color-accent);
+  }
+
+  /* The letter itself. A touch larger and looser than .g-prose — it's meant
+     to be read start to finish, not skimmed. */
+  .letter__body {
+    font-family: var(--font-serif);
+    font-size: clamp(17.5px, 2vw, 19.5px);
+    line-height: 1.62;
+    color: var(--color-text);
+  }
+  .letter__body :global(p) {
+    margin: 0 0 1.05em;
+    text-wrap: pretty;
+  }
+  .letter__body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+  .letter__body :global(em) {
+    font-style: italic;
+  }
+  .letter__body :global(strong) {
+    font-weight: 500;
+  }
+  .letter__body :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .letter__body :global(a:hover) {
+    color: var(--color-accent-press);
+  }
+  /* A section break in the letter: a short terracotta rule, like a pause. */
+  .letter__body :global(hr) {
+    width: 46px;
+    height: 2px;
+    border: 0;
+    background: var(--color-accent);
+    margin: clamp(30px, 4vw, 42px) 0;
+  }
+  .letter__body :global(blockquote) {
+    margin: 0 0 1.05em;
+    padding-left: 1em;
+    border-left: 2px solid var(--color-border-strong);
+    font-style: italic;
+  }
+  .letter__body :global(ul),
+  .letter__body :global(ol) {
+    padding-left: 1.2em;
+    margin: 0 0 1.05em;
+  }
+</style>

@@ -11,12 +11,19 @@
  * Adding a guide? Add a CARDS entry keyed by the guide slug and point that
  * guide's `ogImage:` frontmatter at /og/<slug>.png. Without an entry the guide
  * falls back to the default card, which is fine — just less specific.
+ *
+ * Letters need nothing: every issue in src/content/letters/ gets its own card
+ * at public/og/letters/<slug>.png from its frontmatter (title, date, summary),
+ * and the issue page picks it up when the file exists. Re-run after adding one:
+ *
+ *   node scripts/build-og.mjs letters    # just the letters
  */
 import { execFile } from "node:child_process";
-import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile, rm } from "node:fs/promises";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import YAML from "yaml";
 
 const exec = promisify(execFile);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -51,7 +58,61 @@ const CARDS = {
     sub: "A free, printable exercise for two. One pen each, thirty minutes.",
     foot: "jointroth.co/guides",
   },
+  newsletter: {
+    eyebrow: "A free letter for married couples",
+    headline: "Brick by <em>Brick.</em>",
+    sub: "Practical advice, real stories, and the hard conversations. From Clark and Carrie Sell, 23 years in and still doing the work.",
+    foot: "jointroth.co/newsletter",
+  },
 };
+
+/* ---- letters: one card per issue, from frontmatter ----------------------- */
+
+const LETTERS_DIR = path.join(root, "src", "content", "letters");
+const LETTERS_OUT = path.join(OUT, "letters");
+
+/** Cut a deck down to roughly one sentence's worth for the card. */
+function deck(text, max = 150) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(", "));
+  return (end > 60 ? cut.slice(0, end + 1) : cut.trimEnd() + "…").trim();
+}
+
+function letterDate(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+async function letterCards() {
+  const cards = {};
+  let files = [];
+  try {
+    files = (await readdir(LETTERS_DIR)).filter((f) => /\.mdx?$/.test(f));
+  } catch {
+    return cards;
+  }
+  for (const file of files) {
+    const raw = await readFile(path.join(LETTERS_DIR, file), "utf8");
+    const m = raw.match(/^---\n([\s\S]*?)\n---/);
+    if (!m) continue;
+    const fm = YAML.parse(m[1]);
+    if (fm.draft) continue;
+    const slug = file.replace(/\.mdx?$/, "");
+    cards[slug] = {
+      eyebrow: `Brick by Brick · ${letterDate(fm.date)}`,
+      headline: fm.title,
+      sub: deck(fm.description ?? fm.summary ?? ""),
+      foot: "jointroth.co/newsletter",
+    };
+  }
+  return cards;
+}
 
 /* ---- layout ------------------------------------------------------------- */
 
@@ -123,6 +184,7 @@ body{background:#F4EFE6;font-family:"Newsreader",Georgia,serif;
 
 h1{margin-top:22px;font-size:66px;font-weight:400;line-height:1.06;
   letter-spacing:-.015em;color:#2B2623;text-wrap:balance;max-width:21ch}
+h1.long{font-size:54px;max-width:24ch}
 h1 em{font-style:italic;color:#A24B34}
 
 /* The ruled blank you could write on — the guide headline's whole point. */
@@ -143,7 +205,7 @@ h1 em{font-style:italic;color:#A24B34}
 <div class="card">
   <div class="brand">${MARK}<span>Troth</span></div>
   <div class="eyebrow">${esc(card.eyebrow)}</div>
-  <h1>${rich(card.headline)}</h1>
+  <h1 class="${card.headline.length > 40 ? "long" : ""}">${rich(card.headline)}</h1>
   <p class="sub">${esc(card.sub)}</p>
   <div class="foot">
     <span class="site">${esc(card.foot)}</span>
@@ -167,25 +229,51 @@ async function chrome() {
 }
 
 const only = process.argv[2];
-const names = only ? [only] : Object.keys(CARDS);
-if (only && !CARDS[only]) throw new Error(`No card named "${only}".`);
+const letters = await letterCards();
+
+/** [card, output dir, label] */
+let jobs;
+if (only === "letters") {
+  jobs = Object.entries(letters).map(([k, c]) => [
+    k,
+    c,
+    LETTERS_OUT,
+    `letters/${k}`,
+  ]);
+} else if (only) {
+  if (CARDS[only]) jobs = [[only, CARDS[only], OUT, only]];
+  else if (letters[only])
+    jobs = [[only, letters[only], LETTERS_OUT, `letters/${only}`]];
+  else throw new Error(`No card or letter named "${only}".`);
+} else {
+  jobs = [
+    ...Object.entries(CARDS).map(([k, c]) => [k, c, OUT, k]),
+    ...Object.entries(letters).map(([k, c]) => [
+      k,
+      c,
+      LETTERS_OUT,
+      `letters/${k}`,
+    ]),
+  ];
+}
 
 const bin = await chrome();
 const fontCss = await faces();
 await mkdir(OUT, { recursive: true });
+await mkdir(LETTERS_OUT, { recursive: true });
 
-for (const name of names) {
-  const html = path.join(OUT, `.${name}.html`);
-  await writeFile(html, page(CARDS[name], fontCss));
+for (const [name, card, dir, label] of jobs) {
+  const html = path.join(dir, `.${name}.html`);
+  await writeFile(html, page(card, fontCss));
   await exec(bin, [
     "--headless",
     "--disable-gpu",
     "--hide-scrollbars",
     "--force-color-profile=srgb",
-    `--screenshot=${path.join(OUT, `${name}.png`)}`,
+    `--screenshot=${path.join(dir, `${name}.png`)}`,
     `--window-size=${WIDTH},${HEIGHT}`,
     `file://${html}`,
   ]);
   await rm(html);
-  console.log(`  og/${name}.png`);
+  console.log(`  og/${label}.png`);
 }

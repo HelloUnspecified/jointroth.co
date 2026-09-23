@@ -5,6 +5,7 @@ import { getCollection, render } from "astro:content";
 import GuideLayout from "../../../layouts/GuideLayout.astro";
 import GuideForm from "../../../components/guides/GuideForm.astro";
 import ExercisePreview from "../../../components/guides/ExercisePreview.astro";
+import StickyBar from "../../../components/guides/StickyBar.astro";
 import Eyebrow from "../../../elements/Eyebrow.astro";
 import Button from "../../../elements/Button.astro";
 
@@ -256,10 +257,7 @@ const jsonLd = [
   {
     /* -------------------------------------------- phones: sticky offer bar -- */
   }
-  <div class="g-stickybar" data-stickybar>
-    <span class="g-stickybar__label">{d.form.stickyLabel || d.eyebrow}</span>
-    <Button variant="primary" size="small" href="#get">{d.form.cta}</Button>
-  </div>
+  <StickyBar label={d.form.stickyLabel || d.eyebrow} cta={d.form.cta} />
 </GuideLayout>
 
 <style>
@@ -328,23 +326,3 @@ const jsonLd = [
     margin-top: 26px;
   }
 </style>
-
-<script>
-  /* The offer follows you down the page on phones — but only while no real
-     form is on screen, so it never sits on top of the one you're filling in. */
-  const bar = document.querySelector<HTMLElement>("[data-stickybar]");
-  const forms = Array.from(document.querySelectorAll("[data-guide-form]"));
-  if (bar && forms.length && "IntersectionObserver" in window) {
-    const onScreen = new Set<Element>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) =>
-          e.isIntersecting ? onScreen.add(e.target) : onScreen.delete(e.target),
-        );
-        bar.classList.toggle("is-on", onScreen.size === 0);
-      },
-      { threshold: 0 },
-    );
-    forms.forEach((f) => io.observe(f));
-  }
-</script>

@@ -1,0 +1,906 @@
+---
+// /newsletter — the letter's front page. A publication, not an offer. Read top
+// to bottom it makes one argument:
+//
+//   masthead   what it is, and the form
+//   drift      what a "fine" marriage quietly loses — the reason to bother
+//   get        what the letter is: practical advice, stories, hard conversations
+//   shelf      the letters themselves — read one before you decide
+//   fit        who it's for, and who it isn't
+//   said       what readers say (placeholder slots until the real quotes land)
+//   who        the two of them, with the photo
+//   faq        the four questions people ask
+//   closing    the form again
+//
+// The form posts { email, newsletter: true, waitlist } to /api/subscribe; the
+// waitlist box is ticked by default. Copy lives in the constants below; the
+// letter's name, tagline and cadence come from src/lib/newsletter.ts.
+import { render } from "astro:content";
+import GuideLayout from "../../layouts/GuideLayout.astro";
+import GuideForm from "../../components/guides/GuideForm.astro";
+import LetterArticle from "../../components/guides/LetterArticle.astro";
+import LetterCard from "../../components/guides/LetterCard.astro";
+import LetterModal from "../../components/guides/LetterModal.astro";
+import Testimonial from "../../components/guides/Testimonial.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+import LanternMark from "../../elements/LanternMark.astro";
+import {
+  NAME,
+  TAGLINE,
+  CADENCE,
+  SITE_URL,
+  SHELF_LIMIT,
+  ARCHIVE_URL,
+  getLetters,
+} from "../../lib/newsletter";
+
+const letters = await getLetters();
+// The shelf shows the newest SHELF_LIMIT; the rest live on the archive page.
+const shown = letters.slice(0, SHELF_LIMIT);
+const [latest, ...rest] = shown;
+const hidden = letters.length - shown.length;
+
+/** The opening lines of a letter, as plain text, for the featured sheet. */
+function opening(body: string | undefined, paragraphs = 3) {
+  return (body ?? "")
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => p && !/^-{3,}$/.test(p) && !p.startsWith("#"))
+    .slice(0, paragraphs)
+    .map((p) => p.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[*_]/g, ""))
+    .join(" ");
+}
+
+const pageUrl = `${SITE_URL}/newsletter/`;
+const thanksUrl = "/newsletter/thank-you";
+
+/* ---- copy --------------------------------------------------------------- */
+
+const meta = {
+  title: `${NAME} — practical letters on building a marriage, from Troth`,
+  description: `Practical advice, real stories, and the hard conversations of a long marriage, from Clark and Carrie Sell and the couples on their list. A free letter ${CADENCE}.`,
+  ogImage: "/og/newsletter.png",
+  ogImageAlt: `${NAME}. Practical letters on building a marriage on purpose, from Clark and Carrie Sell.`,
+};
+
+const hero = {
+  eyebrow: "A free letter for married couples",
+  pitch:
+    "Practical advice, real stories, and the hard conversations. From a couple 23 years in and still doing the work, and from the couples reading along.",
+  facts: [
+    `Sent ${CADENCE}`,
+    "Read in five minutes",
+    "Free, unsubscribe anytime",
+  ],
+};
+
+const form = {
+  cta: "Send me the next letter",
+  headerCta: "Get the letter",
+  placeholder: "Your email",
+  waitlistLabel: "Also add me to the Troth waitlist.",
+  privacy: "We'll never share your address. Unsubscribe anytime.",
+  afterHeading: "Get the next one",
+  afterMicro: "You'll get a confirmation email first. One click and you're in.",
+};
+
+// The reason to bother. Most people reading this have a marriage that's fine —
+// the letter is for what "fine" quietly costs.
+const drift = {
+  pull: "Most marriages don't fall apart. They drift along, fine, while the best of it quietly slips through.",
+  body: "Nobody warns you. The kids, the work, the years, and one day you're two different people who never decided to be. Almost all of what slips through is avoidable. It just needs someone to say it out loud, and a place to start.",
+};
+
+// What the letter is. Deliberately not a formula: this is new, and the honest
+// promise is a lived account of marriage, not a four-part template.
+const get = {
+  eyebrow: "What you'll get",
+  heading: "Marriage, as it's actually lived.",
+  body: "Not a course. Not a framework. Letters from two people twenty-three years in, and over time from other couples on this list, about what building a marriage really looks like.",
+  kinds: [
+    {
+      lead: "Something to try.",
+      body: "A question to ask at dinner. A habit worth keeping on Sunday mornings. A way into the money conversation that doesn't start a fight. Small, specific, and doable this week.",
+    },
+    {
+      lead: "What actually happened.",
+      body: "Stories from our kitchen table and, over time, from other marriages on this list. The parts people don't usually say out loud, told the way they really went.",
+    },
+    {
+      lead: "The hard conversations.",
+      body: "Money. Sex. The kids leaving. The person you married who isn't quite here anymore. Written with care, and without flinching.",
+    },
+  ],
+  candor:
+    "This is new, and we're still finding our voice. Some letters will be one long story. Some will be a single idea and a question for the two of you. We'd rather send you something true than something formatted.",
+};
+
+const shelf = {
+  eyebrow: "The letters",
+  heading: "Read one before you decide.",
+  body:
+    letters.length > SHELF_LIMIT
+      ? "The most recent letters, in full. Pick one up."
+      : "Every letter we've sent, in full. Pick one up.",
+  all: `All ${letters.length} letters`,
+};
+
+const fit = {
+  eyebrow: "Who it's for",
+  heading: "Written for the two of you. Not for everyone.",
+  yes: [
+    "Your marriage is fine, and you'd like it to be more than fine.",
+    "You've read the marriage books and wanted less theory and more to do.",
+    "You're the one who cares about this more right now. One of you usually is, and this is written for you.",
+  ],
+  no: [
+    "You're looking for help with a marriage in crisis. Talk to a counselor first. We'll be here after.",
+    `You want a daily drip. It's ${CADENCE}, on purpose, so there's time to actually try the thing.`,
+  ],
+};
+
+// Placeholders until the real quotes land. Keep `placeholder: true` on any card
+// that isn't a real reader's words — it renders a visible tag. Ask three to
+// five readers who've replied for one specific thing a letter changed at their
+// table, and use a first name plus years married.
+const said = {
+  eyebrow: "From the list",
+  heading: "Couples building brick by brick.",
+  quotes: [
+    {
+      quote:
+        "Two or three sentences, in their own words, about one specific thing a letter changed at your table.",
+      name: "First name",
+      detail: "Married 12 years",
+      placeholder: true,
+    },
+    {
+      quote:
+        "Best if it names the letter or the practice. 'We tried the Tuesday question and…' beats 'great newsletter.'",
+      name: "First name and first name",
+      detail: "Married 4 years",
+      placeholder: true,
+    },
+    {
+      quote:
+        "One from the spouse who didn't sign up would say more than three from the one who did.",
+      name: "First name",
+      detail: "Married 27 years",
+      placeholder: true,
+    },
+  ],
+};
+
+const who = {
+  eyebrow: "Who's writing",
+  heading: "Two people, not a content team.",
+  photo: {
+    src: "/newsletter/clark-and-carrie.jpg",
+    small: "/newsletter/clark-and-carrie-small.jpg",
+    alt: "Clark and Carrie Sell, standing together in a hotel lobby, both smiling.",
+    caption: "Clark and Carrie.",
+  },
+  paragraphs: [
+    "We're Clark and Carrie Sell. Married 23 years, two kids nearly out the door, fifteen years of running THAT Conference behind us. Not therapists. Two people who had to work this out at a kitchen table, and who are building Troth because we wanted a better place to keep what we worked out.",
+    "The letter is where we say the true things out loud. What we're trying, what's working, what isn't, and what other couples on this list are learning too. Reply to any of them. We read every one.",
+  ],
+  signature: "— Clark and Carrie",
+  link: {
+    label: "The long version is in the first letter",
+    slug: "where-did-troth-come-from",
+  },
+};
+
+const faq = {
+  eyebrow: "Before you sign up",
+  heading: "The questions people ask.",
+  items: [
+    {
+      q: "How often will you email me?",
+      a: `One letter ${CADENCE}. If you also join the waitlist, you'll hear from us about Troth as it takes shape, a handful of times a year.`,
+    },
+    {
+      q: "Can my spouse get it too?",
+      a: "Send them this page, or forward the letter. Some couples read it together on a Sunday; some read it separately and compare notes. Either works.",
+    },
+    {
+      q: "What's the waitlist checkbox?",
+      a: "Troth is the app we're building: a private, encrypted home for your marriage, coming to iPhone in 2026. Ticking the box puts the two of you in line for early access. Untick it and you'll only get the letter.",
+    },
+    {
+      q: "What do you do with my email?",
+      a: "Send you the letter. It's free, we never share or sell your address, and every letter has an unsubscribe link at the bottom.",
+    },
+  ],
+};
+
+const closing = {
+  eyebrow: "Start here",
+  heading: "The next one is yours.",
+};
+
+/* ---- structured data ---------------------------------------------------- */
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": pageUrl,
+    name: meta.title,
+    description: meta.description,
+    url: pageUrl,
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    author: { "@type": "Person", name: "Clark Sell" },
+    inLanguage: "en-US",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Troth", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: NAME },
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+];
+
+const formProps = {
+  newsletter: true,
+  redirect: thanksUrl,
+  cta: form.cta,
+  placeholder: form.placeholder,
+  waitlistLabel: form.waitlistLabel,
+  waitlistDefault: true,
+  privacy: form.privacy,
+};
+
+const linked = letters.find((l) => l.id === who.link.slug);
+const showWhoLink = Boolean(linked);
+
+// The reader needs a <template> for every letter that can open it: the shelf,
+// plus the one the who's-writing link points at (it may have left the shelf).
+const openable = linked && !shown.includes(linked) ? [...shown, linked] : shown;
+const rendered = await Promise.all(
+  openable.map(async (letter) => ({
+    letter,
+    Content: (await render(letter)).Content,
+  })),
+);
+---
+
+<GuideLayout
+  title={meta.title}
+  description={meta.description}
+  ogImage={meta.ogImage}
+  ogImageAlt={meta.ogImageAlt}
+  jsonLd={jsonLd}
+  headerCta={form.headerCta}
+>
+  <Fragment slot="head">
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={NAME}
+      href={`${SITE_URL}/newsletter/rss.xml`}
+    />
+  </Fragment>
+
+  {/* --------------------------------------------------------- masthead -- */}
+  <section class="g-wrap masthead">
+    <div class="masthead__inner" id="get">
+      <div class="masthead__mark">
+        <LanternMark size={28} tone="brand" />
+      </div>
+      <Eyebrow tone="accent">{hero.eyebrow}</Eyebrow>
+      <h1 class="masthead__name">{NAME}</h1>
+      <p class="masthead__tagline">{TAGLINE}</p>
+      <p class="g-lede masthead__pitch">{hero.pitch}</p>
+
+      <div class="masthead__form">
+        <GuideForm id="top" variant="bare" inline {...formProps} />
+      </div>
+      <ul class="g-facts masthead__facts">
+        {hero.facts.map((f) => <li>{f}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ drift -- */}
+  <section class="g-band">
+    <div class="g-wrap g-section drift g-reveal">
+      <span class="drift__rule" aria-hidden="true"></span>
+      <p class="g-pull drift__pull">{drift.pull}</p>
+      <p class="g-lede drift__body">{drift.body}</p>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- get -- */}
+  <section class="g-wrap g-section get g-reveal">
+    <div class="get__head">
+      <Eyebrow tone="tertiary">{get.eyebrow}</Eyebrow>
+      <h2 class="g-h2 get__h2">{get.heading}</h2>
+      <p class="g-body get__body">{get.body}</p>
+    </div>
+    <div class="get__kinds">
+      {
+        get.kinds.map((kind) => (
+          <p class="get__kind">
+            <em class="get__lead">{kind.lead}</em> {kind.body}
+          </p>
+        ))
+      }
+      <p class="get__candor">{get.candor}</p>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ shelf -- */}
+  {
+    latest && (
+      <section class="g-band">
+        <div class="g-wrap g-section g-reveal shelf">
+          <div class="shelf__head">
+            <Eyebrow tone="tertiary">{shelf.eyebrow}</Eyebrow>
+            <h2 class="g-h2 shelf__h2">{shelf.heading}</h2>
+            <p class="g-body shelf__body">{shelf.body}</p>
+          </div>
+
+          <div class="shelf__featured">
+            <LetterCard
+              featured
+              slug={latest.id}
+              title={latest.data.title}
+              date={latest.data.date}
+              summary={latest.data.summary}
+              excerpt={opening(latest.body)}
+            />
+          </div>
+
+          {rest.length > 0 && (
+            <div class="shelf__grid">
+              {rest.map((letter) => (
+                <LetterCard
+                  slug={letter.id}
+                  title={letter.data.title}
+                  date={letter.data.date}
+                  summary={letter.data.summary}
+                />
+              ))}
+            </div>
+          )}
+
+          {hidden > 0 && (
+            <div class="shelf__more">
+              <a href={ARCHIVE_URL} class="shelf__all">
+                {shelf.all} <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <LetterModal
+    form={{
+      ...formProps,
+      heading: form.afterHeading,
+      microcopy: form.afterMicro,
+    }}
+  >
+    {
+      rendered.map(({ letter, Content }) => (
+        <template data-letter-tpl={letter.id}>
+          <LetterArticle
+            title={letter.data.title}
+            date={letter.data.date}
+            level={2}
+          >
+            <Content />
+          </LetterArticle>
+        </template>
+      ))
+    }
+  </LetterModal>
+
+  {/* -------------------------------------------------------------- fit -- */}
+  <section class="g-wrap g-section g-reveal fit">
+    <div class="fit__head">
+      <Eyebrow tone="tertiary">{fit.eyebrow}</Eyebrow>
+      <h2 class="g-h2 fit__h2">{fit.heading}</h2>
+    </div>
+    <div class="fit__cols">
+      <div class="fit__col fit__col--yes">
+        <h3 class="fit__title">This is for you if</h3>
+        <ul class="fit__list">
+          {fit.yes.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+      <div class="fit__col fit__col--no">
+        <h3 class="fit__title">Probably not for you if</h3>
+        <ul class="fit__list">
+          {fit.no.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- said -- */}
+  {
+    said.quotes.length > 0 && (
+      <section class="g-band">
+        <div class="g-wrap g-section g-reveal said">
+          <div class="said__head">
+            <Eyebrow tone="tertiary">{said.eyebrow}</Eyebrow>
+            <h2 class="g-h2 said__h2">{said.heading}</h2>
+          </div>
+          <div class="said__grid">
+            {said.quotes.map((t) => (
+              <Testimonial
+                quote={t.quote}
+                name={t.name}
+                detail={t.detail}
+                placeholder={t.placeholder}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* -------------------------------------------------------------- who -- */}
+  <section class="g-wrap g-section g-reveal who">
+    <figure class="who__photo">
+      <img
+        src={who.photo.src}
+        srcset={`${who.photo.small} 420w, ${who.photo.src} 840w`}
+        sizes="(min-width: 992px) 400px, (min-width: 640px) 420px, calc(100vw - 44px)"
+        width="840"
+        height="1050"
+        alt={who.photo.alt}
+        loading="lazy"
+        decoding="async"
+      />
+      <figcaption>{who.photo.caption}</figcaption>
+    </figure>
+    <div class="who__text">
+      <Eyebrow tone="letter">{who.eyebrow}</Eyebrow>
+      <h2 class="g-h2 who__h2">{who.heading}</h2>
+      {who.paragraphs.map((p) => <p class="who__p">{p}</p>)}
+      <p class="g-sign who__sign">{who.signature}</p>
+      {
+        showWhoLink && (
+          <a
+            class="who__link"
+            href={`/newsletter/${who.link.slug}/`}
+            data-letter-open={who.link.slug}
+          >
+            {who.link.label} <span aria-hidden="true">→</span>
+          </a>
+        )
+      }
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- faq -- */}
+  <section class="g-band">
+    <div class="g-wrap g-wrap--narrow g-section g-reveal faq">
+      <Eyebrow tone="tertiary">{faq.eyebrow}</Eyebrow>
+      <h2 class="g-h2 faq__h2">{faq.heading}</h2>
+      <dl class="faq__list">
+        {
+          faq.items.map((item) => (
+            <div class="faq__item">
+              <dt class="faq__q">{item.q}</dt>
+              <dd class="faq__a">{item.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {/* ---------------------------------------------------------- closing -- */}
+  <section class="g-wrap g-section closing g-reveal">
+    <div class="closing__inner">
+      <Eyebrow tone="accent">{closing.eyebrow}</Eyebrow>
+      <h2 class="g-h2 closing__h2">{closing.heading}</h2>
+      <div class="closing__form">
+        <GuideForm id="closing" variant="bare" inline {...formProps} />
+      </div>
+    </div>
+  </section>
+</GuideLayout>
+
+<style>
+  /* Masthead: one centered column. The name is the biggest thing on the page,
+     the form sits directly under the pitch, nothing competes with it. */
+  .masthead {
+    padding-block: clamp(40px, 7vw, 88px) clamp(48px, 7vw, 84px);
+  }
+  .masthead__inner {
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .masthead__mark {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 22px;
+  }
+  .masthead__name {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(46px, 9vw, 84px);
+    line-height: 0.98;
+    letter-spacing: -0.024em;
+    color: var(--color-text);
+    margin: 16px 0 0;
+    text-wrap: balance;
+  }
+  .masthead__tagline {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(17px, 2.1vw, 20px);
+    line-height: 1.45;
+    color: var(--color-accent-soft);
+    margin: 16px auto 0;
+    max-width: 30rem;
+    text-wrap: balance;
+  }
+  .masthead__pitch {
+    margin: 22px auto 0;
+    max-width: 34rem;
+  }
+  .masthead__form {
+    max-width: 34rem;
+    margin: clamp(26px, 4vw, 34px) auto 0;
+    text-align: left;
+  }
+  .masthead__facts {
+    justify-content: center;
+    margin-top: 18px;
+  }
+
+  /* Drift: the problem line, set large, with one paragraph beside it. */
+  .drift {
+    display: grid;
+    row-gap: 26px;
+    column-gap: clamp(22px, 3vw, 36px);
+    align-items: start;
+  }
+  @media (min-width: 992px) {
+    .drift {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      column-gap: clamp(40px, 6vw, 80px);
+    }
+    .drift__body {
+      padding-top: 10px;
+    }
+  }
+  .drift__rule {
+    display: block;
+    width: 46px;
+    height: 2px;
+    background: var(--color-accent);
+    grid-column: 1 / -1;
+  }
+  .drift__pull {
+    max-width: 22ch;
+  }
+  .drift__body {
+    max-width: 30rem;
+  }
+
+  /* What you'll get: heading on the left, three kinds of letter on the right,
+     written as paragraphs with an italic lead-in — a letter, not a feature grid. */
+  .get {
+    display: grid;
+    gap: clamp(26px, 4vw, 44px);
+    align-items: start;
+  }
+  @media (min-width: 992px) {
+    .get {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(48px, 6vw, 88px);
+    }
+  }
+  .get__head {
+    max-width: 30rem;
+  }
+  .get__h2 {
+    margin-top: 14px;
+  }
+  .get__body {
+    margin-top: 14px;
+  }
+  .get__kinds {
+    max-width: 34rem;
+  }
+  @media (min-width: 992px) {
+    .get__kinds {
+      padding-top: 6px;
+    }
+  }
+  .get__kind {
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 2vw, 19px);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .get__kind + .get__kind {
+    margin-top: 18px;
+  }
+  .get__lead {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+  .get__candor {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text-tertiary);
+    margin: 26px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border);
+    text-wrap: pretty;
+  }
+
+  /* The shelf: heading, the featured sheet, then the rest in a grid. */
+  .shelf__head {
+    max-width: 34rem;
+  }
+  .shelf__h2 {
+    margin-top: 14px;
+  }
+  .shelf__body {
+    margin-top: 12px;
+  }
+  .shelf__featured {
+    margin-top: clamp(30px, 4.5vw, 44px);
+  }
+  .shelf__grid {
+    display: grid;
+    gap: clamp(18px, 2.6vw, 26px);
+    margin-top: clamp(22px, 3vw, 30px);
+  }
+  @media (min-width: 640px) {
+    .shelf__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 992px) {
+    .shelf__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    /* Exactly four cards (the full shelf) sit two by two, not three and one. */
+    .shelf__grid:has(> :nth-child(4):last-child) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .shelf__more {
+    margin-top: clamp(26px, 3.5vw, 36px);
+    padding-top: 22px;
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+  }
+  .shelf__all {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+    padding: 8px 4px;
+  }
+  .shelf__all:hover {
+    color: var(--color-accent-press);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Who it's for — two quiet columns; the "not for you" one lighter so
+     honesty reads as honesty, not a warning. */
+  .fit__h2 {
+    margin-top: 14px;
+    max-width: 22ch;
+  }
+  .fit__cols {
+    display: grid;
+    gap: clamp(22px, 3vw, 32px);
+    margin-top: clamp(28px, 4vw, 44px);
+  }
+  @media (min-width: 768px) {
+    .fit__cols {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+  }
+  .fit__col {
+    border-top: 1px solid var(--color-border);
+    padding-top: 18px;
+  }
+  .fit__col--yes {
+    border-top-color: var(--color-accent);
+  }
+  .fit__title {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+  .fit__col--yes .fit__title {
+    color: var(--color-accent);
+  }
+  .fit__list {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    max-width: 30rem;
+  }
+  .fit__list li {
+    font-family: var(--font-serif);
+    font-size: clamp(16.5px, 1.9vw, 18px);
+    line-height: 1.55;
+    color: var(--color-text);
+    padding: 10px 0 10px 22px;
+    position: relative;
+    text-wrap: pretty;
+  }
+  .fit__col--no .fit__list li {
+    color: var(--color-text-secondary);
+  }
+  .fit__list li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 21px;
+    width: 8px;
+    height: 1px;
+    background: var(--color-border-strong);
+  }
+  .fit__col--yes .fit__list li::before {
+    background: var(--color-accent);
+  }
+
+  /* What readers say: three cards. */
+  .said__head {
+    max-width: 34rem;
+  }
+  .said__h2 {
+    margin-top: 14px;
+  }
+  .said__grid {
+    display: grid;
+    gap: clamp(16px, 2.4vw, 24px);
+    margin-top: clamp(26px, 4vw, 40px);
+  }
+  @media (min-width: 768px) {
+    .said__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Who's writing: the photo and the words, side by side, lined up at the top. */
+  .who {
+    display: grid;
+    gap: clamp(26px, 4vw, 48px);
+    align-items: center;
+  }
+  @media (min-width: 992px) {
+    .who {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: clamp(48px, 6vw, 88px);
+    }
+  }
+  .who__photo {
+    margin: 0;
+    max-width: 420px;
+  }
+  .who__photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-sunken);
+  }
+  .who__photo figcaption {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--color-text-tertiary);
+    margin-top: 10px;
+  }
+  .who__text {
+    max-width: 34rem;
+  }
+  .who__h2 {
+    margin-top: 14px;
+  }
+  .who__p {
+    font-family: var(--font-serif);
+    font-size: clamp(17px, 2vw, 18.5px);
+    line-height: 1.62;
+    color: var(--color-text);
+    margin: 16px 0 0;
+    text-wrap: pretty;
+  }
+  .who__sign {
+    margin-top: 16px;
+  }
+  .who__link {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .who__link:hover {
+    color: var(--color-accent-press);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* The questions, one narrow column. */
+  .faq__h2 {
+    margin-top: 14px;
+  }
+  .faq__list {
+    margin: clamp(26px, 4vw, 40px) 0 0;
+  }
+  .faq__item {
+    border-top: 1px solid var(--color-border);
+    padding-block: 18px;
+  }
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .faq__q {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2vw, 20px);
+    line-height: 1.3;
+    color: var(--color-text);
+    margin: 0;
+  }
+  .faq__a {
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 8px 0 0;
+    max-width: 38rem;
+    text-wrap: pretty;
+  }
+
+  /* Closing ask — centered, the same inline form as the masthead. */
+  .closing__inner {
+    max-width: 34rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .closing__h2 {
+    margin-top: 14px;
+  }
+  .closing__form {
+    margin-top: 26px;
+    text-align: left;
+  }
+</style>

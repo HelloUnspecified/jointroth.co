@@ -14,6 +14,9 @@ in `og:image:width`/`og:image:height`, so a replacement must match.
 - `default.png` — the site-wide fallback, used by any page without its own card.
 - `<guide-slug>.png` — a guide's card. Point at it from the guide's frontmatter
   with `ogImage: "/og/<slug>.png"` and `ogImageAlt: "..."`.
+- `letters/<slug>.png` — one card per newsletter issue, generated from the
+  letter's frontmatter (`node scripts/build-og.mjs letters`). The issue page
+  picks it up automatically when the file exists; nothing to point at.
 
 After changing a card, re-scrape it — the platforms cache aggressively:
 Facebook Sharing Debugger, X Card Validator, LinkedIn Post Inspector.

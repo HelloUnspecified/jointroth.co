@@ -7,10 +7,9 @@
 // swap the waitlist block for a quiet acknowledgement.
 import { getCollection } from "astro:content";
 import GuideLayout from "../../../layouts/GuideLayout.astro";
+import WaitlistAsk from "../../../components/guides/WaitlistAsk.astro";
 import LanternMark from "../../../elements/LanternMark.astro";
 import Eyebrow from "../../../elements/Eyebrow.astro";
-import TextField from "../../../elements/TextField.astro";
-import Button from "../../../elements/Button.astro";
 
 export async function getStaticPaths() {
   const guides = await getCollection("guides", ({ data }) => !data.draft);
@@ -63,84 +62,13 @@ const t = d.thanks;
     {t.note && <p class="confirm__note">{t.note}</p>}
   </section>
 
-  {
-    /* --------------------------------------------- waitlist: not yet on it -- */
-  }
-  <section class="waitlist-ask">
-    <div class="g-band">
-      <div class="g-wrap g-wrap--narrow g-section g-section--tight">
-        <Eyebrow tone="tertiary">While you're waiting</Eyebrow>
-        <h2 class="g-h2 ask__h2">{t.waitlistHeading}</h2>
-        {t.waitlistBody && <p class="g-body ask__body">{t.waitlistBody}</p>}
-
-        <div data-join-wrap class="ask__form">
-          <form data-join-form>
-            <label class="g-sr" for="join-email">Your email</label>
-            <TextField
-              type="email"
-              id="join-email"
-              name="email"
-              required
-              autocomplete="email"
-              inputmode="email"
-              placeholder="Your email"
-            />
-            <Button
-              variant="primary"
-              size="large"
-              type="submit"
-              style="width:100%">{t.waitlistCta}</Button
-            >
-            <p class="t-error" data-error role="alert" hidden></p>
-          </form>
-          <p class="ask__privacy">{d.form.privacy}</p>
-        </div>
-
-        <div data-join-done hidden class="ask__done">
-          <LanternMark size={18} tone="brand" />
-          <span
-            >You're on the list. Please confirm that one from your inbox too.</span
-          >
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {
-    /* -------------------------------------------- waitlist: already joined -- */
-  }
-  <section class="waitlist-joined">
-    <div class="g-band">
-      <div class="g-wrap g-wrap--narrow g-section g-section--tight">
-        <Eyebrow tone="tertiary">Also</Eyebrow>
-        <h2 class="g-h2 ask__h2">You're on the Troth waitlist.</h2>
-        <p class="g-body ask__body">
-          Same email, same confirm link — one click covers both. We build Troth
-          in partnership with the couples on this list, so you'll hear from me
-          as it takes shape.
-        </p>
-        <div class="ask__form">
-          <Button variant="secondary" size="medium" href="/"
-            >See what we're making</Button
-          >
-        </div>
-      </div>
-    </div>
-  </section>
+  <WaitlistAsk
+    heading={t.waitlistHeading}
+    body={t.waitlistBody}
+    cta={t.waitlistCta}
+    privacy={d.form.privacy}
+  />
 </GuideLayout>
-
-<style is:global>
-  /* Exactly one of the two waitlist blocks is ever shown. */
-  .waitlist-joined {
-    display: none;
-  }
-  .g-joined .waitlist-ask {
-    display: none;
-  }
-  .g-joined .waitlist-joined {
-    display: block;
-  }
-</style>
 
 <style>
   .confirm {
@@ -172,110 +100,4 @@ const t = d.thanks;
   .confirm__note :global(a) {
     color: var(--color-accent);
   }
-
-  .ask__h2 {
-    margin-top: 14px;
-  }
-  .ask__body {
-    margin-top: 14px;
-    max-width: 34rem;
-  }
-  .ask__form {
-    margin-top: 22px;
-    max-width: 26rem;
-  }
-  .ask__form form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .ask__form :global(.t-input) {
-    border-color: var(--color-border-strong);
-    background: var(--color-bg);
-  }
-  .ask__privacy {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    line-height: 1.55;
-    color: var(--color-text-tertiary);
-    margin: 10px 0 0;
-  }
-  .ask__done {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 22px;
-    max-width: 26rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-card);
-    padding: 14px 16px;
-    font-family: var(--font-serif);
-    font-size: 16px;
-    line-height: 1.45;
-    color: var(--color-text);
-  }
 </style>
-
-<script>
-  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  const form = document.querySelector<HTMLFormElement>("[data-join-form]");
-  if (form) {
-    const input = form.querySelector<HTMLInputElement>('input[type="email"]');
-    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    const errEl = form.querySelector<HTMLElement>("[data-error]");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!input || !btn) return;
-
-      const show = (msg: string) => {
-        if (!errEl) return;
-        errEl.textContent = msg;
-        errEl.hidden = false;
-      };
-      if (errEl) {
-        errEl.textContent = "";
-        errEl.hidden = true;
-      }
-
-      const email = input.value.trim();
-      if (!EMAIL.test(email)) {
-        show("That email doesn't look right — mind checking it?");
-        input.focus();
-        return;
-      }
-
-      const original = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Joining…";
-      try {
-        const res = await fetch("/api/subscribe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.success) {
-          document
-            .querySelector<HTMLElement>("[data-join-wrap]")
-            ?.setAttribute("hidden", "");
-          const done = document.querySelector<HTMLElement>("[data-join-done]");
-          if (done) done.hidden = false;
-          return;
-        }
-        show(
-          res.status === 429
-            ? "A lot of people are joining right now — give it a moment and try again."
-            : "Something went wrong on our end. Please try again in a moment.",
-        );
-      } catch {
-        show(
-          "We couldn't reach the server. Check your connection and try again.",
-        );
-      }
-      btn.disabled = false;
-      btn.textContent = original;
-    });
-  }
-</script>
