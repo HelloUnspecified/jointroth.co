@@ -1,0 +1,192 @@
+---
+// An iPhone, drawn honestly as an illustration: dark bezel, cream screen, a
+// quiet status bar, and the app's tab row along the bottom. Whatever goes in
+// the slot is "the screen" — compose it from the troth/ content components.
+//
+// Pass `src` and the screen is a real screenshot instead (drop it in
+// public/app/, 1179×2556 or any 9:19.5 image); the drawn chrome disappears.
+//
+// It's an image to assistive tech (role="img" + label), so the mock's text is
+// never read out as page content.
+import LanternMark from "../../elements/LanternMark.astro";
+
+interface Props {
+  /** What the screen shows, for screen readers. */
+  label: string;
+  /** The date line in the app header. */
+  date?: string;
+  /** Which tab is lit. */
+  tab?: "Today" | "Room" | "Foundation" | "Story";
+  /** A real screenshot. Replaces the drawn screen entirely. */
+  src?: string;
+  class?: string;
+}
+const {
+  label,
+  date = "Wednesday, September 23",
+  tab = "Today",
+  src,
+  class: className,
+} = Astro.props;
+const tabs = ["Today", "Room", "Foundation", "Story"];
+---
+
+<div class:list={["pm", className]} role="img" aria-label={label}>
+  <div class="pm__screen">
+    {
+      src && (
+        <img class="pm__img" src={src} alt="" loading="lazy" decoding="async" />
+      )
+    }
+    {
+      !src && (
+        <>
+          <div class="pm__bar">
+            <span>9:41</span>
+            <span class="pm__island" />
+            <span class="pm__signal" />
+          </div>
+          <div class="pm__head">
+            <LanternMark size={16} tone="brand" />
+            <span>{date}</span>
+          </div>
+          <div class="pm__body">
+            <slot />
+          </div>
+          <div class="pm__tabs">
+            {tabs.map((t) => (
+              <span class:list={["pm__tab", t === tab && "is-on"]}>{t}</span>
+            ))}
+          </div>
+        </>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .pm {
+    width: 100%;
+    max-width: 372px;
+    margin-inline: auto;
+    padding: 12px;
+    border-radius: 48px;
+    background: var(--color-device);
+    box-shadow:
+      0 30px 60px -30px rgba(43, 38, 35, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .pm__screen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 9 / 19.2;
+    border-radius: 38px;
+    background: var(--color-bg);
+    overflow: hidden;
+    transition: background var(--dur-considered) var(--ease-troth);
+  }
+
+  .pm__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pm__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 46px;
+    padding: 0 26px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    flex: none;
+  }
+  .pm__island {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 96px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--color-device);
+  }
+  .pm__signal {
+    width: 22px;
+    height: 10px;
+    border-radius: 3px;
+    border: 1.2px solid var(--color-text);
+    opacity: 0.7;
+    background: linear-gradient(
+      to right,
+      var(--color-text) 0 80%,
+      transparent 80%
+    );
+    background-clip: content-box;
+    padding: 1.5px;
+  }
+
+  .pm__head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 20px 12px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    flex: none;
+  }
+
+  .pm__body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 16px 16px;
+    overflow: hidden;
+  }
+
+  .pm__tabs {
+    flex: none;
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 18px 22px;
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  }
+  .pm__tab {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--color-text-tertiary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .pm__tab::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    border: 1.4px solid currentColor;
+    opacity: 0.7;
+  }
+  .pm__tab.is-on {
+    color: var(--color-accent);
+  }
+  .pm__tab.is-on::before {
+    background: currentColor;
+    opacity: 1;
+  }
+</style>

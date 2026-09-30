@@ -1,20 +1,348 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import PhoneFrame from "../components/troth/PhoneFrame.astro";
-import LanternMark from "../elements/LanternMark.astro";
+// The homepage, built as a journey. Nobody arrives looking for a place to keep
+// their marriage — this is a new idea — so the page has to create the
+// recognition before it shows the product. Read top to bottom:
+//
+//   hero      the hook: a year planning the wedding. Then the marriage just happens.
+//             (+ the App Store badge, which opens the coming-soon notice + form)
+//   plans     the part nobody plans — nobody builds a marriage on purpose. What if
+//             you did? Three scenes they've lived, in their words
+//   turn      the new idea: what if your marriage had a place? (and the brand line)
+//   app       one place, built in layers: foundation, timeline, the view; how it starts
+//   year      where you end up: next anniversary, you read the year back
+//   alts      "but we already have…" — iMessage/Photos, Facebook, nothing
+//   founders  Clark and Carrie: we lost eighteen years of it
+//   sealed    the privacy promise (always Lamplight)
+//   faq       six questions
+//   closing   this year is happening either way — what it becomes in Troth; the form again
+//
+// Every form posts { email } to /api/subscribe (the waitlist) and lands on
+// /welcome, where the spouse invite lives. Copy lives in the constants below.
+import { getCollection } from "astro:content";
+import GuideLayout from "../layouts/GuideLayout.astro";
+import GuideForm from "../components/guides/GuideForm.astro";
+import StickyBar from "../components/guides/StickyBar.astro";
+import PhoneMock from "../components/home/PhoneMock.astro";
+import AppStoreBadge from "../components/home/AppStoreBadge.astro";
 import Eyebrow from "../elements/Eyebrow.astro";
 import Button from "../elements/Button.astro";
-import TextField from "../elements/TextField.astro";
-import Avatar from "../elements/Avatar.astro";
+import LanternMark from "../elements/LanternMark.astro";
 import MessageBubble from "../components/troth/MessageBubble.astro";
 import QuestionCard from "../components/troth/QuestionCard.astro";
 import OnThisDayCard from "../components/troth/OnThisDayCard.astro";
-import ManifestoEntry from "../components/troth/ManifestoEntry.astro";
+import KeepsakeSeal from "../components/troth/KeepsakeSeal.astro";
+import { getSiteNav, getStoryUrl } from "../lib/nav";
 
-// Organization + WebSite, linked by @id. Only claims things visible on the
-// page or in the footer copy — Google asks that structured data match the
-// rendered text, and there is no rating, price, or release date to claim yet.
 const SITE_URL = "https://jointroth.co";
+
+/* ---- the free things, read from their collections so they stay current -- */
+
+const guides = (await getCollection("guides", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const guide = guides[0];
+const guideUrl = guide ? `/guides/${guide.id}/` : "/guides/";
+
+const storyUrl = await getStoryUrl();
+
+/* ---- copy --------------------------------------------------------------- */
+
+const hero = {
+  eyebrow: "A private iPhone app for married couples",
+  sub: "Troth is a private place for the two of you to talk, write down what you're building, keep what matters, and watch the whole story grow, brick by brick.",
+  micro:
+    "Free to join. No credit card. You'll also get our letter, Brick by Brick. Unsubscribe anytime.",
+  facts: [
+    "Coming to iPhone",
+    "Built for two",
+    "Lives in your iCloud, not ours",
+  ],
+  earlyDesign:
+    "Early design. The app is being built with the couples on this list.",
+};
+
+// The problem, in their terms. Three scenes they've lived, then the line that
+// takes "this is for marriages in trouble" off the table.
+const plans = {
+  eyebrow: "The part nobody plans",
+  heading: "Nobody builds a marriage on purpose. What if you did?",
+  lede: "Not because you don't care. Because nobody ever told you a marriage was something you could build. So the best of it slips through.",
+  scenes: [
+    {
+      line: "Twenty years of decisions, none of them written down.",
+      body: "Where to live. How to fight. What you'd never do to each other. You decided all of it, out loud, once. Try to find any of it now.",
+    },
+    {
+      line: "The best conversation you ever had, lost in a thread.",
+      body: "It's in iMessage, between the carpool and the grocery list, three years deep and sinking.",
+    },
+    {
+      line: "“We should do this more.” Said every year, kept nowhere.",
+      body: "The dinner where you felt like a team again. The trip that changed something. You meant to hold onto it. There was nowhere to put it.",
+    },
+  ],
+  turn: "This isn't a marriage in trouble. It's every marriage. Year one or year thirty, small kids or an empty house, a good stretch or a hard one. Ours included.",
+  caption:
+    "The message that mattered, three years deep in the same thread as the carpool.",
+};
+
+// The new idea. The brand line lives here: it's the philosophy behind the turn.
+const turn = {
+  eyebrow: "A different idea",
+  heading: "What if your marriage had a place?",
+  body: "Not a scrapbook. Not a therapy app. Not another feed. One private place where the two of you talk, write down what you're building, keep what matters, and can see the whole story as it grows. Built on purpose, a brick at a time.",
+  definition: {
+    word: "troth",
+    meaning:
+      "An old word for a pledge, a promise of faithfulness. The root of “betrothed.” I pledge thee my troth.",
+  },
+};
+
+// The product, in layers. A foundation, a timeline everything runs through,
+// and the view you get when one is laid over the other. Then how it starts.
+const app = {
+  eyebrow: "What Troth is",
+  heading: "One place, built in layers.",
+  lede: "Troth isn't a list of features. It's a way of seeing your marriage: everything that happens, laid over everything you promised.",
+  layers: [
+    {
+      num: "01",
+      name: "The foundation",
+      title: "Start with what each of you wants to build.",
+      body: "Your vows, your values, your troth. Troth walks the two of you through it with short guided exercises. The first is one sentence, finished separately and then compared: we're building a relationship where we\u2026 You each find out what the other wants to build. Then you choose the lines you'll both stand behind, sign them, and everything else sits on top of them.",
+      kinds: ["Vows", "Values", "Troth"],
+      offer: {
+        lead: "Don't want to wait for the app? The first exercise works on paper.",
+        cta: "Get the free exercise",
+      },
+    },
+    {
+      num: "02",
+      name: "The timeline",
+      title: "Everything else runs through one timeline.",
+      body: "Messages to each other. Pictures. Places. Letters. Milestones. Events. All of it in the order it actually happened, in a room only the two of you can open, instead of scattered across five apps you're borrowing.",
+      kinds: [
+        "Messages",
+        "Pictures",
+        "Places",
+        "Letters",
+        "Milestones",
+        "Events",
+      ],
+    },
+    {
+      num: "03",
+      name: "The view",
+      title: "Lay one over the other, and you can finally see your marriage.",
+      body: "When everything you've kept sits on top of everything you promised, you have context. Disconnected, you have five apps and no view. Together, you have one you've never had.",
+      outcomes: [
+        {
+          verb: "Reflect",
+          what: "Read the year back against what you set out to do.",
+        },
+        { verb: "Plan", what: "Set the next twelve months, brick by brick." },
+        {
+          verb: "Check in",
+          what: "A gentle question now and then, answered together.",
+        },
+        {
+          verb: "Work through",
+          what: "See a hard season as a chapter, not the whole story.",
+        },
+      ],
+    },
+  ],
+  rail: [
+    { kind: "Message", what: "\u201cRight about the house.\u201d" },
+    { kind: "Picture", what: "The lake, first morning" },
+    { kind: "Place", what: "Wells Street" },
+    { kind: "Letter", what: "Sealed until Oct 12", sealed: true },
+    { kind: "Milestone", what: "Twenty years" },
+    { kind: "Event", what: "Annual troth" },
+  ],
+  // The first exercise, as it looks inside the app: each of you alone, then
+  // together. Stand-in until a real screenshot goes in PhoneMock's `src`.
+  exercise: {
+    prompt: "We're building a relationship where we\u2026",
+    you: [
+      {
+        text: "say the hard thing on the same day we think it.",
+        starred: true,
+      },
+      { text: "keep Sunday mornings for no one but us." },
+    ],
+    them: [
+      { text: "apologize before we're finished being right.", starred: true },
+      { text: "pick each other on the hard days." },
+    ],
+    chosen: "say the hard thing on the same day we think it.",
+  },
+  howEyebrow: "How it starts",
+  how: [
+    {
+      title: "Join the waitlist",
+      body: "A few couples at a time in 2026, in order. Clark writes before it's your turn.",
+    },
+    {
+      title: "Invite your spouse",
+      body: "Troth only works with the two of you. Nothing starts until you're both in.",
+    },
+    {
+      title: "Seal the room",
+      body: "Your two iPhones share one room in your own iCloud. Then you start keeping.",
+    },
+  ],
+};
+
+// Where you end up. Second person, one scene, concrete.
+const year = {
+  eyebrow: "Where you end up",
+  heading: "Next anniversary, you read the year back.",
+  paras: [
+    "It's the two of you at the table, phones out for once. You open Troth. There are the promises you wrote in September, and the one you actually kept. The message your spouse sealed in March that came back on the day it should. The trip. The hard week in June, and what you decided. The Tuesday you both answered “where did we feel like a team this week” with the same answer.",
+    "A year of your marriage, the way it actually happened. Not the highlight reel. The real one.",
+    "Then you write the next one.",
+  ],
+  line: "A marriage you can read back, and keep building.",
+  timeline: [
+    {
+      when: "September",
+      what: "We're building a relationship where we… Signed, both of us.",
+    },
+    {
+      when: "March",
+      what: "Sealed: “You were right about waiting on the house.”",
+    },
+    {
+      when: "May",
+      what: "Most like a team this week? Same answer, both of you.",
+    },
+    { when: "June", what: "The hard week. What we decided." },
+    { when: "Today", what: "Your anniversary. Read it back.", next: true },
+  ],
+};
+
+// The objection: "we already have…" Three answers, then the borrowed-rooms line.
+const alts = {
+  eyebrow: "But we already have…",
+  heading: "You have the pieces. You don't have the marriage.",
+  items: [
+    {
+      have: "iMessage, Photos and Notes",
+      answer:
+        "That's where it gets lost. Your marriage is borrowing space in the same thread as the carpool. Storage isn't keeping.",
+    },
+    {
+      have: "Facebook and shared albums",
+      answer:
+        "That's the highlight reel, made for other people. Troth holds what you'd never post, for the only person who should see it.",
+    },
+    {
+      have: "Honestly, nothing",
+      answer:
+        "Neither did we, for eighteen years. It's the one thing in your life that never had a place, and the only one you'd grieve losing.",
+    },
+  ],
+  line: "Marriages deserve better than borrowed rooms.",
+};
+
+const founders = {
+  eyebrow: "Who's building it",
+  heading: "We lost eighteen years of it. We're not losing the next twenty.",
+  p1: "We're Clark and Carrie Sell, together twenty-six years and married twenty-three. We had a good marriage the whole time, and we still can't tell you what we promised each other in year six, or find the message that mattered in year eleven. Six years as a couple, eighteen as the directors of our kids' lives, and now it's the two of us again. The question that gets under our skin isn't whether it was good. It's what it could have been.",
+  p2: "So we're building the tool we wished we'd had, in partnership with the couples on this list, opening access carefully so the first ones are genuinely served by it. When you sign up, Clark writes to you personally. Every reply gets read.",
+  cta: "Read where Troth came from",
+  photoAlt: "Clark and Carrie Sell.",
+};
+
+// Every claim here has to be exactly true of the architecture (CloudKit in the
+// couple's own iCloud). See "Privacy claims" in CLAUDE.md and /privacy.
+const sealed = {
+  eyebrow: "The privacy promise",
+  heading: "Sealed for two.",
+  body: "Honesty needs a place where it's safe. Everything you put in Troth lives in your own iCloud and syncs between your two iPhones, the way your Photos do. It never touches a server we run. We can't read it, and nothing else is reading it either.",
+  facts: [
+    {
+      title: "In your iCloud, not on our servers",
+      body: "Troth has no servers of its own. Your marriage syncs through the iCloud account you already have, under Apple's encryption.",
+    },
+    {
+      title: "Unreadable by us",
+      body: "There is no admin view and no back door. Clark and Carrie can't read it, and we don't want to be able to.",
+    },
+    {
+      title: "No AI, no ads, ever",
+      body: "Troth doesn't analyze, summarize or suggest, and never sells a thing to anyone. It keeps.",
+    },
+    {
+      title: "Face ID at the door",
+      body: "Locked to the two of you. Nothing in the camera roll, nothing in a shared thread.",
+    },
+  ],
+  more: "Turn on Apple's Advanced Data Protection and it's end-to-end encrypted, so even Apple can't read it.",
+  link: "How Troth keeps it sealed, in plain English",
+};
+
+const faq = {
+  eyebrow: "Before you join",
+  heading: "The questions people ask.",
+  items: [
+    {
+      q: "When can we use it?",
+      a: "Troth comes to iPhone in 2026. We open access to a few couples at a time, in waitlist order, and you'll hear from Clark at least 48 hours before it's your turn.",
+    },
+    {
+      q: "What does it cost?",
+      a: "Joining the waitlist costs nothing. We haven't set the number yet, but it won't be a five-dollar app: one price a year for the two of you, more than you expect an app to cost and less than an hour with a counselor. The first couples will help us settle it, and nobody is charged without knowing first.",
+      more: { label: "What Troth will cost, and why", href: "/pricing/" },
+    },
+    {
+      q: "Do we both need an iPhone?",
+      a: "For now, yes. Troth is being built for iPhone first, and the room only opens when both phones are in it.",
+    },
+    {
+      q: "Is this another thing to keep up with?",
+      a: "No. There are no streaks, no scores, and no notifications nagging you. Troth asks a gentle question now and then, and you can say “not today” as often as you like. It's a place, not a program.",
+    },
+    {
+      q: "What if my spouse isn't sure?",
+      a: "Join on your own. After you sign up, the next page lets you send your spouse an invite from Clark, or copy the link and send it yourself. Nothing starts until you're both in, and there's no pressure either way.",
+    },
+    {
+      q: "Can you read what we write?",
+      a: "No. Troth has no servers of its own. Everything lives in your iCloud, under Apple's encryption, and there is no admin view for us to look through. Turn on Advanced Data Protection and even Apple can't read it. The details are on the privacy page.",
+      more: { label: "How Troth keeps it sealed", href: "/privacy/" },
+    },
+  ],
+};
+
+// Bookends the hero ("Then the marriage just happens"): the year is coming
+// either way, and this is what it becomes in Troth. Not an archive, a better
+// marriage. The last line is the one they can't imagine going back from.
+const closing = {
+  eyebrow: "Coming to iPhone",
+  heading: "This year is happening either way.",
+  body: "Spend it in Troth, and by next anniversary:",
+  year: [
+    {
+      label: "Built",
+      line: "You know what you're building, because you wrote it down together.",
+    },
+    { label: "Said", line: "You've said the things that usually wait." },
+    {
+      label: "Weathered",
+      line: "The hard week brought you closer, and you can see how.",
+    },
+  ],
+  lastLead: "And Troth isn't an app you open anymore.",
+  lastEm: "It's where your marriage lives.",
+  while: "While you wait:",
+};
+
+/* ---- structured data ---------------------------------------------------- */
+
+// Organization + WebSite, linked by @id, plus the FAQ. Only claims things
+// visible on the page — there is no rating, price, or release date to claim.
 const jsonLd = [
   {
     "@context": "https://schema.org",
@@ -29,7 +357,7 @@ const jsonLd = [
       height: 512,
     },
     description:
-      "A private, encrypted home for your marriage. Built by Clark and Carrie Sell.",
+      "A private home for your marriage. Built by Clark and Carrie Sell.",
     email: "hello@jointroth.co",
     founder: [
       { "@type": "Person", name: "Clark Sell" },
@@ -42,731 +370,1587 @@ const jsonLd = [
     "@id": `${SITE_URL}/#website`,
     name: "Troth",
     url: SITE_URL,
-    description:
-      "A private, encrypted home for your marriage — where the conversations, memories, letters, and promises you're keeping all live in one place. Coming to iPhone.",
+    description: hero.sub,
     publisher: { "@id": `${SITE_URL}/#organization` },
     inLanguage: "en-US",
   },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
 ];
 
-const section =
-  "scroll-snap-align:start;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:76px 30px 132px";
-const h2 =
-  "font-family:var(--font-serif);font-weight:400;font-size:clamp(30px,8vw,40px);line-height:1.1;letter-spacing:-0.01em;color:var(--color-text);margin:16px 0 0;text-wrap:balance";
-
-const whoFor = [
-  ["Year one", "Still learning to live in the same room."],
-  ["Year seven", "Kids are small; the marriage is easy to overlook."],
-  ["Year fifteen", "Deciding whether to grow into the next season."],
-  ["Empty nesters", "Figuring out who they are as two again."],
-  ["Any hard year", "Something happened, and now they're rebuilding."],
-];
-const whatIs = [
-  [
-    "Talk without borrowing. ",
-    "A private surface — Face ID locked, never on the camera roll.",
-  ],
-  [
-    "Write down what you're building. ",
-    "Your values, promises, places, and people — in your own words.",
-  ],
-  [
-    "Remember what matters. ",
-    "Letters, milestones, gratitude — kept where they won't get lost.",
-  ],
-  [
-    "See the shape of the marriage. ",
-    "Your own timeline — the story the way it actually happened.",
-  ],
-];
+const nav = await getSiteNav();
 ---
 
-<Layout jsonLd={jsonLd}>
-  <PhoneFrame>
-    {/* S0 — Hero + primary waitlist capture */}
-    <section
-      id="screen-0"
-      data-screen="0"
-      style={`${section};position:relative`}
-    >
-      <div
-        aria-hidden="true"
-        data-troth-ignite
-        style="position:absolute;top:4%;left:-14%;width:128%;height:400px;background:radial-gradient(ellipse 58% 52% at 40% 42%, rgba(162,75,52,0.30), rgba(162,75,52,0.05) 55%, rgba(162,75,52,0) 74%);filter:blur(22px);pointer-events:none;animation:troth-ignite 2.4s var(--ease-troth) both"
-      >
-      </div>
-      <div style="position:relative">
-        <div
-          class="troth-os"
-          style="display:flex;align-items:center;gap:11px;margin-bottom:32px"
+<GuideLayout
+  ogType="website"
+  jsonLd={jsonLd}
+  nav={nav}
+  headerCta="Join the waitlist"
+  headerCtaHref="#join"
+>
+  {/* ------------------------------------------------------------- hero -- */}
+  <section class="g-wrap hero">
+    <div class="hero__copy">
+      <Eyebrow tone="accent">{hero.eyebrow}</Eyebrow>
+      <h1 class="g-h1 hero__h1">
+        A year planning the wedding. Then the marriage just <span class="g-em"
+          >happens.</span
         >
-          <LanternMark size={26} tone="brand" />
-          <span
-            style="font-family:var(--font-serif);font-size:15px;font-weight:500;letter-spacing:0.34em;text-transform:uppercase;color:var(--color-text);padding-left:0.34em"
-            >Troth</span
-          >
-        </div>
-        <h1
-          class="troth-os"
-          style="font-family:var(--font-serif);font-weight:400;font-size:clamp(37px,9.8vw,54px);line-height:1.04;letter-spacing:-0.015em;color:var(--color-text);margin:0;text-wrap:balance;animation-delay:0.12s"
-        >
-          Love is more than a feeling. It's what you <em
-            style="font-style:italic;color:var(--color-accent)">do.</em
-          >
-        </h1>
-        <p
-          class="troth-os"
-          style="font-family:var(--font-serif);font-size:18px;line-height:1.6;color:var(--color-text-secondary);margin:22px 0 0;text-wrap:pretty;animation-delay:0.26s"
-        >
-          A private, encrypted home for your marriage — where the conversations,
-          memories, letters, and promises you're keeping all live in one place.
-          Coming to iPhone.
-        </p>
-        <div class="troth-os" style="margin:30px 0 0;animation-delay:0.4s">
-          <form
-            data-waitlist-form
-            style="display:flex;flex-direction:column;gap:10px"
-          >
-            <TextField
-              type="email"
-              name="email"
-              required
-              placeholder="Your email"
-              aria-label="Your email"
-            />
-            <Button
-              variant="primary"
-              size="large"
-              type="submit"
-              style="width:100%">Join the waitlist</Button
-            >
-            <p class="t-error" data-error role="alert" hidden></p>
-          </form>
-        </div>
-        <p
-          class="troth-os"
-          style="font-family:var(--font-sans);font-size:12px;line-height:1.6;color:var(--color-text-tertiary);margin:20px 0 0;animation-delay:0.52s"
-        >
-          Built by Clark and Carrie Sell in partnership with couples like you
-          who are on this list. Sealed for two, you. Never us. Never anyone
-          else.
-        </p>
-      </div>
-      <button
-        type="button"
-        data-goto="1"
-        aria-label="Continue"
-        style="position:absolute;bottom:104px;left:50%;transform:translateX(-50%);background:none;border:none;cursor:pointer;color:var(--color-text-tertiary)"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.6"
-          data-troth-nudge
-          style="animation:troth-nudge 2s ease-in-out infinite"
-        >
-          <path d="M6 9l6 6 6-6"></path>
-        </svg>
-      </button>
-    </section>
-
-    {/* S1 — Who it's for */}
-    <section id="screen-1" data-screen="1" class="troth-screen" style={section}>
-      <Eyebrow>Who Troth is for</Eyebrow>
-      <h2 style={h2}>For any marriage worth doing well.</h2>
-      <p
-        style="font-family:var(--font-serif);font-size:17px;line-height:1.62;color:var(--color-text-secondary);margin:18px 0 22px;text-wrap:pretty"
-      >
-        Not only for marriages in crisis, and not only the ones with everything
-        figured out. It's for the couples in between — which is to say, most of
-        us.
-      </p>
-      <div
-        style="background:var(--color-surface-sunken);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:13px"
-      >
-        {
-          whoFor.map(([label, text]) => (
-            <div style="display:flex;gap:14px;align-items:baseline">
-              <span style="flex:none;font-family:var(--font-sans);font-size:11.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--color-accent);min-width:98px">
-                {label}
-              </span>
-              <span style="font-family:var(--font-serif);font-size:15.5px;line-height:1.45;color:var(--color-text-secondary)">
-                {text}
-              </span>
-            </div>
-          ))
-        }
-      </div>
-      <p
-        style="font-family:var(--font-serif);font-size:16px;line-height:1.6;color:var(--color-text);margin:20px 0 0;text-wrap:pretty"
-      >
-        Every one of you belongs here — and the earlier you start, the more
-        Troth becomes over the years. It meets the two of you where you are,
-        with a gentle question now and then, never a demand.
-      </p>
-      <div class="tr-sm-hide" style="margin-top:22px">
-        <QuestionCard
-          question="Where did the two of you feel most like a team this week?"
-          secondaryLabel="Not today"
+      </h1>
+      <p class="g-lede hero__sub">{hero.sub}</p>
+      <div class="hero__form" id="join">
+        <GuideForm
+          redirect="/welcome"
+          id="hero"
+          cta="Join the waitlist"
+          microcopy={hero.micro}
+          variant="bare"
+          inline
         />
       </div>
-    </section>
+    </div>
 
-    {/* S2 — The problem */}
-    <section id="screen-2" data-screen="2" class="troth-screen" style={section}>
-      <Eyebrow>The problem</Eyebrow>
-      <h2 style={h2}>Your marriage has been living in borrowed rooms.</h2>
-      <p
-        style="font-family:var(--font-serif);font-size:17px;line-height:1.64;color:var(--color-text);margin:18px 0 0;text-wrap:pretty"
-      >
-        The message that mattered when it arrived. The photo from a trip that
-        changed something. Try to find it three years later — it's buried in
-        iMessage, Photos, and Notes, under the grocery lists, the carpool, the
-        group thread with the in-laws.
-      </p>
-      <p
-        style="font-family:var(--font-serif);font-size:17px;line-height:1.64;color:var(--color-text-secondary);margin:14px 0 0;text-wrap:pretty"
-      >
-        Your marriage doesn't own any of those apps — it's borrowing space in
-        the same place your kids are texting from. Borrowed rooms are fine for
-        storage. They're terrible for accumulation.
-      </p>
-      <p
-        style="font-family:var(--font-serif);font-style:italic;font-size:19px;line-height:1.5;color:var(--color-accent);margin:22px 0 0"
-      >
-        Marriages deserve better than borrowed rooms.
-      </p>
-      <div style="margin-top:28px;display:flex;flex-direction:column;gap:14px">
-        <MessageBubble from="them" initial="M" tone="plum" keepsake>
-          You were right about waiting on the house. I'm glad we did.
-        </MessageBubble>
-        <MessageBubble from="me" class="tr-sm-hide">
-          I keep thinking about what you said in the car that night.
-        </MessageBubble>
-        <MessageBubble from="them" initial="M" tone="plum" class="tr-sm-hide">
-          That we'd figure it out together? I meant every word of it.
-        </MessageBubble>
-        <MessageBubble from="me">
-          Save this one. I don't want to lose it in the thread.
-        </MessageBubble>
+    <div class="hero__visualwrap">
+      <div class="hero__visual">
+        <div class="hero__glow" aria-hidden="true"></div>
+        <PhoneMock
+          label="The Troth home screen: an On this day card, a sealed message from your spouse, and a question for the two of you."
+        >
+          <OnThisDayCard year="2019" title="The apartment on Wells Street">
+            One room, almost no furniture, certain of nothing except each other.
+          </OnThisDayCard>
+          <div class="scr__thread">
+            <MessageBubble from="them" initial="C" tone="plum" keepsake>
+              You were right about waiting on the house. I'm glad we did.
+            </MessageBubble>
+            <MessageBubble from="me">Save this one.</MessageBubble>
+          </div>
+          <QuestionCard
+            question="Where did you feel most like a team this week?"
+            secondaryLabel="Not today"
+          />
+        </PhoneMock>
       </div>
-      <div
-        style="font-family:var(--font-sans);font-size:11.5px;color:var(--color-text-tertiary);margin-top:12px;padding-left:2px"
-      >
-        The conversations that matter most — buried three years deep in a group
-        thread.
-      </div>
-    </section>
+      <p class="g-meta hero__early">{hero.earlyDesign}</p>
+    </div>
 
-    {/* S3 — What Troth is */}
-    <section id="screen-3" data-screen="3" class="troth-screen" style={section}>
-      <Eyebrow>What Troth is</Eyebrow>
-      <h2 style={h2}>A room your marriage owns.</h2>
-      <p
-        style="font-family:var(--font-serif);font-size:17px;line-height:1.6;color:var(--color-text-secondary);margin:16px 0 24px;text-wrap:pretty"
-      >
-        One place, built for two people — sealed for you and no one else.
+    <div class="hero__foot">
+      <AppStoreBadge />
+      <ul class="g-facts hero__facts">
+        {hero.facts.map((f) => <li>{f}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------ plans -- */}
+  <section class="g-band">
+    <div class="g-wrap g-section g-reveal plans" id="plans">
+      <div class="plans__intro">
+        <Eyebrow tone="accent">{plans.eyebrow}</Eyebrow>
+        <h2 class="g-h2 plans__h2">{plans.heading}</h2>
+        <p class="g-lede plans__lede">{plans.lede}</p>
+      </div>
+      <div class="plans__body">
+        <ol class="scenes">
+          {
+            plans.scenes.map((s) => (
+              <li class="scene">
+                <p class="scene__line">{s.line}</p>
+                <p class="g-body scene__body">{s.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <figure class="thread">
+          <div class="thread__label">Where it lives today</div>
+          <div class="thread__msgs">
+            <MessageBubble
+              from="them"
+              initial="C"
+              tone="neutral"
+              class="thread__noise"
+            >
+              Can you grab milk on the way home
+            </MessageBubble>
+            <MessageBubble from="me" class="thread__noise">
+              Carpool is 3:15 tomorrow, not 3
+            </MessageBubble>
+            <MessageBubble from="them" initial="C" tone="plum">
+              You were right about waiting on the house. I'm glad we did.
+            </MessageBubble>
+            <MessageBubble from="me" class="thread__noise">
+              Did we pay the sitter?
+            </MessageBubble>
+            <MessageBubble
+              from="them"
+              initial="C"
+              tone="neutral"
+              class="thread__noise"
+            >
+              Grocery list is in Notes
+            </MessageBubble>
+          </div>
+          <figcaption class="g-meta thread__caption">
+            {plans.caption}
+          </figcaption>
+        </figure>
+      </div>
+      <p class="plans__turn">{plans.turn}</p>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- turn -- */}
+  <section class="g-wrap g-section g-reveal turn" id="turn">
+    <div class="turn__inner">
+      <Eyebrow tone="tertiary">{turn.eyebrow}</Eyebrow>
+      <h2 class="g-h2 turn__h2">{turn.heading}</h2>
+      <p class="g-lede turn__body">{turn.body}</p>
+      <p class="turn__line">
+        Love is more than a feeling. It's what you <span class="g-em">do.</span>
       </p>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        {
-          whatIs.map(([lead, rest]) => (
-            <div style="display:flex;gap:13px;align-items:baseline">
-              <span style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--color-accent);transform:translateY(-2px)" />
-              <div>
-                <span style="font-family:var(--font-sans);font-size:15px;font-weight:600;color:var(--color-text)">
-                  {lead}
-                </span>
-                <span style="font-family:var(--font-serif);font-size:16px;line-height:1.5;color:var(--color-text-secondary)">
-                  {rest}
-                </span>
+      <p class="turn__that">That's Troth.</p>
+      <dl class="turn__def">
+        <dt>{turn.definition.word}</dt>
+        <dd>{turn.definition.meaning}</dd>
+      </dl>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- app -- */}
+  <section class="g-band">
+    <div class="g-wrap g-section g-reveal app" id="what">
+      <div class="app__intro">
+        <Eyebrow tone="tertiary">{app.eyebrow}</Eyebrow>
+        <h2 class="g-h2 app__h2">{app.heading}</h2>
+        <p class="g-lede app__lede">{app.lede}</p>
+      </div>
+
+      {/* 01 — the foundation */}
+      <div class="layer">
+        <div class="layer__copy">
+          <div class="layer__name">
+            <span class="layer__num">{app.layers[0].num}</span>
+            <span class="layer__verb">{app.layers[0].name}</span>
+          </div>
+          <h3 class="g-h3 layer__h3">{app.layers[0].title}</h3>
+          <p class="g-body layer__body">{app.layers[0].body}</p>
+          <ul class="kinds">
+            {app.layers[0].kinds?.map((k) => <li>{k}</li>)}
+          </ul>
+          {
+            guide && app.layers[0].offer && (
+              <p class="tryit">
+                {app.layers[0].offer.lead}{" "}
+                <a href={guideUrl}>{app.layers[0].offer.cta}</a>
+              </p>
+            )
+          }
+        </div>
+        <div class="layer__visual layer__visual--phone">
+          <PhoneMock
+            label="The Foundation screen: the first exercise, each of your lines, and the one chosen together."
+            tab="Foundation"
+            date="The first exercise"
+          >
+            <div class="ex">
+              <Eyebrow tone="letter">{app.exercise.prompt}</Eyebrow>
+              <div class="ex__who">You</div>
+              <ul class="ex__lines">
+                {
+                  app.exercise.you.map((l) => (
+                    <li class:list={[l.starred && "is-starred"]}>{l.text}</li>
+                  ))
+                }
+              </ul>
+              <div class="ex__who">Your spouse</div>
+              <ul class="ex__lines">
+                {
+                  app.exercise.them.map((l) => (
+                    <li class:list={[l.starred && "is-starred"]}>{l.text}</li>
+                  ))
+                }
+              </ul>
+              <div class="ex__chosen">
+                <span class="ex__chosen-label">Chosen together</span>
+                <span class="ex__chosen-text">{app.exercise.chosen}</span>
+                <span class="ex__sign">Signed, both of us</span>
               </div>
             </div>
-          ))
-        }
-      </div>
-      <div style="margin-top:24px">
-        <OnThisDayCard
-          year="2019"
-          ago="5 years ago"
-          title="The apartment on Wells Street"
-        >
-          Where the two of you started — one room, almost no furniture, certain
-          of nothing except each other.
-        </OnThisDayCard>
-      </div>
-      <p
-        class="tr-sm-hide"
-        style="font-family:var(--font-serif);font-style:italic;font-size:17px;line-height:1.5;color:var(--color-text);margin:20px 0 0;text-wrap:pretty"
-      >
-        Nothing borrowed. Nothing buried. Everything the two of you keep, in one
-        place.
-      </p>
-    </section>
-
-    {/* S4 — Sealed for two (always dark) */}
-    <section
-      id="screen-4"
-      data-screen="4"
-      class="troth-dark troth-screen"
-      style="scroll-snap-align:start;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:76px 34px 132px;background:var(--color-bg);position:relative"
-    >
-      <div
-        aria-hidden="true"
-        style="position:absolute;top:22%;left:50%;transform:translateX(-50%);width:min(340px,82%);height:260px;background:radial-gradient(ellipse 60% 55% at 50% 42%, rgba(199,154,62,0.20), rgba(199,154,62,0) 70%);filter:blur(20px);pointer-events:none"
-      >
-      </div>
-      <div
-        style="position:relative;display:flex;justify-content:center;margin-bottom:26px"
-      >
-        <div
-          style="width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 38% 32%, #C79A3E, #9C7523);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px -3px rgba(43,38,35,0.5), inset 0 1px 1px rgba(255,255,255,0.35)"
-        >
-          <svg
-            width="30"
-            height="30"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#2B2623"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-label="Locked and private"
-            role="img"
-          >
-            <rect x="4.5" y="10.5" width="15" height="10" rx="2.4"></rect>
-            <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path>
-            <circle cx="12" cy="14.6" r="1.5"></circle>
-            <path d="M12 16.1v2"></path>
-          </svg>
+          </PhoneMock>
         </div>
       </div>
-      <Eyebrow class="ppromise">The privacy promise</Eyebrow>
-      <h2
-        style="position:relative;font-family:var(--font-serif);font-weight:400;font-size:clamp(36px,10vw,50px);line-height:1.04;letter-spacing:-0.014em;color:var(--color-text);margin:14px 0 0"
-      >
-        Sealed for two.
-      </h2>
-      <p
-        style="position:relative;font-family:var(--font-serif);font-size:18px;line-height:1.64;color:var(--color-text-secondary);margin:22px auto 0;max-width:25rem;text-wrap:pretty"
-      >
-        Honesty needs a place where it's safe. What you put in Troth never
-        leaves your devices — no cloud, no AI, no company, including ours. Just
-        two iPhones, end-to-end encrypted. Only the two of you can open the
-        door.
-      </p>
-    </section>
 
-    {/* S5 — Founder credibility */}
-    <section id="screen-5" data-screen="5" class="troth-screen" style={section}>
-      <Eyebrow>How we're building this</Eyebrow>
-      <h2
-        style="font-family:var(--font-serif);font-weight:400;font-size:clamp(25px,6.6vw,33px);line-height:1.16;letter-spacing:-0.006em;color:var(--color-text);margin:16px 0 24px;text-wrap:balance"
-      >
-        In partnership with the couples on this list.
-      </h2>
-      <div
-        style="background:var(--color-surface);border:1px solid var(--color-border);border-left:3px solid var(--color-letter);border-radius:12px;padding:22px 22px 24px"
-      >
-        <div
-          style="display:flex;align-items:center;gap:12px;margin-bottom:14px"
-        >
-          <Avatar initial="C" tone="plum" size={36} />
-          <div>
-            <div
-              style="font-family:var(--font-sans);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-letter)"
-            >
-              A note from Clark
-            </div>
-            <div
-              style="font-family:var(--font-sans);font-size:12.5px;color:var(--color-text-tertiary);margin-top:2px"
-            >
-              Founder · married 23 years
-            </div>
+      {/* 02 — the timeline */}
+      <div class="layer">
+        <div class="layer__copy">
+          <div class="layer__name">
+            <span class="layer__num">{app.layers[1].num}</span>
+            <span class="layer__verb">{app.layers[1].name}</span>
+          </div>
+          <h3 class="g-h3 layer__h3">{app.layers[1].title}</h3>
+          <p class="g-body layer__body">{app.layers[1].body}</p>
+          <ul class="kinds">
+            {app.layers[1].kinds?.map((k) => <li>{k}</li>)}
+          </ul>
+        </div>
+        <div class="layer__visual">
+          <div class="rail">
+            <div class="rail__label">One timeline</div>
+            <ol class="rail__items">
+              {
+                app.rail.map((r) => (
+                  <li class="rail__item">
+                    <span class="rail__dot" aria-hidden="true">
+                      {r.sealed && <KeepsakeSeal size={22} />}
+                    </span>
+                    <span class="rail__kind">{r.kind}</span>
+                    <span class="rail__what">{r.what}</span>
+                  </li>
+                ))
+              }
+            </ol>
           </div>
         </div>
-        <p
-          style="font-family:var(--font-serif);font-size:16.5px;line-height:1.62;color:var(--color-text);margin:0;text-wrap:pretty"
-        >
-          Troth is the tool I wished existed for our own marriage — through good
-          chapters and hard ones. The couples on this waitlist are shaping what
-          we build.
-        </p>
-        <p
-          style="font-family:var(--font-serif);font-size:16.5px;line-height:1.62;color:var(--color-text-secondary);margin:12px 0 0;text-wrap:pretty"
-        >
-          We're opening access carefully, a few couples at a time — so the first
-          ones are genuinely served by it. When you sign up, I'll write to you
-          personally. Every reply gets read.
-        </p>
       </div>
-      <div class="tr-sm-hide" style="margin-top:22px">
-        <Eyebrow tone="tertiary" style="margin-bottom:11px"
-          >What the couples are writing</Eyebrow
-        >
-        <div
-          style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;padding:20px 22px 4px"
-        >
-          <ManifestoEntry
-            author="A couple on the list"
-            date="Year 4"
-            divider={false}
+
+      {/* 03 — the view */}
+      <div class="layer layer--view">
+        <div class="layer__copy">
+          <div class="layer__name">
+            <span class="layer__num">{app.layers[2].num}</span>
+            <span class="layer__verb">{app.layers[2].name}</span>
+          </div>
+          <h3 class="g-h3 layer__h3">{app.layers[2].title}</h3>
+          <p class="g-body layer__body">{app.layers[2].body}</p>
+          <dl class="outcomes">
+            {
+              app.layers[2].outcomes?.map((o) => (
+                <div class="outcome">
+                  <dt>{o.verb}</dt>
+                  <dd>{o.what}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+        <div class="layer__visual">
+          <div
+            class="view"
+            role="img"
+            aria-label="The timeline laid over the foundation."
           >
-            We're building a marriage where we say the true thing before it
-            hardens.
-          </ManifestoEntry>
+            <div class="view__layer view__layer--rail">
+              <span class="view__tag">Timeline</span>
+              <span class="view__rail" aria-hidden="true">
+                {app.rail.map(() => <i />)}
+              </span>
+            </div>
+            <div class="view__layer view__layer--fnd">
+              <span class="view__tag">Foundation</span>
+              <span class="view__slab" aria-hidden="true"></span>
+            </div>
+            <div class="view__eq">= a view of your marriage</div>
+          </div>
         </div>
       </div>
-    </section>
 
-    {/* S6 — Final waitlist capture */}
-    <section
-      id="screen-6"
-      data-screen="6"
-      class="troth-screen"
-      style={`${section};padding:76px 30px 140px;position:relative`}
-    >
-      <div
-        aria-hidden="true"
-        style="position:absolute;top:8%;left:-14%;width:128%;height:360px;background:radial-gradient(ellipse 58% 52% at 50% 42%, rgba(162,75,52,0.26), rgba(162,75,52,0.05) 55%, rgba(162,75,52,0) 74%);filter:blur(22px);pointer-events:none"
+      <div class="how">
+        <Eyebrow tone="tertiary">{app.howEyebrow}</Eyebrow>
+        <ol class="how__steps">
+          {
+            app.how.map((step, i) => (
+              <li class="how__step">
+                <span class="how__num">{i + 1}</span>
+                <span class="how__title">{step.title}</span>
+                <span class="how__body">{step.body}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- year -- */}
+  <section class="g-wrap g-section g-split g-reveal year" id="year">
+    <div class="year__copy">
+      <Eyebrow tone="accent">{year.eyebrow}</Eyebrow>
+      <h2 class="g-h2 year__h2">{year.heading}</h2>
+      {year.paras.map((p) => <p class="g-body year__p">{p}</p>)}
+      <p class="year__line">{year.line}</p>
+    </div>
+    <div class="year__visual">
+      <PhoneMock
+        label="The Story screen: a year of the marriage as a timeline, ending on today's anniversary."
+        tab="Story"
+        date="Your anniversary"
       >
-      </div>
-      <div style="position:relative">
-        <div style="display:flex;justify-content:center;margin-bottom:24px">
-          <LanternMark size={34} tone="brand" />
-        </div>
-        <Eyebrow tone="tertiary" class="centered"
-          >Coming to iPhone in 2026</Eyebrow
-        >
-        <h2
-          style="text-align:center;font-family:var(--font-serif);font-weight:400;font-size:clamp(32px,8.8vw,44px);line-height:1.06;letter-spacing:-0.012em;color:var(--color-text);margin:12px 0 0"
-        >
-          Keep your place.
-        </h2>
-        <p
-          style="text-align:center;font-family:var(--font-serif);font-size:17px;line-height:1.58;color:var(--color-text-secondary);margin:16px auto 0;max-width:24rem;text-wrap:pretty"
-        >
-          The two of you can begin keeping your marriage in one place the day
-          access opens.
-        </p>
-        <div style="max-width:360px;margin:28px auto 0">
-          <form
-            data-waitlist-form
-            style="display:flex;flex-direction:column;gap:10px"
-          >
-            <TextField
-              type="email"
-              name="email"
-              required
-              placeholder="Your email"
-              aria-label="Your email"
-            />
-            <Button
-              variant="primary"
-              size="large"
-              type="submit"
-              style="width:100%">Join the waitlist</Button
-            >
-            <p class="t-error" data-error role="alert" hidden></p>
-          </form>
-        </div>
-        <p
-          style="text-align:center;font-family:var(--font-sans);font-size:12px;line-height:1.6;color:var(--color-text-tertiary);margin:16px auto 0;max-width:24rem"
-        >
-          We'll never share your address. Unsubscribe anytime.
-        </p>
-        <p
-          style="text-align:center;font-family:var(--font-serif);font-style:italic;font-size:18px;color:var(--color-text-secondary);margin:18px 0 0"
-        >
-          Clark & Carrie
-        </p>
-        <div
-          style="text-align:center;font-family:var(--font-sans);font-size:11.5px;color:var(--color-text-tertiary);display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap"
-        >
-          <a href="mailto:hello@jointroth.co" style="color:inherit"
-            >hello@jointroth.co</a
-          >
-        </div>
-      </div>
-    </section>
+        <ol class="tl">
+          {
+            year.timeline.map((t) => (
+              <li>
+                <span class="tl__year">{t.when}</span>
+                <span class:list={["tl__what", t.next && "tl__what--next"]}>
+                  {t.what}
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+      </PhoneMock>
+    </div>
+  </section>
 
-    {/* Persistent bottom bar: progress dots + always-present Join anchor */}
-    <div
-      style="position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px;border-radius:999px;background:color-mix(in srgb, var(--color-bg) 80%, transparent);backdrop-filter:blur(14px);border:1px solid var(--color-border);box-shadow:var(--shadow-float)"
-    >
-      <div style="display:flex;gap:8px;align-items:center">
+  {/* ------------------------------------------------------------- alts -- */}
+  <section class="g-band">
+    <div class="g-wrap g-section g-reveal alts" id="alts">
+      <div class="alts__intro">
+        <Eyebrow tone="tertiary">{alts.eyebrow}</Eyebrow>
+        <h2 class="g-h2 alts__h2">{alts.heading}</h2>
+      </div>
+      <dl class="alts__list">
         {
-          [0, 1, 2, 3, 4, 5, 6].map((i) => (
-            <button
-              type="button"
-              data-dot
-              data-goto={i}
-              class:list={["dot", i === 0 && "is-active"]}
-              aria-label={`Screen ${i + 1}`}
-            />
+          alts.items.map((it) => (
+            <div class="alt">
+              <dt class="alt__have">{it.have}</dt>
+              <dd class="alt__answer">{it.answer}</dd>
+            </div>
           ))
         }
-      </div>
-      <Button variant="primary" size="small" data-goto="6"
-        >Join the waitlist</Button
-      >
+      </dl>
+      <p class="alts__line">{alts.line}</p>
     </div>
-  </PhoneFrame>
-</Layout>
+  </section>
 
-<style is:global>
-  /* Firm snapping so the page rests on one full screen at a time. */
-  html {
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 0;
+  {/* --------------------------------------------------------- founders -- */}
+  <section class="g-wrap g-section g-split g-reveal founders" id="founders">
+    <figure class="g-figure founders__photo">
+      <img
+        src="/newsletter/clark-and-carrie.jpg"
+        srcset="/newsletter/clark-and-carrie-small.jpg 420w, /newsletter/clark-and-carrie.jpg 840w"
+        sizes="(min-width: 992px) 420px, 100vw"
+        width="840"
+        height="1050"
+        alt={founders.photoAlt}
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
+    <div class="founders__copy">
+      <Eyebrow tone="tertiary">{founders.eyebrow}</Eyebrow>
+      <h2 class="g-h2 founders__h2">{founders.heading}</h2>
+      <p class="g-body founders__p">{founders.p1}</p>
+      <p class="g-body founders__p">{founders.p2}</p>
+      <p class="g-sign">— Clark and Carrie Sell</p>
+      <div class="founders__cta">
+        <Button variant="secondary" size="medium" href={storyUrl}
+          >{founders.cta}</Button
+        >
+      </div>
+    </div>
+  </section>
+
+  {/* ----------------------------------------------------------- sealed -- */}
+  <section class="troth-dark g-dark sealed" id="sealed">
+    <div class="g-wrap g-section g-reveal sealed__inner">
+      <div class="sealed__glow" aria-hidden="true"></div>
+      <div class="sealed__lock" aria-hidden="true">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--ink)"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="4.5" y="10.5" width="15" height="10" rx="2.4"></rect>
+          <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path>
+          <circle cx="12" cy="14.6" r="1.5"></circle>
+          <path d="M12 16.1v2"></path>
+        </svg>
+      </div>
+      <Eyebrow tone="accent" class="sealed__eyebrow">{sealed.eyebrow}</Eyebrow>
+      <h2 class="g-h2 sealed__h2">{sealed.heading}</h2>
+      <p class="g-lede sealed__body">{sealed.body}</p>
+      <dl class="sealed__facts">
+        {
+          sealed.facts.map((f) => (
+            <div class="sealed__fact">
+              <dt>{f.title}</dt>
+              <dd>{f.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="g-body sealed__more">{sealed.more}</p>
+      <a class="sealed__link" href="/privacy/">{sealed.link}</a>
+    </div>
+  </section>
+
+  {/* -------------------------------------------------------------- faq -- */}
+  <section class="g-wrap g-wrap--narrow g-section g-reveal faq" id="faq">
+    <Eyebrow tone="tertiary">{faq.eyebrow}</Eyebrow>
+    <h2 class="g-h2 faq__h2">{faq.heading}</h2>
+    <dl class="faq__list">
+      {
+        faq.items.map((item) => (
+          <div class="faq__item">
+            <dt class="faq__q">{item.q}</dt>
+            <dd class="faq__a">
+              {item.a}
+              {"more" in item && item.more && (
+                <a class="faq__more" href={item.more.href}>
+                  {item.more.label}
+                </a>
+              )}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  {/* ---------------------------------------------------------- closing -- */}
+  <section class="g-band">
+    <div class="g-wrap g-section g-reveal closing">
+      <div class="closing__inner">
+        <header class="closing__head">
+          <div class="closing__mark">
+            <LanternMark size={30} tone="brand" />
+          </div>
+          <Eyebrow tone="tertiary">{closing.eyebrow}</Eyebrow>
+          <h2 class="g-h2 closing__h2">{closing.heading}</h2>
+          <p class="g-lede closing__body">{closing.body}</p>
+        </header>
+        <ol class="closing__year">
+          {
+            closing.year.map((y) => (
+              <li>
+                <span class="closing__label">{y.label}</span>
+                <p class="closing__line">{y.line}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="g-pull closing__last">
+          {closing.lastLead}
+          <span class="g-em closing__em">{closing.lastEm}</span>
+        </p>
+        <div class="closing__form">
+          <GuideForm
+            redirect="/welcome"
+            id="closing"
+            cta="Join the waitlist"
+            privacy="You'll also get our letter, Brick by Brick. We'll never share your address. Unsubscribe anytime."
+            variant="bare"
+            inline
+          />
+        </div>
+        <p class="g-meta closing__while">
+          {closing.while}{" "}
+          <a href={guideUrl}>the free exercise for two</a> ·{" "}
+          <a href="/newsletter/">the letter, Brick by Brick</a>
+        </p>
+        <p class="g-sign closing__sign">— Clark and Carrie</p>
+      </div>
+    </div>
+  </section>
+
+  <StickyBar label="Coming to iPhone." cta="Join the waitlist" href="#join" />
+</GuideLayout>
+
+<style>
+  /* ------------------------------------------------------------- hero -- */
+  /* Type ramp, top to bottom: eyebrow 11 · h1 60 · lede 20 · form 17 · micro 13.
+     Nothing else lives in the copy column. */
+  .hero {
+    /* The glow bleeds past the column on purpose; never past the viewport. */
+    overflow-x: clip;
+    display: grid;
+    gap: clamp(40px, 6vw, 64px);
+    padding-block: clamp(36px, 6vw, 72px) clamp(36px, 5vw, 56px);
+    align-items: center;
   }
-  /* …but never while a field is focused: on iOS the keyboard scrolls the input
-     into view and mandatory snapping instantly yanks it back under the keyboard.
-     See the focus handling in this page's script. */
-  html.troth-typing {
-    scroll-snap-type: none;
+  @media (min-width: 992px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: clamp(28px, 4vw, 56px) clamp(48px, 6vw, 96px);
+      padding-top: clamp(56px, 6vw, 80px);
+    }
+    .hero__foot {
+      grid-column: 1 / -1;
+    }
+    /* The phone runs off the bottom of the hero behind a soft fade, so the
+       hero's height comes from the copy and the store band, not the device —
+       badge included, it clears a 900px fold. */
+    .hero__visual {
+      height: 440px;
+      overflow: clip;
+      -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent);
+      mask-image: linear-gradient(to bottom, #000 58%, transparent);
+    }
   }
-  @keyframes troth-ignite {
-    0% {
-      opacity: 0;
-      transform: scale(0.82);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
+  /* Below that the whole device shows, so the last card on its screen fades
+     out above the tab row instead of being cut mid-line. */
+  @media (max-width: 991px) {
+    .hero__visual :global(.pm__body) {
+      -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent);
+      mask-image: linear-gradient(to bottom, #000 80%, transparent);
     }
   }
-  @keyframes troth-nudge {
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.45;
-    }
-    50% {
-      transform: translateY(5px);
-      opacity: 1;
-    }
+  .hero__h1 {
+    margin-top: 18px;
+    font-size: clamp(38px, 5.6vw, 60px);
+    max-width: 15ch;
+  }
+  .hero__sub {
+    margin-top: 22px;
+    max-width: 32rem;
+    font-size: clamp(18px, 2vw, 20px);
+  }
+  .hero__form {
+    margin-top: 32px;
+    max-width: 32rem;
+    scroll-margin-top: 90px;
   }
 
-  /* Each screen's content rises into place as it snaps in. Gated on .troth-js so
-     it never hides content without JS; decorative (aria-hidden) layers stay put. */
-  .troth-js .troth-screen > *:not([aria-hidden="true"]) {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  /* The store band: centered, quiet, the last thing before the fold. */
+  .hero__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-top: clamp(22px, 3vw, 30px);
+    border-top: 1px solid var(--color-border);
   }
-  .troth-js .troth-screen.is-shown > *:not([aria-hidden="true"]) {
-    opacity: 1;
-    transform: none;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(2) {
-    transition-delay: 0.03s;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(3) {
-    transition-delay: 0.06s;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(4) {
-    transition-delay: 0.09s;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(5) {
-    transition-delay: 0.12s;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(6) {
-    transition-delay: 0.15s;
-  }
-  .troth-js .troth-screen.is-shown > *:nth-child(n + 7) {
-    transition-delay: 0.18s;
+  .hero__facts {
+    justify-content: center;
   }
 
-  /* Progress dots */
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    background: var(--color-border-strong);
-    transition:
-      width 380ms var(--ease-troth),
-      background 380ms var(--ease-troth);
+  .hero__visual {
+    position: relative;
+    padding-block: clamp(8px, 2vw, 24px);
   }
-  .dot.is-active {
-    width: 22px;
-    background: var(--color-accent);
+  .hero__glow {
+    position: absolute;
+    inset: -10% -6%;
+    background: radial-gradient(
+      ellipse 50% 45% at 50% 48%,
+      rgba(162, 75, 52, 0.22),
+      rgba(162, 75, 52, 0.04) 55%,
+      rgba(162, 75, 52, 0) 72%
+    );
+    filter: blur(24px);
+    pointer-events: none;
   }
-
-  /* Centered eyebrows used on the dark + final screens */
-  .ppromise,
-  .centered {
-    text-align: center;
-  }
-  .ppromise {
+  .hero__visual :global(.pm) {
     position: relative;
   }
+  .hero__visualwrap {
+    min-width: 0;
+  }
+  .hero__early {
+    position: relative;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .scr__thread {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 6px;
+  }
+  /* The screen is narrower than the components were drawn for; tighten. */
+  .hero__visual :global(.pm__body .btn) {
+    padding: 11px 16px;
+    font-size: 14px;
+  }
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-snap-type: none !important;
-    }
-    [data-troth-ignite],
-    [data-troth-nudge] {
-      animation: none !important;
-    }
-    .troth-js .troth-screen > * {
-      opacity: 1 !important;
-      transform: none !important;
-      transition: none !important;
+  /* ------------------------------------------------------------ plans -- */
+  .plans__intro {
+    max-width: 40rem;
+  }
+  .plans__h2 {
+    margin-top: 14px;
+  }
+  .plans__lede {
+    margin-top: 16px;
+  }
+  .plans__body {
+    display: grid;
+    gap: clamp(34px, 5vw, 64px);
+    margin-top: clamp(32px, 5vw, 56px);
+    align-items: center;
+  }
+  @media (min-width: 992px) {
+    .plans__body {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     }
   }
-  @media (max-height: 740px), (max-width: 400px) {
-    .tr-sm-hide {
-      display: none !important;
+  .scenes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .scene {
+    padding-block: 22px;
+    border-top: 1px solid var(--color-border);
+  }
+  .scene:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .scene__line {
+    font-family: var(--font-serif);
+    font-size: clamp(21px, 2.4vw, 25px);
+    line-height: 1.28;
+    letter-spacing: -0.008em;
+    color: var(--color-text);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .scene__body {
+    margin-top: 8px;
+    max-width: 30rem;
+  }
+  .plans__turn {
+    font-family: var(--font-serif);
+    font-size: clamp(20px, 2.6vw, 26px);
+    line-height: 1.4;
+    color: var(--color-text);
+    margin: clamp(32px, 5vw, 48px) 0 0;
+    max-width: 40rem;
+    text-wrap: pretty;
+  }
+
+  .thread {
+    margin: 0;
+    width: 100%;
+    max-width: 440px;
+    justify-self: center;
+  }
+  .thread__label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .thread__msgs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 22px 20px;
+    transition: background var(--dur-considered) var(--ease-troth);
+  }
+  .thread__msgs :global(.thread__noise) {
+    opacity: 0.42;
+  }
+  .thread__caption {
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* ------------------------------------------------------------- turn -- */
+  .turn__inner {
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .turn__h2 {
+    margin-top: 14px;
+    font-size: clamp(32px, 5.4vw, 50px);
+  }
+  .turn__body {
+    margin-top: 20px;
+  }
+  .turn__line {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 3.2vw, 32px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--color-text);
+    margin: clamp(28px, 4vw, 40px) 0 0;
+    text-wrap: balance;
+  }
+  .turn__that {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--color-text-secondary);
+    margin: 12px 0 0;
+  }
+  .turn__def {
+    margin: clamp(28px, 4vw, 40px) 0 0;
+    padding: 18px 22px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    text-align: left;
+    max-width: 26rem;
+  }
+  .turn__def dt {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--color-accent);
+  }
+  .turn__def dd {
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 6px 0 0;
+  }
+
+  /* -------------------------------------------------------------- app -- */
+  .app__intro {
+    max-width: 40rem;
+  }
+  .app__h2 {
+    margin-top: 14px;
+  }
+  .app__lede {
+    margin-top: 16px;
+  }
+
+  /* One layer per row: copy beside its visual, hairline between rows. */
+  .layer {
+    display: grid;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    padding-block: clamp(36px, 5vw, 64px);
+    border-top: 1px solid var(--color-border);
+  }
+  .layer:first-of-type {
+    margin-top: clamp(32px, 5vw, 56px);
+  }
+  @media (min-width: 992px) {
+    .layer {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(48px, 6vw, 96px);
     }
-    .tr-sm-tight {
-      margin-top: 20px !important;
+  }
+  .layer__name {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .layer__num {
+    color: var(--color-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .layer__verb {
+    color: var(--color-accent);
+  }
+  .layer__h3 {
+    margin-top: 12px;
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.16;
+    text-wrap: balance;
+  }
+  .layer__body {
+    margin-top: 14px;
+    max-width: 32rem;
+  }
+  .kinds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+  }
+  .kinds li {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    padding: 5px 12px;
+  }
+  .layer__visual {
+    min-width: 0;
+  }
+
+  /* The paper version of the first exercise, one line. */
+  .tryit {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 22px 0 0;
+    max-width: 32rem;
+    text-wrap: pretty;
+  }
+  .tryit a {
+    color: var(--color-accent);
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .tryit a::after {
+    content: " \2192";
+  }
+  .tryit a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .layer__visual--phone {
+    padding-block: clamp(4px, 1.5vw, 16px);
+  }
+
+  /* 01 — the first exercise, inside the app. */
+  .ex {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 4px 0;
+  }
+  .ex__who {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-top: 14px;
+  }
+  .ex__lines {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ex__lines li {
+    position: relative;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--color-text-secondary);
+    padding: 10px 12px 10px 34px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    text-wrap: pretty;
+  }
+  .ex__lines li::before {
+    content: "\2606";
+    position: absolute;
+    left: 12px;
+    top: 9px;
+    font-size: 15px;
+    color: var(--color-text-tertiary);
+  }
+  .ex__lines li.is-starred {
+    color: var(--color-text);
+  }
+  /* A narrow screen holds the starred lines and the chosen one, nothing more. */
+  @media (max-width: 559px) {
+    .ex__lines li:not(.is-starred) {
+      display: none;
     }
+  }
+  .ex__lines li.is-starred::before {
+    content: "\2605";
+    color: var(--color-keepsake);
+  }
+  .ex__chosen {
+    margin-top: 16px;
+    padding: 14px 16px 12px;
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-letter);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ex__chosen-label {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-letter);
+  }
+  .ex__chosen-text {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.32;
+    color: var(--color-text);
+  }
+  .ex__sign {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--color-text-tertiary);
+    text-align: right;
+  }
+
+  /* 02 — the timeline: a rail with six kinds of thing on it. */
+  .rail {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: clamp(22px, 3vw, 30px);
+    transition: background var(--dur-considered) var(--ease-troth);
+  }
+  .rail__label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 22px;
+  }
+  .rail__items {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 26px;
+    border-left: 1.5px solid var(--color-letter);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .rail__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rail__dot {
+    position: absolute;
+    left: calc(-26px - 6px);
+    top: 4px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--color-letter);
+    box-shadow: 0 0 0 3px var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rail__dot :global(span) {
+    position: absolute;
+  }
+  .rail__kind {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .rail__what {
+    font-family: var(--font-serif);
+    font-size: 17.5px;
+    line-height: 1.3;
+    color: var(--color-text);
+  }
+  /* Wide enough: the rail runs left to right, the six things sit on it. */
+  @media (min-width: 640px) {
+    .rail__items {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      padding: 26px 0 0;
+      border-left: 0;
+      position: relative;
+    }
+    .rail__items::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 6px;
+      height: 1.5px;
+      background: var(--color-letter);
+    }
+    .rail__item {
+      min-width: 0;
+    }
+    .rail__dot {
+      left: 4px;
+      top: -26px;
+    }
+    .rail__what {
+      font-size: 15.5px;
+      text-wrap: pretty;
+    }
+  }
+
+  /* 03 — the view: the rail resting on the slab. */
+  .outcomes {
+    display: grid;
+    gap: 14px 22px;
+    margin: 22px 0 0;
+  }
+  @media (min-width: 560px) {
+    .outcomes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .outcome dt {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--color-accent);
+  }
+  .outcome dd {
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 4px 0 0;
+    text-wrap: pretty;
+  }
+  .view {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(22px, 3vw, 30px) clamp(22px, 3vw, 30px)
+      clamp(18px, 2.5vw, 24px);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    transition: background var(--dur-considered) var(--ease-troth);
+  }
+  .view__layer {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+  }
+  .view__tag {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .view__rail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 44px;
+    padding: 0 6px;
+  }
+  .view__rail::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    top: 50%;
+    height: 1.5px;
+    background: var(--color-letter);
+  }
+  .view__rail i {
+    position: relative;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--color-letter);
+    box-shadow: 0 0 0 3px var(--color-bg);
+  }
+  .view__layer--fnd {
+    margin-top: 6px;
+  }
+  .view__slab {
+    display: block;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border);
+    border-bottom: 5px solid var(--color-letter);
+  }
+  .view__eq {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 18px;
+    color: var(--color-accent);
+    margin-top: 22px;
+    text-align: right;
+  }
+
+  /* How it starts — three steps in a row under the layers. */
+  .how {
+    margin-top: clamp(8px, 2vw, 16px);
+    padding-top: clamp(28px, 4vw, 40px);
+    border-top: 1px solid var(--color-border);
+  }
+  .how__steps {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+  }
+  @media (min-width: 768px) {
+    .how__steps {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+  }
+  .how__step {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    gap: 2px 10px;
+  }
+  .how__num {
+    grid-row: 1 / span 2;
+    font-family: var(--font-serif);
+    font-size: 21px;
+    line-height: 1.25;
+    color: var(--color-accent);
+  }
+  .how__title {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--color-text);
+  }
+  .how__body {
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    text-wrap: pretty;
+  }
+
+  /* ------------------------------------------------------------- year -- */
+  .year {
+    align-items: center;
+  }
+  .year__h2 {
+    margin-top: 14px;
+  }
+  .year__p {
+    margin-top: 18px;
+    max-width: 34rem;
+  }
+  .year__p:first-of-type {
+    color: var(--color-text);
+  }
+  .year__line {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(20px, 2.4vw, 24px);
+    line-height: 1.4;
+    color: var(--color-accent);
+    margin: 24px 0 0;
+  }
+  .year__visual {
+    padding-block: clamp(8px, 2vw, 24px);
+  }
+
+  /* The timeline, rows on a plum thread. */
+  .tl {
+    list-style: none;
+    margin: 6px 0 0 8px;
+    padding: 0 0 0 18px;
+    border-left: 1.5px solid var(--color-letter);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .tl li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .tl li::before {
+    content: "";
+    position: absolute;
+    left: calc(-18px - 5.5px);
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-letter);
+    box-shadow: 0 0 0 3px var(--color-bg);
+  }
+  .tl__year {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .tl__what {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.32;
+    color: var(--color-text);
+    text-wrap: pretty;
+  }
+  .tl__what--next {
+    font-style: italic;
+    color: var(--color-accent);
+  }
+
+  /* ------------------------------------------------------------- alts -- */
+  .alts__intro {
+    max-width: 40rem;
+  }
+  .alts__h2 {
+    margin-top: 14px;
+  }
+  .alts__list {
+    display: grid;
+    gap: clamp(18px, 3vw, 28px);
+    margin: clamp(28px, 4vw, 44px) 0 0;
+  }
+  @media (min-width: 768px) {
+    .alts__list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .alt {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: clamp(22px, 3vw, 28px);
+    transition: background var(--dur-considered) var(--ease-troth);
+  }
+  .alt__have {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .alt__have::before {
+    content: "\201c";
+  }
+  .alt__have::after {
+    content: "\201d";
+  }
+  .alt__answer {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-text);
+    margin: 12px 0 0;
+    text-wrap: pretty;
+  }
+  .alts__line {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(20px, 2.4vw, 24px);
+    line-height: 1.4;
+    color: var(--color-accent);
+    margin: clamp(26px, 4vw, 36px) 0 0;
+  }
+
+  /* --------------------------------------------------------- founders -- */
+  .founders__photo {
+    max-width: 420px;
+  }
+  .founders__h2 {
+    margin-top: 14px;
+  }
+  .founders__p {
+    margin-top: 18px;
+    max-width: 34rem;
+  }
+  .founders__cta {
+    margin-top: 24px;
+  }
+
+  /* ----------------------------------------------------------- sealed -- */
+  .sealed {
+    background: var(--color-bg);
+  }
+  .sealed__inner {
+    position: relative;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .sealed__glow {
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(520px, 90%);
+    height: 320px;
+    background: radial-gradient(
+      ellipse 60% 55% at 50% 42%,
+      rgba(199, 154, 62, 0.2),
+      rgba(199, 154, 62, 0) 70%
+    );
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .sealed__lock {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 38% 32%,
+      var(--color-keepsake),
+      color-mix(in srgb, var(--color-keepsake) 78%, black)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 2px 10px -3px rgba(43, 38, 35, 0.5),
+      inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    margin-bottom: 26px;
+  }
+  .sealed__h2 {
+    position: relative;
+    margin-top: 14px;
+    font-size: clamp(36px, 6vw, 56px);
+  }
+  .sealed__body {
+    position: relative;
+    margin-top: 20px;
+    max-width: 36rem;
+  }
+  .sealed__facts {
+    position: relative;
+    display: grid;
+    gap: 18px;
+    margin: clamp(36px, 5vw, 56px) 0 0;
+    width: 100%;
+    text-align: left;
+  }
+  @media (min-width: 640px) {
+    .sealed__facts {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 992px) {
+    .sealed__facts {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .sealed__fact {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 20px 22px 22px;
+  }
+  .sealed__fact dt {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.28;
+    color: var(--color-text);
+  }
+  .sealed__fact dd {
+    font-family: var(--font-serif);
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 8px 0 0;
+    text-wrap: pretty;
+  }
+  .sealed__more {
+    position: relative;
+    margin-top: 26px;
+    max-width: 36rem;
+  }
+  .sealed__link {
+    position: relative;
+    display: inline-block;
+    margin-top: 14px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .sealed__link::after {
+    content: " \2192";
+  }
+  .sealed__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* -------------------------------------------------------------- faq -- */
+  .faq__h2 {
+    margin-top: 14px;
+  }
+  .faq__list {
+    margin: clamp(26px, 4vw, 40px) 0 0;
+  }
+  .faq__item {
+    border-top: 1px solid var(--color-border);
+    padding-block: 18px;
+  }
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .faq__q {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2vw, 20px);
+    line-height: 1.3;
+    color: var(--color-text);
+    margin: 0;
+  }
+  .faq__a {
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 8px 0 0;
+    max-width: 38rem;
+    text-wrap: pretty;
+  }
+  .faq__more {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .faq__more::after {
+    content: " \2192";
+  }
+  .faq__more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---------------------------------------------------------- closing -- */
+  .closing__inner {
+    max-width: 58rem;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .closing__head {
+    max-width: 34rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .closing__mark {
+    margin-bottom: 20px;
+  }
+  .closing__h2 {
+    margin-top: 12px;
+    text-wrap: balance;
+  }
+  .closing__body {
+    margin-top: 14px;
+  }
+  /* The year, as three flat sheets: cards sit on the band in the page's own
+     cream, lighter-is-raised in reverse, no shadow. */
+  .closing__year {
+    list-style: none;
+    margin: clamp(28px, 4vw, 40px) 0 0;
+    padding: 0;
+    width: 100%;
+    display: grid;
+    gap: 12px;
+  }
+  .closing__year li {
+    margin: 0;
+    padding: 20px 22px 22px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+  }
+  .closing__label {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+  .closing__line {
+    margin: 10px 0 0;
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 1.9vw, 20px);
+    line-height: 1.4;
+    color: var(--color-text);
+    text-wrap: pretty;
+  }
+  @media (min-width: 760px) {
+    .closing__year {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .closing__year li {
+      padding: 24px 24px 28px;
+    }
+  }
+  .closing__em {
+    display: block;
+  }
+  .closing__last {
+    margin-top: clamp(36px, 5vw, 56px);
+    max-width: 28ch;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .closing__form {
+    width: 100%;
+    max-width: 34rem;
+    margin-top: 32px;
+    text-align: left;
+  }
+  .closing__form :global(.t-input) {
+    background: var(--color-bg);
+  }
+  .closing__while {
+    margin-top: 22px;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .closing__while a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .closing__while a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .closing__sign {
+    margin-top: 20px;
   }
 </style>
-
-<script>
-  const root = document.documentElement;
-  root.classList.add("troth-js");
-
-  function goTo(n: number) {
-    const el = document.getElementById("screen-" + n);
-    if (el)
-      window.scrollTo({
-        top: el.getBoundingClientRect().top + window.scrollY,
-        behavior: "smooth",
-      });
-  }
-  document
-    .querySelectorAll<HTMLElement>("[data-goto]")
-    .forEach((b) =>
-      b.addEventListener("click", () => goTo(Number(b.dataset.goto))),
-    );
-
-  const dots = Array.from(document.querySelectorAll<HTMLElement>("[data-dot]"));
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (!e.isIntersecting) return;
-          const n = Number(e.target.getAttribute("data-screen"));
-          if (Number.isNaN(n)) return;
-          if (e.intersectionRatio >= 0.2) e.target.classList.add("is-shown");
-          if (e.intersectionRatio >= 0.5)
-            dots.forEach((d, i) => d.classList.toggle("is-active", i === n));
-        });
-      },
-      { threshold: [0.2, 0.5, 0.75] },
-    );
-    document.querySelectorAll("[data-screen]").forEach((s) => io.observe(s));
-  }
-
-  /* Keyboard vs. snapping. On a shorter iPhone the email field sits below where
-     the keyboard lands, so Safari scrolls it up on focus — and `scroll-snap-type:
-     y mandatory` immediately snaps back to the top of the screen, burying the
-     field with no way to reach it. So: suspend snapping the moment a field takes
-     focus, nudge the field into view once the keyboard has settled, and re-arm
-     snapping only on the next real scroll gesture (never on blur, so dismissing
-     the keyboard leaves the page exactly where it is). */
-  const FIELD = "input, textarea";
-  let rearmPending = false;
-
-  const rearmSnap = () => {
-    if (!rearmPending) return;
-    rearmPending = false;
-    root.classList.remove("troth-typing");
-  };
-
-  function keepFieldVisible(el: HTMLElement) {
-    const vv = window.visualViewport;
-    let settled = false;
-    const check = () => {
-      if (settled) return;
-      settled = true;
-      if (vv) vv.removeEventListener("resize", check);
-      // Bottom edge of what's actually visible, in layout-viewport coordinates.
-      const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
-      if (el.getBoundingClientRect().bottom > visibleBottom - 16)
-        el.scrollIntoView({ block: "center", behavior: "smooth" });
-    };
-    if (vv) vv.addEventListener("resize", check);
-    // Fallback for browsers that never fire the resize (no keyboard, or no vv).
-    setTimeout(check, 500);
-  }
-
-  const isField = (t: EventTarget | null) =>
-    t instanceof HTMLElement && t.matches(FIELD);
-
-  document.addEventListener("focusin", (e) => {
-    if (!isField(e.target)) return;
-    rearmPending = false;
-    root.classList.add("troth-typing");
-    keepFieldVisible(e.target as HTMLElement);
-  });
-  document.addEventListener("focusout", (e) => {
-    if (isField(e.target)) rearmPending = true;
-  });
-  window.addEventListener("touchmove", rearmSnap, { passive: true });
-  window.addEventListener("wheel", rearmSnap, { passive: true });
-
-  function subscribeError(status: number) {
-    return status === 429
-      ? "A lot of people are joining right now — give it a moment and try again."
-      : "Something went wrong on our end. Please try again in a moment.";
-  }
-
-  document
-    .querySelectorAll<HTMLFormElement>("[data-waitlist-form]")
-    .forEach((form) => {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const input = form.querySelector<HTMLInputElement>(
-          'input[type="email"]',
-        );
-        const btn = form.querySelector<HTMLButtonElement>(
-          'button[type="submit"]',
-        );
-        const errEl = form.querySelector<HTMLElement>("[data-error]");
-        if (!input || !btn) return;
-        const original = btn.textContent;
-        if (errEl) {
-          errEl.textContent = "";
-          errEl.hidden = true;
-        }
-        btn.disabled = true;
-        btn.textContent = "Joining…";
-        try {
-          const res = await fetch("/api/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: input.value }),
-          });
-          const data = await res.json().catch(() => ({}));
-          if (res.ok && data.success) {
-            window.location.assign("/welcome");
-            return;
-          }
-          if (errEl) {
-            errEl.textContent = subscribeError(res.status);
-            errEl.hidden = false;
-          }
-        } catch {
-          if (errEl) {
-            errEl.textContent =
-              "We couldn't reach the server. Check your connection and try again.";
-            errEl.hidden = false;
-          }
-        }
-        btn.disabled = false;
-        btn.textContent = original;
-      });
-    });
-</script>

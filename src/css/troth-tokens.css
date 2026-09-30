@@ -90,6 +90,9 @@
   --dur-considered: 380ms;
 
   --blur-privacy: blur(18px);
+
+  /* The drawn iPhone on the homepage — a device colour, the same in Lamplight. */
+  --color-device: #17120e;
 }
 
 /* ---- Dark mode: "Lamplight" — a private room by lamplight.

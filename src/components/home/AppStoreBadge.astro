@@ -1,0 +1,281 @@
+---
+// Apple's "Pre-order on the App Store" badge, in the hero. It signals "this is
+// an iPhone app" above the fold and captures the intent of anyone who reaches
+// for it: until the App Store listing exists, a click opens a small dialog —
+// pre-orders open before the 2026 release, the waitlist hears first — with the
+// waitlist form. Without JS it's a plain link to the page's form.
+//
+// Once pre-orders are live: set `href` to the App Store URL and the badge
+// becomes the real link (the dialog is left unused).
+//
+// The artwork is Apple's, from the App Store marketing badge kit, used as-is:
+// never redrawn, recoloured or stretched, at least 40px tall, with clear space
+// around it. Black on light, the white variant in Lamplight.
+import GuideForm from "../guides/GuideForm.astro";
+import LanternMark from "../../elements/LanternMark.astro";
+import Eyebrow from "../../elements/Eyebrow.astro";
+
+interface Props {
+  /** The App Store URL, once pre-orders are live. Until then the dialog opens. */
+  href?: string;
+  /** Where the badge goes without JS while there is no store URL. */
+  fallbackHref?: string;
+  class?: string;
+}
+const { href, fallbackHref = "#join", class: className } = Astro.props;
+const live = Boolean(href);
+
+const copy = {
+  alt: "Pre-order on the App Store",
+  eyebrow: "Coming to iPhone",
+  heading: "Pre-orders open soon.",
+  body: "Troth isn't on the App Store yet. Pre-orders will open ahead of the 2026 release, and the waitlist hears first. Leave your email and you'll get the pre-order link the day it goes live, with a note from Clark before then.",
+  cta: "Join the waitlist",
+  privacy:
+    "You'll also get our letter, Brick by Brick. We'll never share your address. Unsubscribe anytime.",
+};
+---
+
+<a
+  href={href ?? fallbackHref}
+  class:list={["asb", className]}
+  data-store-badge={live ? undefined : ""}
+  aria-haspopup={live ? undefined : "dialog"}
+  aria-label={copy.alt}
+>
+  <img
+    class="asb__img asb__img--black"
+    src="/app-store/pre-order-black.svg"
+    alt={copy.alt}
+    width="147"
+    height="50"
+  />
+  <img
+    class="asb__img asb__img--white"
+    src="/app-store/pre-order-white.svg"
+    alt=""
+    aria-hidden="true"
+    width="147"
+    height="50"
+  />
+</a>
+
+{
+  !live && (
+    <dialog class="asn" data-store-dialog aria-labelledby="asn-heading">
+      <div class="asn__card">
+        <button
+          type="button"
+          class="asn__close"
+          data-store-close
+          aria-label="Close"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <path
+              d="M3 3l10 10M13 3L3 13"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+        <div class="asn__mark">
+          <LanternMark size={28} tone="brand" />
+        </div>
+        <Eyebrow tone="tertiary" class="asn__eyebrow">
+          {copy.eyebrow}
+        </Eyebrow>
+        <h2 class="asn__h2" id="asn-heading">
+          {copy.heading}
+        </h2>
+        <p class="asn__body">{copy.body}</p>
+        <div class="asn__form">
+          <GuideForm
+            redirect="/welcome"
+            id="store"
+            cta={copy.cta}
+            privacy={copy.privacy}
+            variant="bare"
+          />
+        </div>
+      </div>
+    </dialog>
+  )
+}
+
+<style is:global>
+  /* The page behind the notice holds still. */
+  html.asn-open {
+    overflow: hidden;
+  }
+</style>
+
+<style>
+  /* ---- the badge -------------------------------------------------------- */
+  /* Apple's badge, untouched. Clear space is the badge's own margin; the
+     hover is a lift, never a recolour. */
+  .asb {
+    display: inline-block;
+    line-height: 0;
+    border-radius: 8px;
+    transition:
+      transform var(--dur-quick) var(--ease-troth),
+      opacity var(--dur-quick) var(--ease-troth);
+  }
+  .asb:hover {
+    transform: translateY(-1px);
+  }
+  .asb:active {
+    transform: scale(0.98);
+  }
+  .asb__img {
+    display: block;
+    height: 50px;
+    width: auto;
+  }
+  .asb__img--white {
+    display: none;
+  }
+  :global(.troth-dark) .asb__img--black {
+    display: none;
+  }
+  :global(.troth-dark) .asb__img--white {
+    display: block;
+  }
+
+  /* ---- the notice ------------------------------------------------------- */
+  .asn {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: auto;
+    overscroll-behavior: contain;
+    display: none;
+  }
+  .asn[open] {
+    display: grid;
+    place-items: center;
+    padding: 16px;
+  }
+  .asn::backdrop {
+    background: rgba(43, 38, 35, 0.55);
+    backdrop-filter: blur(6px);
+  }
+  .asn__card {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 27rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-float);
+    padding: clamp(28px, 5vw, 40px) clamp(22px, 4vw, 36px)
+      clamp(24px, 4vw, 32px);
+    text-align: center;
+  }
+  .asn[open] .asn__card {
+    animation: asn-rise var(--dur-considered) var(--ease-troth);
+  }
+  @keyframes asn-rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .asn__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border-strong);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+      background var(--dur-quick) var(--ease-troth),
+      border-color var(--dur-quick) var(--ease-troth);
+  }
+  .asn__close:hover {
+    background: var(--color-surface-sunken);
+    border-color: var(--color-accent);
+  }
+  .asn__mark {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .asn__h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(26px, 4vw, 32px);
+    line-height: 1.12;
+    letter-spacing: -0.012em;
+    color: var(--color-text);
+    margin: 12px 0 0;
+    text-wrap: balance;
+  }
+  .asn__body {
+    font-family: var(--font-serif);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 14px auto 0;
+    max-width: 24rem;
+    text-wrap: pretty;
+  }
+  .asn__form {
+    margin-top: 22px;
+    text-align: left;
+  }
+  .asn__form :global(.t-input) {
+    background: var(--color-bg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .asn[open] .asn__card {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const badge = document.querySelector<HTMLAnchorElement>("[data-store-badge]");
+  const dialog = document.querySelector<HTMLDialogElement>(
+    "[data-store-dialog]",
+  );
+  if (badge && dialog && typeof dialog.showModal === "function") {
+    const root = document.documentElement;
+    badge.addEventListener("click", (e) => {
+      e.preventDefault();
+      dialog.showModal();
+      root.classList.add("asn-open");
+      dialog.querySelector<HTMLInputElement>('input[type="email"]')?.focus();
+    });
+    dialog
+      .querySelector("[data-store-close]")
+      ?.addEventListener("click", () => dialog.close());
+    // A click on the dialog itself (outside the card) is the backdrop.
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => root.classList.remove("asn-open"));
+  }
+</script>

@@ -29,6 +29,10 @@
 //
 // Three shapes of request land here:
 //   { email }                        → the product waitlist (landing + welcome)
+//   { email, ref: "spouse" }         → the same waitlist, from the spouse invite
+//                                      on /welcome; recorded under its own
+//                                      Loops `source` so the invite can be told
+//                                      apart from a signup they made themselves
 //   { email, guide, waitlist }       → a /guides lead magnet, optionally also
 //                                      joining the waitlist via its checkbox
 //   { email, newsletter, waitlist }  → /newsletter, optionally also joining the
@@ -56,6 +60,7 @@ const LOOPS_FORM_ENDPOINT =
   "https://app.loops.so/api/newsletter-form/cmrp99o22011o0jzln10zb8mm";
 
 const LOOPS_SOURCE = "joinTroth.co";
+const LOOPS_SOURCE_SPOUSE = "joinTroth.co/spouse";
 
 const SITE = "https://jointroth.co";
 
@@ -90,6 +95,7 @@ export const POST: APIRoute = async ({ request }) => {
       guide?: unknown;
       newsletter?: unknown;
       waitlist?: unknown;
+      ref?: unknown;
     };
     const email = typeof data.email === "string" ? data.email.trim() : "";
 
@@ -146,7 +152,7 @@ export const POST: APIRoute = async ({ request }) => {
       plan = {
         lists: WAITLIST_LISTS,
         delivers: WAITLIST_LISTS,
-        source: LOOPS_SOURCE,
+        source: data.ref === "spouse" ? LOOPS_SOURCE_SPOUSE : LOOPS_SOURCE,
         eventName: EVENT_WAITLIST,
         eventProperties: {},
       };

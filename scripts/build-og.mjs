@@ -45,10 +45,11 @@ const CHROME = [
 
 const CARDS = {
   default: {
-    eyebrow: "Coming to iPhone",
+    eyebrow: "A private iPhone app for married couples",
     /* `em` marks the italic terracotta emphasis — italic, never bold. */
-    headline: "Love is more than a feeling. It's what you <em>do.</em>",
-    sub: "A private, encrypted home for your marriage.",
+    headline:
+      "A year planning the wedding. Then the marriage just <em>happens.</em>",
+    sub: "A private place for the two of you to keep what matters and build what's next. Coming to iPhone in 2026.",
     foot: "jointroth.co",
   },
   "were-building": {

@@ -1,21 +1,28 @@
 ---
-// Shell for every /guides page. Same <head>, tokens, and fonts as the waitlist
-// pages (via Layout) — but no phone frame: full-bleed, editorial, responsive.
-// Guide-only CSS is imported here so the waitlist pages never load it.
+// Shell for every editorial page: the homepage, /welcome, /guides and
+// /newsletter. Same <head>, tokens, and fonts as Layout — full-bleed,
+// responsive, with the sticky header and the footer. The editorial CSS is
+// imported here so a page that doesn't use this shell never loads it.
 import Layout from "./Layout.astro";
 import GuideHeader from "../components/guides/GuideHeader.astro";
 import GuideFooter from "../components/guides/GuideFooter.astro";
 import "../css/troth-guide.css";
 
+interface NavLink {
+  label: string;
+  href: string;
+}
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
   ogImageAlt?: string;
+  ogType?: "website" | "article";
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   headerCta?: string;
   headerCtaHref?: string;
+  nav?: NavLink[];
 }
 
 const {
@@ -23,10 +30,12 @@ const {
   description,
   ogImage,
   ogImageAlt,
+  ogType = "article",
   noindex,
   jsonLd,
   headerCta,
   headerCtaHref,
+  nav,
 } = Astro.props;
 ---
 
@@ -35,7 +44,7 @@ const {
   description={description}
   ogImage={ogImage}
   ogImageAlt={ogImageAlt}
-  ogType="article"
+  ogType={ogType}
   noindex={noindex}
   jsonLd={jsonLd}
 >
@@ -47,7 +56,7 @@ const {
     document.documentElement.classList.add("g-js");
   </script>
   <div class="g-page">
-    <GuideHeader cta={headerCta} ctaHref={headerCtaHref} />
+    <GuideHeader cta={headerCta} ctaHref={headerCtaHref} nav={nav} />
     <main class="g-main">
       <slot />
     </main>
@@ -56,8 +65,7 @@ const {
 </Layout>
 
 <style is:global>
-  /* Guide pages scroll normally — the landing page's snap behavior is scoped
-     to that page, but be explicit so nothing leaks in. */
+  /* Editorial pages scroll normally; be explicit so nothing leaks in. */
   html:has(.g-page) {
     scroll-snap-type: none;
     scroll-padding-top: 78px;

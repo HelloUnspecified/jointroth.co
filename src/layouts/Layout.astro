@@ -52,11 +52,8 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
       crossorigin
     />
 
-    <!-- Pre-paint setup (no flash): saved Lamplight preference + phone detection.
-         `troth-phone` hides the simulated iOS status bar (see the islands' CSS)
-         so a real phone doesn't show two status bars. userAgentData.mobile is the
-         precise signal but is Chromium-only (undefined in Safari/Firefox), so we
-         fall back to a UA check — which is what catches iPhones. -->
+    <!-- Pre-paint setup (no flash): apply the saved Lamplight preference before
+         the first paint. -->
     <script is:inline>
       (function () {
         var el = document.documentElement;
@@ -65,16 +62,6 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
             el.classList.add("troth-dark");
             el.setAttribute("data-theme", "dark");
           }
-        } catch (e) {}
-        try {
-          var uad = navigator.userAgentData;
-          var isPhone =
-            uad && typeof uad.mobile === "boolean"
-              ? uad.mobile
-              : /iPhone|iPod|Android.+Mobile|Windows Phone|BlackBerry|Opera Mini|IEMobile/i.test(
-                  navigator.userAgent || "",
-                );
-          if (isPhone) el.classList.add("troth-phone");
         } catch (e) {}
       })();
     </script>

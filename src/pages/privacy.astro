@@ -1,0 +1,250 @@
+---
+// /privacy — "How Troth keeps it sealed", in plain English. The Copilot model:
+// specific claims, and candour about what isn't done yet. Every sentence here
+// has to be exactly true of the architecture (CloudKit in the couple's own
+// iCloud, paired by an iCloud share; Advanced Data Protection recommended,
+// not required). Change the app, change this page. See "Privacy claims" in
+// CLAUDE.md.
+//
+// This is the plain-English version, not the legal privacy policy — that one
+// still has to be published before the app ships.
+import GuideLayout from "../layouts/GuideLayout.astro";
+import GuideForm from "../components/guides/GuideForm.astro";
+import Eyebrow from "../elements/Eyebrow.astro";
+import { getSiteNav } from "../lib/nav";
+
+const SITE_URL = "https://jointroth.co";
+const pageUrl = `${SITE_URL}/privacy/`;
+const nav = await getSiteNav();
+const updated = new Date("2026-09-23");
+const updatedLabel = updated.toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+const meta = {
+  title: "How Troth keeps it sealed — Troth",
+  description:
+    "Where your marriage's data lives, what Apple can and can't see, what Troth can see (nothing), what happens if Troth goes away, and what we haven't done yet. In plain English.",
+};
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": pageUrl,
+    name: "How Troth keeps it sealed",
+    description: meta.description,
+    url: pageUrl,
+    dateModified: updated.toISOString().slice(0, 10),
+    isPartOf: { "@id": `${SITE_URL}/#website` },
+    publisher: { "@id": `${SITE_URL}/#organization` },
+    inLanguage: "en-US",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Troth", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "How Troth keeps it sealed" },
+    ],
+  },
+];
+
+const sections = [
+  {
+    id: "where",
+    heading: "Where your marriage lives",
+    paras: [
+      "In your own iCloud. Troth has no servers of its own. When one of you writes something, it's saved on your iPhone and synced through your iCloud account to your spouse's iPhone, the same way your Photos and Notes move between your devices today.",
+      "The two of you are joined by an iCloud share. That share is the room. Nothing in it goes anywhere except between the two phones in it, and Apple's infrastructure that carries it.",
+      "For the technically minded: Troth is built on Apple's CloudKit. There is no Troth database, no Troth account, and no copy of your room anywhere we can reach.",
+    ],
+  },
+  {
+    id: "apple",
+    heading: "What Apple can and can't see",
+    paras: [
+      "Your iCloud data is encrypted on the way to Apple and while it sits on Apple's servers. By default, though, Apple holds the keys. That's the same standing as your Photos, Notes and iCloud backups have right now: Apple could open them if it were required to.",
+      "Turn on Advanced Data Protection and that changes. Your keys stay on your devices, your Troth room is end-to-end encrypted, and Apple can't read it either. For a shared room, both of you need it on.",
+      "We recommend it, and the app will walk you through it. We don't require it, because it's your iCloud and your call. It takes about two minutes in Settings.",
+    ],
+  },
+  {
+    id: "us",
+    heading: "What we can see",
+    paras: [
+      "Nothing that's in the room. There is no admin view, no support tool that opens a couple's data, and no back door. Clark and Carrie can't read your messages, your letters or your promises, and we've built it so that we can't be asked to.",
+      "What we do hold is the email address you gave us for the waitlist and the letters, which lives with our email provider. That's the whole list.",
+      "Troth doesn't analyze what you write, doesn't summarize it, doesn't suggest anything based on it, and doesn't feed it to an AI. It doesn't sell anything to anyone, and there are no ads. It keeps.",
+    ],
+  },
+  {
+    id: "away",
+    heading: "If Troth goes away",
+    paras: [
+      "Your marriage stays where it is: in your iCloud, on your phones. Nothing we do, or stop doing, can take it away from you.",
+      "If we ever had to shut Troth down, you'd get notice first, and a way to export everything in a form you could keep without us. We'd rather build that before we need it than promise it after.",
+    ],
+  },
+  {
+    id: "yet",
+    heading: "What we haven't done yet",
+    paras: [
+      "Nobody has audited us. We'll say so here when someone has.",
+      "The formal privacy policy isn't published yet. It will be before the app ships, and it will say the same things this page does, in more words.",
+      "Export isn't built yet. It's on the list before launch.",
+      "If any of this changes, the date at the top of this page will too.",
+    ],
+  },
+];
+---
+
+<GuideLayout
+  title={meta.title}
+  description={meta.description}
+  ogType="website"
+  jsonLd={jsonLd}
+  nav={nav}
+>
+  <article class="g-wrap g-wrap--narrow g-section sealed-page">
+    <header class="sp__head">
+      <Eyebrow tone="accent">The privacy promise, in plain English</Eyebrow>
+      <h1 class="g-h1 sp__h1">How Troth keeps it sealed.</h1>
+      <p class="g-lede sp__lede">
+        Honesty needs a place where it's safe. Here is exactly where your
+        marriage lives, who can see it, and what we haven't finished yet.
+      </p>
+      <p class="g-meta sp__updated">Last updated {updatedLabel}</p>
+    </header>
+
+    <nav class="sp__toc" aria-label="On this page">
+      {sections.map((s) => <a href={`#${s.id}`}>{s.heading}</a>)}
+    </nav>
+
+    {
+      sections.map((s) => (
+        <section class="sp__section" id={s.id}>
+          <h2 class="g-h2 sp__h2">{s.heading}</h2>
+          {s.paras.map((p) => (
+            <p class="sp__p">{p}</p>
+          ))}
+        </section>
+      ))
+    }
+
+    <section class="sp__section sp__ask">
+      <h2 class="g-h2 sp__h2">What we ask of you</h2>
+      <ol class="g-steps">
+        <li>
+          <span class="g-steps__title">Turn on Advanced Data Protection</span>
+          <p class="g-steps__body">
+            Settings, your name, iCloud, Advanced Data Protection. Both of you.
+            It's the one step that makes your room unreadable by anyone at all.
+          </p>
+        </li>
+        <li>
+          <span class="g-steps__title">Keep Face ID on the door</span>
+          <p class="g-steps__body">
+            Troth locks itself. Leave it that way, and the room stays yours even
+            when the phone is in someone else's hand.
+          </p>
+        </li>
+        <li>
+          <span class="g-steps__title">Ask us anything</span>
+          <p class="g-steps__body">
+            If something on this page is unclear, or you think we've got it
+            wrong, write to{" "}
+            <a href="mailto:hello@jointroth.co">hello@jointroth.co</a>. Clark
+            reads every reply.
+          </p>
+        </li>
+      </ol>
+      <p class="g-sign">— Clark and Carrie</p>
+    </section>
+
+    <section class="sp__join">
+      <Eyebrow tone="tertiary">Coming to iPhone in 2026</Eyebrow>
+      <h2 class="g-h3 sp__join-h2">Keep your place.</h2>
+      <GuideForm
+        redirect="/welcome"
+        id="privacy"
+        cta="Join the waitlist"
+        privacy="You'll also get our letter, Brick by Brick. We'll never share your address. Unsubscribe anytime."
+        variant="bare"
+        inline
+      />
+    </section>
+  </article>
+</GuideLayout>
+
+<style>
+  .sp__h1 {
+    margin-top: 16px;
+    font-size: clamp(36px, 6vw, 56px);
+  }
+  .sp__lede {
+    margin-top: 18px;
+  }
+  .sp__updated {
+    margin-top: 16px;
+  }
+
+  .sp__toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: clamp(28px, 4vw, 40px);
+    padding-block: 16px;
+    border-block: 1px solid var(--color-border);
+  }
+  .sp__toc a {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+  .sp__toc a:hover {
+    color: var(--color-accent);
+  }
+
+  .sp__section {
+    margin-top: clamp(40px, 6vw, 64px);
+    scroll-margin-top: 90px;
+  }
+  .sp__h2 {
+    font-size: clamp(26px, 3.6vw, 34px);
+  }
+  .sp__p {
+    font-family: var(--font-serif);
+    font-size: 17.5px;
+    line-height: 1.66;
+    color: var(--color-text-secondary);
+    margin: 16px 0 0;
+    text-wrap: pretty;
+  }
+  .sp__p:first-of-type {
+    color: var(--color-text);
+  }
+
+  .sp__ask .g-steps {
+    margin-top: 22px;
+    max-width: none;
+  }
+  .sp__ask a {
+    color: var(--color-accent);
+    text-underline-offset: 3px;
+  }
+
+  .sp__join {
+    margin-top: clamp(48px, 7vw, 80px);
+    padding-top: clamp(32px, 5vw, 48px);
+    border-top: 1px solid var(--color-border);
+  }
+  .sp__join-h2 {
+    margin: 12px 0 20px;
+  }
+</style>
