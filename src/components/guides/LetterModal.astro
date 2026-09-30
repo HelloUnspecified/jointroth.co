@@ -9,7 +9,7 @@
 //   <template data-letter-tpl={slug}><LetterArticle …>…</LetterArticle></template>
 import type { ComponentProps } from "astro/types";
 import GuideForm from "./GuideForm.astro";
-import { NAME } from "../../lib/newsletter";
+import { NAME, ARCHIVE_URL } from "../../lib/newsletter";
 
 interface Props {
   /** Props for the form that follows the letter (id is set here). */
@@ -25,6 +25,7 @@ const { form } = Astro.props;
       <a class="lm__link" data-letter-link href="/newsletter/"
         >Open in its own page</a
       >
+      <a class="lm__link" href={ARCHIVE_URL}>All letters</a>
       <button
         type="button"
         class="lm__close"

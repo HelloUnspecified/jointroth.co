@@ -35,10 +35,10 @@ import {
 } from "../../lib/newsletter";
 
 const letters = await getLetters();
-// The shelf shows the newest SHELF_LIMIT; the rest live on the archive page.
+// The shelf shows the newest SHELF_LIMIT; the rest live on the archive page,
+// which is linked as soon as there's more than one letter to list.
 const shown = letters.slice(0, SHELF_LIMIT);
 const [latest, ...rest] = shown;
-const hidden = letters.length - shown.length;
 
 /** The opening lines of a letter, as plain text, for the featured sheet. */
 function opening(body: string | undefined, paragraphs = 3) {
@@ -377,7 +377,7 @@ const rendered = await Promise.all(
             </div>
           )}
 
-          {hidden > 0 && (
+          {letters.length > 1 && (
             <div class="shelf__more">
               <a href={ARCHIVE_URL} class="shelf__all">
                 {shelf.all} <span aria-hidden="true">→</span>

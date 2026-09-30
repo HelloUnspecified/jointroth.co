@@ -13,6 +13,7 @@ import {
   CADENCE,
   SITE_URL,
   ARCHIVE_URL,
+  SHELF_LIMIT,
   getLetters,
   formatDate,
   isoDate,
@@ -35,7 +36,13 @@ const { letter } = Astro.props;
 const { Content } = await render(letter);
 const all = await getLetters();
 const others = all.filter((l) => l.id !== letter.id).slice(0, 5);
-const moreThanShown = all.length - 1 > others.length;
+
+// "Up" from a letter: the front page (the pitch, with every letter on its
+// shelf) until there are more letters than the shelf shows; then the archive.
+const back =
+  all.length > SHELF_LIMIT
+    ? { href: ARCHIVE_URL, label: "All letters" }
+    : { href: "/newsletter/", label: NAME };
 
 const pageUrl = `${SITE_URL}${letterUrl(letter)}`;
 const title = `${letter.data.seoTitle ?? letter.data.title} — ${NAME}`;
@@ -146,7 +153,7 @@ const jsonLd = [
 
   <section class="g-wrap g-section issue">
     <div class="issue__inner">
-      <a href={ARCHIVE_URL} class="issue__back">← All letters</a>
+      <a href={back.href} class="issue__back">← {back.label}</a>
       <LetterArticle
         title={letter.data.title}
         date={letter.data.date}
@@ -228,11 +235,9 @@ const jsonLd = [
               </li>
             ))}
           </ul>
-          {moreThanShown && (
-            <a href={ARCHIVE_URL} class="more__all">
-              All {all.length} letters <span aria-hidden="true">→</span>
-            </a>
-          )}
+          <a href={ARCHIVE_URL} class="more__all">
+            All {all.length} letters <span aria-hidden="true">→</span>
+          </a>
         </div>
       </section>
     )

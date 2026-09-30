@@ -17,7 +17,11 @@ export const SITE_URL = "https://jointroth.co";
 /** How many letters the front page shows (the featured one included). */
 export const SHELF_LIMIT = 5;
 
-/** Every letter, in order — the front page links here past SHELF_LIMIT. */
+/**
+ * Every letter, in order. Linked from the front page shelf, the reader modal,
+ * the issue pages and the newsletter thank-you page once there's more than one
+ * letter; the issue page's back link points here once the shelf overflows.
+ */
 export const ARCHIVE_URL = "/newsletter/archive/";
 
 /** Published issues, newest first. */

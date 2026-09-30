@@ -13,9 +13,10 @@ import WaitlistAsk from "../../components/guides/WaitlistAsk.astro";
 import LetterArticle from "../../components/guides/LetterArticle.astro";
 import LanternMark from "../../elements/LanternMark.astro";
 import Eyebrow from "../../elements/Eyebrow.astro";
-import { getLetters } from "../../lib/newsletter";
+import { getLetters, ARCHIVE_URL } from "../../lib/newsletter";
 
-const latest = (await getLetters())[0];
+const letters = await getLetters();
+const latest = letters[0];
 const { Content } = latest
   ? await render(latest)
   : { Content: null as unknown as null };
@@ -107,6 +108,11 @@ const t = {
           >
             <Content />
           </LetterArticle>
+          {letters.length > 1 && (
+            <a href={ARCHIVE_URL} class="latest__all">
+              All {letters.length} letters <span aria-hidden="true">→</span>
+            </a>
+          )}
         </div>
       </section>
     )
@@ -160,5 +166,18 @@ const t = {
   }
   .latest__eyebrow {
     margin-bottom: 18px;
+  }
+  .latest__all {
+    display: inline-block;
+    margin-top: 28px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+    transition: color var(--dur-quick) var(--ease-troth);
+  }
+  .latest__all:hover {
+    color: var(--color-accent);
   }
 </style>
