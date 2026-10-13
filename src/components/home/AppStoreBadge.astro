@@ -168,6 +168,20 @@ const copy = {
     background: rgba(43, 38, 35, 0.55);
     backdrop-filter: blur(6px);
   }
+  .asn[open]::backdrop {
+    animation: asn-fade var(--dur-considered) var(--ease-troth);
+  }
+  .asn.is-closing::backdrop {
+    animation: asn-fade var(--dur-considered) var(--ease-troth) reverse forwards;
+  }
+  @keyframes asn-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
   .asn__card {
     position: relative;
     box-sizing: border-box;
@@ -182,8 +196,13 @@ const copy = {
       clamp(24px, 4vw, 32px);
     text-align: center;
   }
+  /* Enter and leave along the same path: a short rise in, the same fall out.
+     On phones the card is a sheet that slides up from the bottom edge. */
   .asn[open] .asn__card {
     animation: asn-rise var(--dur-considered) var(--ease-troth);
+  }
+  .asn.is-closing .asn__card {
+    animation: asn-rise var(--dur-considered) var(--ease-troth) reverse forwards;
   }
   @keyframes asn-rise {
     from {
@@ -193,6 +212,33 @@ const copy = {
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @media (max-width: 767px) {
+    .asn[open] {
+      align-items: end;
+      padding: 0;
+    }
+    .asn__card {
+      max-width: none;
+      border-bottom: 0;
+      border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+      box-shadow: var(--shadow-sheet);
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+    .asn[open] .asn__card {
+      animation-name: asn-sheet;
+    }
+    .asn.is-closing .asn__card {
+      animation-name: asn-sheet;
+    }
+    @keyframes asn-sheet {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: none;
+      }
     }
   }
   .asn__close {
@@ -250,7 +296,10 @@ const copy = {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .asn[open] .asn__card {
+    .asn[open] .asn__card,
+    .asn.is-closing .asn__card,
+    .asn[open]::backdrop,
+    .asn.is-closing::backdrop {
       animation: none;
     }
   }
@@ -263,6 +312,30 @@ const copy = {
   );
   if (badge && dialog && typeof dialog.showModal === "function") {
     const root = document.documentElement;
+    const card = dialog.querySelector<HTMLElement>(".asn__card")!;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Leave the way it came: play the rise in reverse, then close. Under
+    // reduced motion it closes at once.
+    let closing = false;
+    const close = () => {
+      if (closing || !dialog.open) return;
+      if (reduced.matches) {
+        dialog.close();
+        return;
+      }
+      closing = true;
+      dialog.classList.add("is-closing");
+      const done = () => {
+        if (!closing) return;
+        closing = false;
+        dialog.classList.remove("is-closing");
+        dialog.close();
+      };
+      card.addEventListener("animationend", done, { once: true });
+      window.setTimeout(done, 500);
+    };
+
     badge.addEventListener("click", (e) => {
       e.preventDefault();
       dialog.showModal();
@@ -271,10 +344,15 @@ const copy = {
     });
     dialog
       .querySelector("[data-store-close]")
-      ?.addEventListener("click", () => dialog.close());
+      ?.addEventListener("click", close);
     // A click on the dialog itself (outside the card) is the backdrop.
     dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) close();
+    });
+    // Escape goes through the same exit.
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      close();
     });
     dialog.addEventListener("close", () => root.classList.remove("asn-open"));
   }

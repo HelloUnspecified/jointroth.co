@@ -54,11 +54,14 @@ if (!href && rest.type === undefined) rest.type = "button";
     opacity: 0.4;
     cursor: default;
   }
+  /* Medium and large are real targets: 44pt tall. Small is for chrome. */
   .btn-large {
+    min-height: 44px;
     padding: 16px 28px;
     font-size: 17px;
   }
   .btn-medium {
+    min-height: 44px;
     padding: 13px 22px;
     font-size: 15px;
   }

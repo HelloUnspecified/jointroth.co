@@ -29,14 +29,20 @@ const { class: className } = Astro.props;
       d="M39.5 6.2c4.1 0 7 6.4 7 14.1 0 7.7-2.9 13.9-7 13.9s-7-6.2-7-13.9c0-7.7 2.9-14.1 7-14.1Z"
       fill="currentColor"></path>
   </svg>
-  <span data-lamplight-label>Lamplight</span>
+  <span class="lamp__label" data-lamplight-label>Lamplight</span>
 </button>
 
 <style>
+  /* On phones: a 44pt circle holding the lantern glyph alone (the aria-label
+     carries the name). From 768px the labelled pill, still 44pt tall. */
   .lamp {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
+    box-sizing: border-box;
+    min-width: 44px;
+    min-height: 44px;
     font-family: var(--font-sans);
     font-size: 11px;
     font-weight: 600;
@@ -45,18 +51,39 @@ const { class: className } = Astro.props;
     background: transparent;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-pill);
-    padding: 6px 12px 6px 10px;
+    padding: 0;
     cursor: pointer;
     transition:
       color var(--dur-quick) var(--ease-troth),
       border-color var(--dur-quick) var(--ease-troth);
   }
-  .lamp:hover {
+  .lamp:hover,
+  .lamp:active {
     color: var(--color-text);
     border-color: var(--color-border-strong);
   }
   .lamp svg {
     display: block;
+  }
+  .lamp__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  @media (min-width: 768px) {
+    .lamp {
+      padding: 0 12px 0 10px;
+    }
+    .lamp__label {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
   }
 </style>
 

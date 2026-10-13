@@ -7,6 +7,9 @@
    ============================================================================ */
 
 :root {
+  /* Native form controls and scrollbars follow the theme. */
+  color-scheme: light;
+
   /* ---- Color: base palette (raw values) ---- */
   --cream: #f4efe6; /* main app background */
   --cream-lifted: #fbf6ec; /* elevated card surface (lighter = raised) */
@@ -15,7 +18,7 @@
 
   --ink: #2b2623; /* warm charcoal, primary text */
   --ink-2: #6b6156; /* supporting text, timestamps, attribution */
-  --ink-3: #98907f; /* quietest metadata, small-caps section markers */
+  --ink-3: #746b5d; /* quietest metadata, small-caps section markers (4.5:1 on cream, so 11px labels stay legible) */
 
   --terracotta: #a24b34; /* the brand accent */
   --terracotta-soft: #ae644e; /* softened accent for large display italics */
@@ -99,6 +102,7 @@
    Warm, low contrast, deep browns and burgundies. Never OLED-black. ---- */
 :root[data-theme="dark"],
 .troth-dark {
+  color-scheme: dark;
   --color-bg: #1e1712;
   --color-surface: #28211b;
   --color-surface-sunken: #181410;
@@ -106,9 +110,9 @@
 
   --color-text: #f0e8da;
   --color-text-secondary: #b8ac94;
-  --color-text-tertiary: #7a7060;
+  --color-text-tertiary: #938876;
 
-  --color-accent: #c2694c;
+  --color-accent: #cb7355; /* 4.6:1 on the lifted surface, so 11px accent labels stay legible */
   --color-accent-soft: #ce7c60;
   --color-accent-press: #a9573d;
 
