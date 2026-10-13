@@ -15,7 +15,9 @@
   flex-direction: column;
   background: var(--color-bg);
   color: var(--color-text);
-  transition: background var(--dur-considered) var(--ease-troth);
+  transition:
+    background var(--dur-considered) var(--ease-troth),
+    color var(--dur-considered) var(--ease-troth);
 }
 
 .g-main {
@@ -395,6 +397,11 @@
   transform: none;
 }
 
+/* The bar's button is a thumb target: 44pt tall, whatever its size class. */
+.g-stickybar .btn {
+  min-height: 44px;
+}
+
 .g-stickybar__label {
   font-family: var(--font-serif);
   font-size: 14.5px;
@@ -424,6 +431,33 @@
   border-radius: 4px;
 }
 
+/* Inline text links: the visual stays a line of type, the hit area grows to
+   44pt. The negative margin hands the padding back to the layout. */
+.g-link {
+  display: inline-block;
+  padding-block: 12px;
+  margin-block: -12px;
+}
+
+/* A tap registers on the press, not on the page change. Buttons scale (see
+   Button.astro); text links darken. The browser's grey flash is turned off so
+   it never fights the feedback. */
+.g-page a,
+.g-page button {
+  -webkit-tap-highlight-color: transparent;
+}
+.g-page a:not(.btn):active {
+  color: var(--color-accent-press);
+}
+
+/* Glass surfaces go solid for readers who asked for less transparency. */
+@media (prefers-reduced-transparency: reduce) {
+  .g-stickybar {
+    background: var(--color-surface);
+    backdrop-filter: none;
+  }
+}
+
 .g-sr {
   position: absolute;
   width: 1px;
@@ -439,10 +473,10 @@
 /* Scroll reveal — same vocabulary as the landing page (rise, never bounce). */
 .g-js .g-reveal {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(10px);
   transition:
-    opacity 0.6s var(--ease-troth),
-    transform 0.6s var(--ease-troth);
+    opacity var(--dur-considered) var(--ease-troth),
+    transform var(--dur-considered) var(--ease-troth);
 }
 
 .g-js .g-reveal.is-shown {

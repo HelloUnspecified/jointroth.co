@@ -4,7 +4,7 @@
 // recognition before it shows the product. Read top to bottom:
 //
 //   hero      the hook: a year planning the wedding. Then the marriage just happens.
-//             (+ the App Store badge, which opens the coming-soon notice + form)
+//             (+ the pre-order line, standing in for the App Store badge)
 //   plans     the part nobody plans — nobody builds a marriage on purpose. What if
 //             you did? Three scenes they've lived, in their words
 //   turn      the new idea: what if your marriage had a place? (and the brand line)
@@ -23,7 +23,6 @@ import GuideLayout from "../layouts/GuideLayout.astro";
 import GuideForm from "../components/guides/GuideForm.astro";
 import StickyBar from "../components/guides/StickyBar.astro";
 import PhoneMock from "../components/home/PhoneMock.astro";
-import AppStoreBadge from "../components/home/AppStoreBadge.astro";
 import Eyebrow from "../elements/Eyebrow.astro";
 import Button from "../elements/Button.astro";
 import LanternMark from "../elements/LanternMark.astro";
@@ -59,6 +58,9 @@ const hero = {
   ],
   earlyDesign:
     "Early design. The app is being built with the couples on this list.",
+  // Stands in for Apple's badge until the App Store listing exists; the badge
+  // (AppStoreBadge.astro) returns as a real link once pre-orders are live.
+  preorder: "Pre-orders open on the App Store before the 2026 release.",
 };
 
 // The problem, in their terms. Three scenes they've lived, then the line that
@@ -442,7 +444,7 @@ const nav = await getSiteNav();
     </div>
 
     <div class="hero__foot">
-      <AppStoreBadge />
+      <p class="hero__preorder">{hero.preorder}</p>
       <ul class="g-facts hero__facts">
         {hero.facts.map((f) => <li>{f}</li>)}
       </ul>
@@ -548,7 +550,9 @@ const nav = await getSiteNav();
             guide && app.layers[0].offer && (
               <p class="tryit">
                 {app.layers[0].offer.lead}{" "}
-                <a href={guideUrl}>{app.layers[0].offer.cta}</a>
+                <a href={guideUrl} class="g-link">
+                  {app.layers[0].offer.cta}
+                </a>
               </p>
             )
           }
@@ -792,7 +796,7 @@ const nav = await getSiteNav();
         }
       </dl>
       <p class="g-body sealed__more">{sealed.more}</p>
-      <a class="sealed__link" href="/privacy/">{sealed.link}</a>
+      <a class="sealed__link g-link" href="/privacy/">{sealed.link}</a>
     </div>
   </section>
 
@@ -808,7 +812,7 @@ const nav = await getSiteNav();
             <dd class="faq__a">
               {item.a}
               {"more" in item && item.more && (
-                <a class="faq__more" href={item.more.href}>
+                <a class="faq__more g-link" href={item.more.href}>
                   {item.more.label}
                 </a>
               )}
@@ -857,8 +861,8 @@ const nav = await getSiteNav();
         </div>
         <p class="g-meta closing__while">
           {closing.while}{" "}
-          <a href={guideUrl}>the free exercise for two</a> ·{" "}
-          <a href="/newsletter/">the letter, Brick by Brick</a>
+          <a href={guideUrl} class="g-link">the free exercise for two</a> ·{" "}
+          <a href="/newsletter/" class="g-link">the letter, Brick by Brick</a>
         </p>
         <p class="g-sign closing__sign">— Clark and Carrie</p>
       </div>
@@ -932,6 +936,15 @@ const nav = await getSiteNav();
     padding-top: clamp(22px, 3vw, 30px);
     border-top: 1px solid var(--color-border);
   }
+  .hero__preorder {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-text);
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
   .hero__facts {
     justify-content: center;
   }
@@ -969,8 +982,10 @@ const nav = await getSiteNav();
     gap: 10px;
     padding-top: 6px;
   }
-  /* The screen is narrower than the components were drawn for; tighten. */
+  /* The screen is narrower than the components were drawn for; tighten.
+     These are part of the illustration, not targets, so no 44pt floor. */
   .hero__visual :global(.pm__body .btn) {
+    min-height: 0;
     padding: 11px 16px;
     font-size: 14px;
   }
@@ -1294,7 +1309,7 @@ const nav = await getSiteNav();
   }
   .ex__chosen-label {
     font-family: var(--font-sans);
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -1310,7 +1325,7 @@ const nav = await getSiteNav();
     font-family: var(--font-serif);
     font-style: italic;
     font-size: 13.5px;
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
     text-align: right;
   }
 
@@ -1364,7 +1379,7 @@ const nav = await getSiteNav();
   }
   .rail__kind {
     font-family: var(--font-sans);
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -1790,7 +1805,8 @@ const nav = await getSiteNav();
   .sealed__link {
     position: relative;
     display: inline-block;
-    margin-top: 14px;
+    /* .g-link pads it 12px; this keeps the text 14px below the paragraph. */
+    margin-top: 2px;
     font-family: var(--font-sans);
     font-size: 13.5px;
     font-weight: 500;
@@ -1837,7 +1853,8 @@ const nav = await getSiteNav();
   }
   .faq__more {
     display: block;
-    margin-top: 8px;
+    /* .g-link pads it 12px; this keeps the text 8px below the answer. */
+    margin-top: -4px;
     font-family: var(--font-sans);
     font-size: 13.5px;
     font-weight: 500;

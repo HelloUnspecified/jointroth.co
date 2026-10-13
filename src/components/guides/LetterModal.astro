@@ -78,6 +78,20 @@ const { form } = Astro.props;
     background: rgba(43, 38, 35, 0.55);
     backdrop-filter: blur(6px);
   }
+  .lm[open]::backdrop {
+    animation: lm-fade var(--dur-considered) var(--ease-troth);
+  }
+  .lm.is-closing::backdrop {
+    animation: lm-fade var(--dur-considered) var(--ease-troth) reverse forwards;
+  }
+  @keyframes lm-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 
   .lm__sheet {
     position: relative;
@@ -100,8 +114,13 @@ const { form } = Astro.props;
     }
   }
 
+  /* Enter and leave along the same path: a short rise in, the same fall out.
+     On phones the sheet is full-screen and slides up from the bottom edge. */
   .lm[open] .lm__sheet {
     animation: lm-rise var(--dur-considered) var(--ease-troth);
+  }
+  .lm.is-closing .lm__sheet {
+    animation: lm-rise var(--dur-considered) var(--ease-troth) reverse forwards;
   }
   @keyframes lm-rise {
     from {
@@ -111,6 +130,24 @@ const { form } = Astro.props;
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @media (max-width: 639px) {
+    .lm__sheet {
+      box-shadow: var(--shadow-sheet);
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    }
+    .lm[open] .lm__sheet,
+    .lm.is-closing .lm__sheet {
+      animation-name: lm-sheet;
+    }
+    @keyframes lm-sheet {
+      from {
+        transform: translateY(100%);
+      }
+      to {
+        transform: none;
+      }
     }
   }
 
@@ -174,7 +211,10 @@ const { form } = Astro.props;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .lm[open] .lm__sheet {
+    .lm[open] .lm__sheet,
+    .lm.is-closing .lm__sheet,
+    .lm[open]::backdrop,
+    .lm.is-closing::backdrop {
       animation: none;
     }
   }
@@ -188,7 +228,30 @@ const { form } = Astro.props;
   if (dialog && typeof dialog.showModal === "function") {
     const slot = dialog.querySelector<HTMLElement>("[data-letter-slot]")!;
     const link = dialog.querySelector<HTMLAnchorElement>("[data-letter-link]");
+    const sheet = dialog.querySelector<HTMLElement>(".lm__sheet")!;
     const root = document.documentElement;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Leave the way it came: play the rise in reverse, then close. Under
+    // reduced motion it closes at once.
+    let closing = false;
+    const close = () => {
+      if (closing || !dialog.open) return;
+      if (reduced.matches) {
+        dialog.close();
+        return;
+      }
+      closing = true;
+      dialog.classList.add("is-closing");
+      const done = () => {
+        if (!closing) return;
+        closing = false;
+        dialog.classList.remove("is-closing");
+        dialog.close();
+      };
+      sheet.addEventListener("animationend", done, { once: true });
+      window.setTimeout(done, 500);
+    };
 
     const open = (slug: string, href: string) => {
       const tpl = document.querySelector<HTMLTemplateElement>(
@@ -222,11 +285,17 @@ const { form } = Astro.props;
 
     dialog
       .querySelector("[data-letter-close]")
-      ?.addEventListener("click", () => dialog.close());
+      ?.addEventListener("click", close);
 
     // A click on the dialog itself (outside the sheet) is the backdrop.
     dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) dialog.close();
+      if (e.target === dialog) close();
+    });
+
+    // Escape goes through the same exit.
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      close();
     });
 
     dialog.addEventListener("close", () => {

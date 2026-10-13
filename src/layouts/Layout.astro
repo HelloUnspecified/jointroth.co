@@ -52,17 +52,25 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
       crossorigin
     />
 
-    <!-- Pre-paint setup (no flash): apply the saved Lamplight preference before
-         the first paint. -->
+    <meta name="color-scheme" content="light dark" />
+    <!-- Pre-paint setup (no flash): apply the Lamplight preference before the
+         first paint. A saved choice wins; with none, follow the system. -->
     <script is:inline>
       (function () {
         var el = document.documentElement;
+        var dark = false;
         try {
-          if (localStorage.getItem("troth-theme") === "dark") {
-            el.classList.add("troth-dark");
-            el.setAttribute("data-theme", "dark");
-          }
+          var saved = localStorage.getItem("troth-theme");
+          dark =
+            saved === "dark" ||
+            (saved === null &&
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
         } catch (e) {}
+        if (dark) {
+          el.classList.add("troth-dark");
+          el.setAttribute("data-theme", "dark");
+        }
       })();
     </script>
     <!-- Page-specific head tags (feed links, article: meta). -->
@@ -71,15 +79,20 @@ const { title, description, ogImage, ogImageAlt, ogType, noindex, jsonLd } =
   <body class="font-sans antialiased">
     <slot />
     <style is:global>
-      html {
-        scroll-behavior: smooth;
+      /* Anchor jumps glide, unless the reader asked for no motion. */
+      @media (prefers-reduced-motion: no-preference) {
+        html {
+          scroll-behavior: smooth;
+        }
       }
       body {
         margin: 0;
         background: var(--color-canvas);
         color: var(--color-text);
         -webkit-font-smoothing: antialiased;
-        transition: background var(--dur-considered) var(--ease-troth);
+        transition:
+          background var(--dur-considered) var(--ease-troth),
+          color var(--dur-considered) var(--ease-troth);
       }
     </style>
   </body>
