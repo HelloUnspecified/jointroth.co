@@ -40,6 +40,12 @@
 //
 // The client never sends mailing-list IDs; `guide` is a slug resolved against
 // the server-side registry in src/lib/loops.ts, and `newsletter` is a flag.
+//
+// Abuse protection: the SUBSCRIBE_LIMITER binding (wrangler.jsonc) allows 5
+// attempts a minute per IP address, counted before anything else so rejected
+// attempts count too; past that the route answers 429, which the forms already
+// turn into their "too many tries" message. Cloudflare keeps the count per data
+// centre, which is enough to stop a script hammering the endpoint.
 import type { APIRoute } from "astro";
 import { getEntry } from "astro:content";
 import { env } from "cloudflare:workers";
@@ -66,11 +72,30 @@ const SITE = "https://jointroth.co";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function json(payload: unknown, status: number) {
+function json(
+  payload: unknown,
+  status: number,
+  extra: Record<string, string> = {},
+) {
   return new Response(JSON.stringify(payload), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...extra },
   });
+}
+
+/**
+ * True when this caller is still under the limit. Without the binding (it is
+ * always bound when deployed) or when the limiter itself fails, the signup goes
+ * ahead: a limiter outage shouldn't lose a signup.
+ */
+async function underLimit(request: Request): Promise<boolean> {
+  if (!env.SUBSCRIBE_LIMITER) return true;
+  const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
+  try {
+    return (await env.SUBSCRIBE_LIMITER.limit({ key: ip })).success;
+  } catch {
+    return true;
+  }
 }
 
 /** What this submission is asking for, in Loops terms. */
@@ -89,6 +114,17 @@ interface Plan {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!(await underLimit(request))) {
+    return json(
+      {
+        success: false,
+        message: "Too many tries from here. Wait a minute and try again.",
+      },
+      429,
+      { "Retry-After": "60" },
+    );
+  }
+
   try {
     const data = (await request.json().catch(() => ({}))) as {
       email?: unknown;
