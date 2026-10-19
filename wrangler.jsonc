@@ -14,6 +14,12 @@
   "assets": {
     "binding": "ASSETS"
   },
+  // /api/subscribe's rate limit: 5 attempts a minute per IP address (src/pages/api/subscribe.ts).
+  // `period` can only be 10 or 60 seconds. `namespace_id` is any number unique within the Cloudflare
+  // account; residual.fit's limiter uses 1001, so the two sites never share a count.
+  "ratelimits": [
+    { "name": "SUBSCRIBE_LIMITER", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }
+  ],
   "observability": {
     "enabled": true
   }
